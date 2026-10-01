@@ -118,6 +118,14 @@ class ModuleRegistryTests(unittest.TestCase):
             process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)
 
+    def test_launch_rejects_capability_not_declared_by_module(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            decision = runtime.launcher.check("embervault.research", "trainer", profile, "EV-BACKUP-TEST")
+            self.assertFalse(decision.allowed)
+            self.assertIn("does not declare", decision.reasons[0])
+
 
 if __name__ == "__main__":
     unittest.main()

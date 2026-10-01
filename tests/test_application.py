@@ -309,6 +309,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(len(entries), 1)
             self.assertEqual(entries[0].id, "valid")
             self.assertEqual(entries[0].title, "Valid")
+            self.assertEqual(runtime.knowledge.path.parent.parent, Path(temp))
 
 
 if __name__ == "__main__":

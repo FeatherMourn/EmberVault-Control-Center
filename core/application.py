@@ -79,7 +79,7 @@ class EmbervaultRuntime:
         )
         runtime.game_settings = GameSettingsService(runtime.profiles)
         runtime.research = ResearchService(root)
-        runtime.knowledge = KnowledgeService(root.parent)
+        runtime.knowledge = KnowledgeService(root)
         runtime.characters = CharacterService(root)
         runtime.risk = RiskGateService()
         runtime.launcher = ModuleLaunchService(runtime.modules, runtime.risk)

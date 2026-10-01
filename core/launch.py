@@ -27,6 +27,8 @@ class ModuleLaunchService:
         manifest = self.registry.get(module_id)
         if not manifest:
             return LaunchDecision(False, (f"Module is not installed: {module_id}",))
+        if capability not in manifest.capabilities:
+            return LaunchDecision(False, (f"Module does not declare the '{capability}' capability.",))
         if not manifest.executable:
             return LaunchDecision(False, ("Module does not declare a separate-process executable.",))
         return LaunchDecision(True)
