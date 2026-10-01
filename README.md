@@ -22,6 +22,7 @@ Read:
 - [Legacy Migration Inventory](docs/MIGRATION_INVENTORY.md)
 - [User Guide](docs/USER_GUIDE.md)
 - [Release Checklist](docs/RELEASE_CHECKLIST.md)
+- [Roadmap Status](docs/ROADMAP_STATUS.md)
 
 ## Safety boundaries
 

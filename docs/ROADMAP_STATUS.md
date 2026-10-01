@@ -1,0 +1,37 @@
+# Roadmap status
+
+## Working
+
+- Core composition, settings, game detection, profiles, structured logs, and
+  operation tracking.
+- Save Manager inspection, verified backup, re-verification, restore preview,
+  safe restore, and post-restore verification.
+- Contract-discovered embedded/separate module framework.
+- PySide6/Qt Quick shell with Home, Profiles, Mods, Game Settings,
+  Troubleshooter, Character Editor, Trainer, Content Studio, Research Lab,
+  Knowledge, Modules, and Activity workspaces.
+- Profile-scoped package discovery, folder/ZIP import, enablement, compatibility
+  reporting, and safe removal.
+- Isolated research records/evidence, character projects, content projects, and
+  versioned public catalog export.
+- Guarded Trainer, Research, and Content Creator process contracts. Current
+  workers are deliberately non-mutating stubs.
+
+## Guarded or incomplete
+
+- Gameplay settings are staged profile values; applying them to a live game is
+  not implemented.
+- Character and content projects are planning data; direct game mutation is not
+  implemented.
+- Website synchronization, community forums, moderation, and remote catalog
+  hosting are outside the desktop repository and use the export contract.
+- The seeded module workers prove process isolation and argument handoff, not
+  production Trainer, Research, or Content Creator behavior.
+
+## Release evidence
+
+- Python unit suite currently covers the Core services, workflows, module gates,
+  packaging assets, and installed-process contracts.
+- QML is smoke-tested through an offscreen Qt application.
+- Wheels have been built and installed into isolated temporary targets.
+- Save Manager remains inspection/backup/verification/restore-only.
