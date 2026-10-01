@@ -17,6 +17,8 @@
   undeploy, plus read-only inspection of existing external `mod.json` mods.
 - Isolated research records/evidence, character projects, content projects, and
   backup-bound Trainer plans, plus versioned public catalog export.
+- Public catalog module records now preserve the validated embedded/separate
+  process boundary for website consumers.
 - Guarded Trainer, Research, and Content Creator process workflows with UI
   launch controls, captured worker output, timeout termination, and audited
 results. Trainer now has a backup-bound plan layer, while its worker remains
