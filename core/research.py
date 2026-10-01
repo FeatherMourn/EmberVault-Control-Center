@@ -29,7 +29,15 @@ class ResearchService:
         if not self.path.exists():
             return []
         try:
-            return [ResearchRecord(**item) for item in json.loads(self.path.read_text(encoding="utf-8"))]
+            records = []
+            for item in json.loads(self.path.read_text(encoding="utf-8")):
+                record = ResearchRecord(**item)
+                if record.status not in {"planned", "running", "completed", "blocked"}:
+                    record.status = "planned"
+                if not isinstance(record.evidence, list):
+                    record.evidence = []
+                records.append(record)
+            return records
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
 

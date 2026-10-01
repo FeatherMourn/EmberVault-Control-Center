@@ -26,7 +26,13 @@ class ContentProjectService:
         if not self.path.exists():
             return []
         try:
-            return [ContentProject(**item) for item in json.loads(self.path.read_text(encoding="utf-8"))]
+            projects = []
+            for item in json.loads(self.path.read_text(encoding="utf-8")):
+                project = ContentProject(**item)
+                if project.status not in {"draft", "ready", "blocked"}:
+                    project.status = "draft"
+                projects.append(project)
+            return projects
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
 

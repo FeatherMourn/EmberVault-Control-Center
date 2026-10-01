@@ -264,6 +264,20 @@ class ApplicationCompositionTests(unittest.TestCase):
             }]))
             self.assertEqual(runtime.characters.list()[0].planned_level, 1)
 
+    def test_research_and_content_records_normalize_invalid_status(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            runtime.research.path.write_text(json.dumps([{
+                "id": "EV-RES-BAD", "title": "Test", "hypothesis": "Test", "profile_id": "default",
+                "status": "unknown", "evidence": "not-a-list",
+            }]))
+            runtime.content.path.write_text(json.dumps([{
+                "id": "EV-CONTENT-BAD", "name": "Test", "profile_id": "default", "status": "unknown",
+            }]))
+            self.assertEqual(runtime.research.list()[0].status, "planned")
+            self.assertEqual(runtime.research.list()[0].evidence, [])
+            self.assertEqual(runtime.content.list()[0].status, "draft")
+
 
 if __name__ == "__main__":
     unittest.main()
