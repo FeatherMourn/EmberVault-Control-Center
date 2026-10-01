@@ -530,13 +530,16 @@ class ControlCenterBackend(QObject):
             return
         operation = self.operations.start(f"module-launch-{capability}", profile_id=profile.id) if self.operations else None
         backup_id = self._selected_backup_id or None
+        settings_manifest = None
+        if capability == "tuning-audit" and self.game_settings:
+            settings_manifest = str(self.game_settings.export(profile))
         try:
             process = self.launcher.launch(
                 module_id, capability,
                 profile,
                 LaunchContext(
                     profile.id, self.settings.game_path or None, operation.id if operation else None,
-                    backup_id
+                    backup_id, settings_manifest
                 ),
                 backup_id,
             )

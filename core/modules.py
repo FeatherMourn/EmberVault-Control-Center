@@ -76,6 +76,7 @@ class LaunchContext:
     game_path: str | None
     operation_id: str | None
     backup_id: str | None = None
+    settings_manifest: str | None = None
 
 
 class ModuleRegistry:
@@ -150,6 +151,8 @@ class ModuleRegistry:
             args += ["--operation", context.operation_id]
         if context.backup_id:
             args += ["--backup", context.backup_id]
+        if context.settings_manifest:
+            args += ["--settings-manifest", context.settings_manifest]
         return subprocess.Popen(
             args,
             cwd=manifest.path,

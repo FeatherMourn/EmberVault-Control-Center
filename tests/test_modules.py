@@ -264,6 +264,18 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertIn("settings_source: staged-profile-values", result["checks"])
             self.assertIn("live_game_settings_changed: False", result["checks"])
 
+    def test_tuning_audit_validates_staged_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            manifest = runtime.game_settings.export(profile)
+            process = runtime.launcher.launch(
+                "embervault.tuning-audit", "tuning-audit", profile,
+                LaunchContext(profile.id, temp, "EV-OP-TUNING-MANIFEST", None, str(manifest)),
+            )
+            result = json.loads(process.communicate(timeout=5)[0])
+            self.assertIn("settings_manifest_valid: True", result["checks"])
+
     def test_research_worker_reports_read_only_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

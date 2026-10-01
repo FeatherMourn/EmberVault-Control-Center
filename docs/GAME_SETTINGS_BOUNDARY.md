@@ -21,5 +21,8 @@ requirements, mutation scope, and verification procedure before live
 application is enabled. The portable handoff is defined by
 `contracts/game-settings.schema.json`.
 
+The guarded tuning-audit worker consumes the exported staged manifest, verifies
+its `staged-only` state, and reports the inspection without applying it.
+
 This preserves the first-release Save Manager boundary and prevents treating
 client display settings as gameplay controls.
