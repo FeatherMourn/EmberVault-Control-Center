@@ -6,6 +6,7 @@
 - [x] Run the same test, QML smoke, wheel, and asset-verification gates in
       GitHub Actions (`.github/workflows/ci.yml`).
 - [x] Upload the verified wheel as a CI artifact for review.
+- [x] Smoke-test the installed wheel outside the source tree in CI.
 - [x] Compile all Python packages with `py_compile`.
 - [x] Load `ui/Main.qml` through an offscreen Qt application.
 - [x] Confirm Save Manager never performs direct save editing.

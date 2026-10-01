@@ -39,6 +39,16 @@ jobs:
         shell: bash
         run: python tools/verify_release.py "$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
 
+      - name: Smoke-test installed wheel
+        shell: bash
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python -m venv .ci-wheel-venv
+          .ci-wheel-venv/bin/python -m pip install dist/*.whl
+          cd /tmp
+          "$GITHUB_WORKSPACE/.ci-wheel-venv/bin/python" -m control_center.app --smoke-test
+
       - name: Upload verified wheel
         uses: actions/upload-artifact@v4
         with:
