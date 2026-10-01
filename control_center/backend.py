@@ -377,6 +377,28 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot()
+    def deleteActiveProfile(self):
+        if self._selected_profile_id in {"default", "research"}:
+            self._last_save_message = "Built-in profiles cannot be deleted"
+        else:
+            operation = self.operations.start("profile-delete", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                deleted = self._selected_profile_id
+                self.profile_service.delete_custom(deleted)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Deleted profile {deleted}")
+                self.profiles = [item for item in self.profiles if item.id != deleted]
+                fallback = next((item for item in self.profiles if item.id == "default"), self.profiles[0])
+                self._selected_profile_id = fallback.id
+                self._profile_name = fallback.name
+                self._last_save_message = f"Deleted profile {deleted}"
+            except ValueError as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot(int)
     def togglePackage(self, index: int):
         if not getattr(self, "packages", None):

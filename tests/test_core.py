@@ -42,6 +42,13 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(profile.id, "my-test-world")
             self.assertEqual(profile.profile_type, "custom")
 
+    def test_built_in_profiles_cannot_be_deleted(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = ProfileService(Path(temp))
+            service.ensure_defaults()
+            with self.assertRaises(ValueError):
+                service.delete_custom("default")
+
     def test_structured_log_contains_contract_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "logs" / "events.jsonl"

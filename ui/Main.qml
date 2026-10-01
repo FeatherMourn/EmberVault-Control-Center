@@ -206,6 +206,7 @@ ApplicationWindow {
             Text { text: "Available profiles"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             TextField { id: profileNameField; placeholderText: "New profile name"; Layout.fillWidth: true }
             Button { text: "Create custom profile"; onClicked: controlCenter.createProfile(profileNameField.text) }
+            Button { text: "Delete active custom profile"; onClicked: controlCenter.deleteActiveProfile() }
             Repeater {
                 model: controlCenter.profileDetails
                 delegate: Rectangle {

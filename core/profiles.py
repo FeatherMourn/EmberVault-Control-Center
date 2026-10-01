@@ -75,3 +75,11 @@ class ProfileService:
         profile = Profile(profile_id, name, description.strip(), "custom")
         self.save(profile)
         return profile
+
+    def delete_custom(self, profile_id: str) -> None:
+        if profile_id in {"default", "research"}:
+            raise ValueError("Built-in profiles cannot be deleted")
+        target = self._path(profile_id)
+        if not target.is_file():
+            raise ValueError(f"Unknown profile: {profile_id}")
+        target.unlink()
