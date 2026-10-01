@@ -31,8 +31,10 @@ deliberately non-mutating; Research includes a
 - Character projects can be exported as plan-only manifests; content projects
   can be exported as design-only manifests, while direct game mutation is not
   implemented.
-- Website synchronization, community forums, moderation, and remote catalog
-  hosting are outside the desktop repository and use the export contract.
+- Catalog synchronization to the public EmberVault repository is implemented
+  through the validated export and `tools/sync_catalog.py`; community forums,
+  moderation, and remote catalog hosting remain outside the desktop repository
+  and use the export contract.
 - The seeded Trainer performs a bounded, read-only readiness audit; the Research
   worker performs a bounded filesystem observation probe; and Content Creator
   performs a bounded design-boundary audit. The tuning-audit worker performs a
