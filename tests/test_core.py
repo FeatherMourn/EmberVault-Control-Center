@@ -7,7 +7,7 @@ from core.compatibility import CompatibilityState, evaluate
 from core.logging_service import StructuredLogService
 from core.operations import OperationService, OperationStatus
 from core.profiles import Profile, ProfileService
-from core.packages import PackageService
+from core.packages import PackageManifest, PackageService
 from core.game_settings import GameSettingsService
 from core.risk import RiskGateService
 from core.settings import Settings, SettingsService
@@ -392,6 +392,16 @@ class CoreServiceTests(unittest.TestCase):
             }))
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_directory(incoming)
+
+    def test_package_manifest_normalizes_blank_required_builds(self):
+        with tempfile.TemporaryDirectory() as temp:
+            package = Path(temp) / "package"
+            package.mkdir()
+            (package / "package.json").write_text(json.dumps({
+                "id": "test.mod", "name": "Test", "version": "1.0",
+                "required_builds": [" 123 ", "", "  "],
+            }))
+            self.assertEqual(PackageManifest.from_file(package / "package.json").required_builds, ("123",))
 
     def test_package_enablement_blocks_known_incompatible_build(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -35,6 +35,7 @@ class PackageManifest:
         raw_dependencies = data.get("dependencies", [])
         if not isinstance(raw_required_builds, list) or not isinstance(raw_dependencies, list):
             raise ValueError("Package required_builds and dependencies must be arrays")
+        required_builds = tuple(str(value).strip() for value in raw_required_builds if str(value).strip())
         dependencies = tuple(str(value) for value in raw_dependencies)
         if any(not dependency or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in dependency) for dependency in dependencies):
             raise ValueError("Package dependency contains invalid characters")
@@ -46,7 +47,7 @@ class PackageManifest:
             id=package_id, name=str(data["name"]), version=str(data["version"]),
             author=str(data.get("author", "Unknown")), description=str(data.get("description", "")),
             package_type=str(data.get("package_type", "mod")),
-            required_builds=tuple(str(value) for value in raw_required_builds),
+            required_builds=required_builds,
             dependencies=dependencies,
             path=path.parent,
         )
