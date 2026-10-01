@@ -107,6 +107,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertTrue(destination.is_file())
             self.assertIn('"schema_version": 1', destination.read_text(encoding="utf-8"))
 
+    def test_catalog_export_orders_public_records_by_id(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            export = runtime.catalog.build()
+            self.assertEqual([item["id"] for item in export["modules"]], sorted(item["id"] for item in export["modules"]))
+            self.assertEqual([item["id"] for item in export["knowledge"]], sorted(item["id"] for item in export["knowledge"]))
+
     def test_knowledge_search_filters_catalog(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
