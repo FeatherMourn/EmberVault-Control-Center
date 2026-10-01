@@ -45,6 +45,7 @@ ApplicationWindow {
                 NavButton { label: "Characters"; pageIndex: 9 }
                 NavButton { label: "Trainer"; pageIndex: 10 }
                 NavButton { label: "Activity"; pageIndex: 11 }
+                NavButton { label: "Modules"; pageIndex: 12 }
                 Item { Layout.fillHeight: true }
                 Rectangle { Layout.fillWidth: true; height: 1; color: line }
                 Text { text: "●  Core services ready"; color: "#83a77b"; font.pixelSize: 11 }
@@ -83,6 +84,7 @@ ApplicationWindow {
                 CharacterPage {}
                 RiskToolsPage { heading: "Trainer"; capability: "trainer"; body: "Trainer capabilities require a research profile, a verified recovery backup, and a separate-process launch contract." }
                 ActivityPage {}
+                ModulesPage {}
             }
         }
     }
