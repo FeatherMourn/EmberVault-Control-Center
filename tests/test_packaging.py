@@ -13,6 +13,8 @@ class PackagingContractTests(unittest.TestCase):
             "contracts/catalog.schema.json",
             "contracts/worker-result.schema.json",
             "contracts/game-settings.schema.json",
+            "contracts/character-plan.schema.json",
+            "contracts/content-project.schema.json",
             "knowledge/entries.json",
             "modules/example/module.json",
             "packages/example-mod/package.json",

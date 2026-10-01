@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embervault.local/contracts/content-project.schema.json",
+  "title": "EmberVault Content Design Project",
+  "type": "object",
+  "required": ["schema_version", "project", "application_state", "generated_at"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project": {
+      "type": "object",
+      "required": ["id", "name", "profile_id", "status", "description"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "profile_id": {"type": "string", "minLength": 1},
+        "status": {"enum": ["draft", "ready", "blocked"]},
+        "description": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "application_state": {"const": "design-only"},
+    "generated_at": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

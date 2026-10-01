@@ -233,6 +233,13 @@ class CoreServiceTests(unittest.TestCase):
         self.assertEqual(schema["properties"]["application_state"]["const"], "staged-only")
         self.assertIn("settings", schema["required"])
 
+    def test_project_export_contracts_declare_safe_application_states(self):
+        root = Path(__file__).parents[1] / "contracts"
+        character = json.loads((root / "character-plan.schema.json").read_text(encoding="utf-8"))
+        content = json.loads((root / "content-project.schema.json").read_text(encoding="utf-8"))
+        self.assertEqual(character["properties"]["application_state"]["const"], "plan-only")
+        self.assertEqual(content["properties"]["application_state"]["const"], "design-only")
+
     def test_game_settings_reject_out_of_range_or_non_finite_numbers(self):
         with tempfile.TemporaryDirectory() as temp:
             profiles = ProfileService(Path(temp))

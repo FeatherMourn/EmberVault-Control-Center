@@ -28,7 +28,8 @@ as separate processes with explicit contracts and isolated state.
 ## First release boundary
 
 Save Manager is inspection-, backup-, verification-, and restore-only. Direct
-save editing and character mutation are outside the first release.
+save editing and character mutation are outside the first release. Character
+and content handoffs use explicit `plan-only` and `design-only` contracts.
 
 ## Technology
 

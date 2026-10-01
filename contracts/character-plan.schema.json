@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embervault.local/contracts/character-plan.schema.json",
+  "title": "EmberVault Character Plan",
+  "type": "object",
+  "required": ["schema_version", "character", "application_state", "generated_at"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "character": {
+      "type": "object",
+      "required": ["id", "name", "profile_id", "notes", "planned_level"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "profile_id": {"type": "string", "minLength": 1},
+        "notes": {"type": "string"},
+        "planned_level": {"type": "integer", "minimum": 1, "maximum": 50}
+      },
+      "additionalProperties": false
+    },
+    "application_state": {"const": "plan-only"},
+    "generated_at": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

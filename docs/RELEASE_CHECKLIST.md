@@ -2,7 +2,7 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (153 tests passing).
+- [x] Run the complete Python test suite (154 tests passing).
 - [x] Compile all Python packages with `py_compile`.
 - [x] Load `ui/Main.qml` through an offscreen Qt application.
 - [x] Confirm Save Manager never performs direct save editing.
@@ -10,6 +10,7 @@
 - [x] Confirm malformed manifests and corrupt local records fail safely.
 - [x] Review operation and structured-log output for a backup and restore preview.
 - [x] Confirm staged Game Settings schema is included in the wheel data.
+- [x] Confirm character-plan and content-project schemas are included in the wheel data.
 
 ## Packaging
 
