@@ -403,6 +403,26 @@ class ControlCenterBackend(QObject):
             self.stateChanged.emit()
 
     @Slot(int)
+    def removePackage(self, index: int):
+        if not self.packages:
+            return
+        available = self.packages.list()
+        if not 0 <= index < len(available):
+            return
+        package = available[index]
+        operation = self.operations.start("package-remove", package_id=package.id) if self.operations else None
+        try:
+            self.packages.remove(package.id)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, "Package removed")
+            self._last_save_message = f"Removed {package.name}"
+        except ValueError as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot(int)
     def selectBackup(self, index: int):
         backups = self.save_manager.list_backups()
         self._selected_backup_id = backups[index].id if 0 <= index < len(backups) else ""

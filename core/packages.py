@@ -95,3 +95,15 @@ class PackageService:
         shutil.copytree(source, target)
         self._packages[manifest.id] = PackageManifest.from_file(target / "package.json")
         return self._packages[manifest.id]
+
+    def remove(self, package_id: str) -> None:
+        package = self.get(package_id)
+        if not package or not package.path:
+            raise ValueError(f"Unknown installed package: {package_id}")
+        if any(package_id in profile.enabled_packages for profile in self.profiles.list()):
+            raise ValueError("Disable the package in every profile before removing it")
+        managed_path = self.directory / package_id
+        if not managed_path.is_dir():
+            raise ValueError("Seed packages cannot be removed from the repository")
+        shutil.rmtree(managed_path)
+        self._packages.pop(package_id, None)

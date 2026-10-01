@@ -185,7 +185,11 @@ ApplicationWindow {
             Button { text: "Import package folder"; onClicked: controlCenter.importPackage() }
             Repeater {
                 model: controlCenter.packageOptions
-                delegate: Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.togglePackage(index) }
+                delegate: RowLayout {
+                    Layout.fillWidth: true
+                    Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.togglePackage(index) }
+                    Button { text: "Remove"; onClicked: controlCenter.removePackage(index) }
+                }
             }
         }
     }

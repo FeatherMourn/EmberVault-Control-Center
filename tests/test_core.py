@@ -137,6 +137,24 @@ class CoreServiceTests(unittest.TestCase):
             packages = PackageService(Path(temp), profiles)
             self.assertEqual([item.id for item in packages.list()], ["embervault.example-mod"])
 
+    def test_managed_package_cannot_be_removed_while_enabled(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            incoming = root / "incoming"
+            incoming.mkdir()
+            (incoming / "package.json").write_text(json.dumps({"id": "managed.mod", "name": "Managed", "version": "1.0.0"}))
+            packages = PackageService(root, profiles)
+            packages.install_from_directory(incoming)
+            default = profiles.list()[0]
+            packages.set_enabled(default, "managed.mod", True)
+            with self.assertRaises(ValueError):
+                packages.remove("managed.mod")
+            packages.set_enabled(default, "managed.mod", False)
+            packages.remove("managed.mod")
+            self.assertIsNone(packages.get("managed.mod"))
+
 
 if __name__ == "__main__":
     unittest.main()
