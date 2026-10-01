@@ -76,3 +76,24 @@ class TuningAdapterService:
             "state": "prepared",
         }
 
+    def execute_operation(self, preview: dict[str, Any], *, profile_type: str,
+                          backup_verified: bool, game_running: bool,
+                          mutation_enabled: bool = False) -> dict[str, Any]:
+        """Refuse live writes until an explicitly owned adapter target exists.
+
+        The EML probe already proves the in-process write path. This method is
+        the Control Center transaction gate; it deliberately has no implicit
+        target path or permission to modify the installed game.
+        """
+        if not mutation_enabled:
+            raise PermissionError("The EML adapter is not enabled for live mutation")
+        if profile_type != "research":
+            raise PermissionError("EML tuning requires the Research profile")
+        if not backup_verified:
+            raise PermissionError("A verified recovery point is required")
+        if game_running:
+            raise PermissionError("Close Enshrouded before applying tuning")
+        if preview.get("state") != "prepared" or preview.get("mutation_performed"):
+            raise ValueError("Only an unused prepared preview can be executed")
+        raise PermissionError("No owned EML adapter package target is configured")
+

@@ -307,6 +307,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(preview["field"], "baseCritChance")
             self.assertFalse(preview["mutation_performed"])
 
+    def test_eml_tuning_adapter_write_gate_remains_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            service = TuningAdapterService(root)
+            preview = service.prepare_operation("research", True, False, 0.2, 0.425)
+            with self.assertRaises(PermissionError):
+                service.execute_operation(preview, profile_type="research", backup_verified=True, game_running=False)
+
     def test_catalog_sync_writes_repository_ready_snapshot(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
