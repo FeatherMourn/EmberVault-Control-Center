@@ -87,6 +87,8 @@ class PackageService:
                 continue
             for manifest_path in sorted(directory.glob("*/package.json")):
                 try:
+                    if manifest_path.parent.is_symlink():
+                        continue
                     manifest = PackageManifest.from_file(manifest_path)
                     if manifest.id in self._packages:
                         if directory == self.directory:

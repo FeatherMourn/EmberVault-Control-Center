@@ -314,7 +314,7 @@ class CoreServiceTests(unittest.TestCase):
             except (OSError, NotImplementedError):
                 self.skipTest("symlinks unavailable")
             packages.discover()
-            with self.assertRaisesRegex(ValueError, "symlink"):
+            with self.assertRaisesRegex(ValueError, "Unknown installed package"):
                 packages.remove("linked.mod")
 
     def test_package_folder_import_rejects_symlinked_source_entries(self):
@@ -333,6 +333,22 @@ class CoreServiceTests(unittest.TestCase):
                 self.skipTest("symlinks unavailable")
             with self.assertRaisesRegex(ValueError, "symlink"):
                 PackageService(root, profiles).install_from_directory(source)
+
+    def test_package_discovery_ignores_symlinked_package_directory(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            packages_dir = root / "packages"
+            packages_dir.mkdir()
+            outside = root / "outside-package"
+            outside.mkdir()
+            (outside / "package.json").write_text(json.dumps({"id": "outside.mod", "name": "Outside", "version": "1.0"}))
+            try:
+                (packages_dir / "outside.mod").symlink_to(outside, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlinks unavailable")
+            self.assertNotIn("outside.mod", PackageService(root, profiles).discover())
 
     def test_package_removal_protects_dependents(self):
         with tempfile.TemporaryDirectory() as temp:
