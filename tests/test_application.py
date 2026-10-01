@@ -1,5 +1,6 @@
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import Mock
@@ -255,6 +256,21 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(destination.name, "embervault-catalog.json")
             self.assertTrue(destination.is_file())
             self.assertEqual(json.loads(destination.read_text(encoding="utf-8"))["schema_version"], 1)
+
+    def test_standalone_catalog_verifier_accepts_and_rejects_snapshots(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            catalog = runtime.catalog.export(root / "catalog.json")
+            verifier = Path(__file__).resolve().parents[1] / "tools" / "verify_catalog.py"
+            valid = subprocess.run([sys.executable, str(verifier), str(catalog)], capture_output=True, text=True)
+            self.assertEqual(valid.returncode, 0, valid.stdout + valid.stderr)
+            payload = json.loads(catalog.read_text(encoding="utf-8"))
+            payload["contract_versions"]["tuning_adapter"] = 0
+            invalid = root / "invalid-catalog.json"
+            invalid.write_text(json.dumps(payload), encoding="utf-8")
+            rejected = subprocess.run([sys.executable, str(verifier), str(invalid)], capture_output=True, text=True)
+            self.assertNotEqual(rejected.returncode, 0)
 
     def test_catalog_validation_rejects_private_research_fields(self):
         with tempfile.TemporaryDirectory() as temp:
