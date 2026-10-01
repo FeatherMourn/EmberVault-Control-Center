@@ -87,6 +87,8 @@ class ModuleRegistry:
         if not executable.is_file():
             raise FileNotFoundError(executable)
         args = [str(executable), "--profile", context.profile_id or "", "--game-path", context.game_path or ""]
+        if executable.suffix.lower() == ".py":
+            args = [sys.executable, *args]
         if context.operation_id:
             args += ["--operation", context.operation_id]
         return subprocess.Popen(args, cwd=manifest.path)
