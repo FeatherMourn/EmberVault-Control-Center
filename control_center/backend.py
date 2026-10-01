@@ -278,12 +278,13 @@ class ControlCenterBackend(QObject):
                 ),
                 backup_id,
             )
-            process.wait(timeout=15)
+            output, _ = process.communicate(timeout=15)
             if process.returncode != 0:
                 raise RuntimeError(f"Module exited with code {process.returncode}")
+            result = output.strip() if output else "no worker output"
             if operation and self.operations:
-                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Launched {module_id}")
-            self._last_save_message = f"Completed guarded {capability} worker"
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Launched {module_id}: {result}")
+            self._last_save_message = f"Completed guarded {capability} worker: {result}"
         except (PermissionError, KeyError, OSError, RuntimeError, ValueError) as exc:
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))

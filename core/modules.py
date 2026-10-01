@@ -97,4 +97,10 @@ class ModuleRegistry:
             args = [sys.executable, *args]
         if context.operation_id:
             args += ["--operation", context.operation_id]
-        return subprocess.Popen(args, cwd=manifest.path)
+        return subprocess.Popen(
+            args,
+            cwd=manifest.path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )

@@ -54,7 +54,7 @@ class ModuleRegistryTests(unittest.TestCase):
                 "embervault.content-creator", "content-creator", profile,
                 LaunchContext(profile.id, None, "EV-OP-CONTENT"), "EV-BACKUP-CONTENT",
             )
-            process.wait(timeout=5)
+            process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)
 
     def test_guarded_research_launch_succeeds_in_research_profile(self):
@@ -65,7 +65,7 @@ class ModuleRegistryTests(unittest.TestCase):
                 "embervault.research", "research", profile,
                 LaunchContext(profile.id, None, "EV-OP-RESEARCH"),
             )
-            process.wait(timeout=5)
+            process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)
 
     def test_module_launcher_rejects_executable_outside_package(self):
@@ -104,7 +104,7 @@ class ModuleRegistryTests(unittest.TestCase):
             registry = ModuleRegistry(Path(temp))
             registry.discover()
             process = registry.launch("demo.process", __import__("core.modules", fromlist=["LaunchContext"]).LaunchContext("default", "", None))
-            process.wait(timeout=5)
+            process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)
 
     def test_guarded_trainer_launch_succeeds_with_research_and_backup(self):
@@ -115,7 +115,7 @@ class ModuleRegistryTests(unittest.TestCase):
                 "embervault.trainer", "trainer", profile,
                 LaunchContext(profile.id, None, "EV-OP-TEST"), "EV-BACKUP-TEST",
             )
-            process.wait(timeout=5)
+            process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)
 
 
