@@ -9,6 +9,7 @@ from core.profiles import ProfileService
 from core.save_manager import SaveManagerError, SaveManagerService
 from core.save_workflow import SaveWorkflowService
 from core.settings import SettingsService
+from core.operations import OperationStatus
 
 try:
     from PySide6.QtCore import QObject, Property, Signal, Slot
@@ -268,9 +269,18 @@ class ControlCenterBackend(QObject):
         if not selected:
             return
         package = available[index]
-        updated = self.packages.set_enabled(selected, package.id, not self.packages.is_enabled(selected, package.id))
-        self.profiles = [updated if item.id == updated.id else item for item in self.profiles]
-        self._last_save_message = f"{'Enabled' if package.id in updated.enabled_packages else 'Disabled'} {package.name} for {updated.name}"
+        enabled = not self.packages.is_enabled(selected, package.id)
+        operation = self.operations.start("package-enable" if enabled else "package-disable", profile_id=selected.id, package_id=package.id) if self.operations else None
+        try:
+            updated = self.packages.set_enabled(selected, package.id, enabled)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, "Package state updated")
+            self.profiles = [updated if item.id == updated.id else item for item in self.profiles]
+            self._last_save_message = f"{'Enabled' if enabled else 'Disabled'} {package.name} for {updated.name}"
+        except ValueError as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
         self.stateChanged.emit()
 
     @Slot()
@@ -282,9 +292,14 @@ class ControlCenterBackend(QObject):
             selected = ""
         if selected and self.packages:
             try:
+                operation = self.operations.start("package-import") if self.operations else None
                 package = self.packages.install_from_directory(Path(selected))
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, "Package imported")
                 self._last_save_message = f"Imported {package.name}"
             except (OSError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
                 self._last_save_message = str(exc)
             self.stateChanged.emit()
 
