@@ -20,6 +20,7 @@ def _ui_path() -> Path:
 def main() -> int:
     try:
         from PySide6.QtWidgets import QApplication
+        from PySide6.QtCore import QTimer
         from PySide6.QtQml import QQmlApplicationEngine
     except ImportError:
         print("PySide6 is required to launch Embervault Control Center. Install project dependencies first.", file=sys.stderr)
@@ -34,6 +35,9 @@ def main() -> int:
     engine.load(str(_ui_path()))
     if not engine.rootObjects():
         return 1
+    if "--smoke-test" in sys.argv:
+        # Give QML one event-loop turn to finish bindings before exiting.
+        QTimer.singleShot(250, app.quit)
     return app.exec()
 
 
