@@ -201,6 +201,23 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertEqual(discovered["embedded.module"].process_mode, "embedded")
             self.assertEqual(discovered["separate.module"].process_mode, "separate")
 
+    def test_module_manifest_rejects_process_mode_launch_mismatch(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "modules"
+            root.mkdir()
+            for name, mode, launcher in (("embedded-bad", "embedded", "executable"), ("separate-bad", "separate", "entrypoint")):
+                directory = root / name
+                directory.mkdir()
+                payload = {
+                    "id": f"embervault.{name}", "name": name, "version": "1.0",
+                    "publisher": "Test", "capabilities": ["inspect"],
+                    "process_mode": mode, launcher: "worker.py",
+                }
+                (directory / "module.json").write_text(json.dumps(payload))
+            discovered = ModuleRegistry(root).discover()
+            self.assertNotIn("embervault.embedded-bad", discovered)
+            self.assertNotIn("embervault.separate-bad", discovered)
+
     def test_module_manifest_requires_string_identity_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "bad"

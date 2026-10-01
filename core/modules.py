@@ -62,11 +62,16 @@ class ModuleManifest:
         if feature_state not in {"stable", "verified", "experimental", "research-only", "blocked"}:
             raise ValueError("Module feature state is invalid")
         entrypoint = data.get("entrypoint")
+        explicit_process_mode = "process_mode" in data
         process_mode = data.get("process_mode")
         if process_mode is None:
             process_mode = "embedded" if entrypoint else "separate" if executable else "embedded"
         if process_mode not in {"embedded", "separate"}:
             raise ValueError("Module process mode is invalid")
+        if explicit_process_mode and process_mode == "embedded" and not entrypoint:
+            raise ValueError("Embedded modules must declare an entrypoint")
+        if explicit_process_mode and process_mode == "separate" and not executable:
+            raise ValueError("Separate modules must declare an executable")
         return cls(
             id=module_id, name=data["name"].strip(), version=data["version"].strip(),
             publisher=str(data.get("publisher", "Unknown")), executable=executable,
