@@ -12,7 +12,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             health = runtime.health()
             self.assertEqual(health["core"], "ready")
             self.assertEqual(health["profiles"], 2)
-            self.assertEqual(health["modules"], 3)
+            self.assertEqual(health["modules"], 4)
             self.assertEqual(health["backups"], 0)
 
     def test_troubleshooter_reports_unconfigured_game_without_mutation(self):

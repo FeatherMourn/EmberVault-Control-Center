@@ -1,0 +1,10 @@
+{
+  "id": "embervault.content-creator",
+  "name": "Content Creator Worker",
+  "version": "0.1.0",
+  "publisher": "Embervault",
+  "minimum_core_version": "0.1.0",
+  "capabilities": ["content-creator"],
+  "feature_state": "experimental",
+  "executable": "content_stub.py"
+}
