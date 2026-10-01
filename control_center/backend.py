@@ -170,10 +170,19 @@ class ControlCenterBackend(QObject):
             self._last_save_message = "Choose a game folder before inspecting deployment"
         else:
             profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
-            plan = self.packages.deployment_plan(profile, Path(self.settings.game_path)) if profile else []
-            ready = sum(1 for item in plan if item.status == "ready")
-            conflicts = sum(1 for item in plan if item.status != "ready")
-            self._last_save_message = f"Deployment plan: {ready} ready, {conflicts} requiring attention"
+            operation = self.operations.start("package-deployment-plan", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                plan = self.packages.deployment_plan(profile, Path(self.settings.game_path)) if profile else []
+                ready = sum(1 for item in plan if item.status == "ready")
+                conflicts = sum(1 for item in plan if item.status != "ready")
+                message = f"Deployment plan: {ready} ready, {conflicts} requiring attention"
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, message)
+                self._last_save_message = message
+            except (OSError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
         self.stateChanged.emit()
 
     @Slot()

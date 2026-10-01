@@ -231,6 +231,7 @@ class ApplicationCompositionTests(unittest.TestCase):
                                 for item in backend.deploymentOptions))
             backend.inspectDeploymentPlan()
             self.assertIn("Deployment plan", backend.lastSaveMessage)
+            self.assertTrue(any("package-deployment-plan" in item for item in backend.recentOperations))
 
     def test_backend_exposes_external_mods_from_configured_game_folder(self):
         with tempfile.TemporaryDirectory() as temp:
