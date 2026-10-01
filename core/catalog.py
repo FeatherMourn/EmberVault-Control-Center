@@ -38,7 +38,7 @@ class CatalogExportService:
             "modules": [asdict(item) | {"path": None} for item in modules],
             "knowledge": [{"id": item.id, "title": item.title, "category": item.category,
                            "summary": item.summary, "content": item.content,
-                           "published_at": item.published_at} for item in knowledge],
+                           "published_at": item.published_at or "seeded"} for item in knowledge],
             "research": [{"id": item.id, "title": item.title, "hypothesis": item.hypothesis,
                           "status": item.status, "evidence_count": len(item.evidence),
                           "created_at": item.created_at, "published_at": item.published_at} for item in research],
@@ -62,6 +62,12 @@ class CatalogExportService:
         for collection in ("packages", "modules", "knowledge", "research", "content_projects"):
             if not isinstance(payload[collection], list):
                 raise ValueError(f"Catalog collection is not an array: {collection}")
+        for item in payload["knowledge"]:
+            if not isinstance(item, dict) or set(item) != {"id", "title", "category", "summary", "content", "published_at"}:
+                raise ValueError("Knowledge catalog records must match the public contract")
+            if any(not isinstance(item[key], str) or not item[key].strip()
+                   for key in ("id", "title", "category", "summary", "content", "published_at")):
+                raise ValueError("Knowledge catalog records must contain non-empty fields")
         for item in payload["research"]:
             if not isinstance(item, dict) or set(item) != {"id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at"}:
                 raise ValueError("Research catalog records must remain sanitized")

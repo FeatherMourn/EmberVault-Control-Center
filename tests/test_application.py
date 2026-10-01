@@ -226,6 +226,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runtime.catalog.validate(payload)
 
+    def test_catalog_validation_rejects_unsanitized_knowledge_records(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            payload = runtime.catalog.build()
+            payload["knowledge"].append({"id": "private", "content": "secret", "profile_id": "research"})
+            with self.assertRaises(ValueError):
+                runtime.catalog.validate(payload)
+
     def test_catalog_export_orders_public_records_by_id(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
