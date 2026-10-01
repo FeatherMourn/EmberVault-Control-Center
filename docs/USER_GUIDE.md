@@ -9,7 +9,8 @@
 
 ## Mods
 
-Open My Mods to import a local package folder containing `package.json`.
+Open My Mods to import either a local package folder containing `package.json`
+or a ZIP archive containing that folder.
 Packages are disabled by default and are enabled separately for each profile.
 If a package declares `dependencies`, enable those packages first in the same
 profile. Disable a package in every profile before removing it; packages that
