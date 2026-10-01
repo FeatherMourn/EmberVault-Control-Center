@@ -6,7 +6,7 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from enum import StrEnum
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 
 class ModuleState(StrEnum):
@@ -44,7 +44,9 @@ class ModuleManifest:
             if not isinstance(executable, str) or not executable.strip():
                 raise ValueError("Module executable must be a non-empty relative path")
             executable_path = Path(executable)
-            if executable_path.is_absolute() or ".." in executable_path.parts:
+            windows_path = PureWindowsPath(executable)
+            if (executable_path.is_absolute() or windows_path.is_absolute()
+                    or ".." in executable_path.parts or ".." in windows_path.parts):
                 raise ValueError("Module executable must remain inside its package directory")
         raw_capabilities = data.get("capabilities", [])
         if not isinstance(raw_capabilities, list):
