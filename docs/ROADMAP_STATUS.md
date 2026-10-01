@@ -14,8 +14,9 @@
   reporting, and safe removal.
 - Isolated research records/evidence, character projects, content projects, and
   versioned public catalog export.
-- Guarded Trainer, Research, and Content Creator process contracts. Current
-  workers are deliberately non-mutating stubs.
+- Guarded Trainer, Research, and Content Creator process workflows with UI
+  launch controls, captured worker output, timeout termination, and audited
+  results. Current workers are deliberately non-mutating stubs.
 
 ## Guarded or incomplete
 
@@ -26,7 +27,8 @@
 - Website synchronization, community forums, moderation, and remote catalog
   hosting are outside the desktop repository and use the export contract.
 - The seeded module workers prove process isolation and argument handoff, not
-  production Trainer, Research, or Content Creator behavior.
+  production Trainer, Research, or Content Creator behavior; their UI launch
+  path is nevertheless covered by success, denial, and timeout tests.
 
 ## Release evidence
 

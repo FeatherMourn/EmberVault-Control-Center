@@ -20,6 +20,8 @@
 - Staged Game Settings are not applied directly to a live game.
 - Character and Content projects are planning metadata, not live mutations.
 - High-risk worker processes are non-mutating contract stubs in this release.
+  They can be launched from eligible profiles, report captured output, and are
+  terminated and audited if they exceed the worker timeout.
 - Website synchronization, forums, moderation, and hosted databases consume the
   catalog export but are not implemented in this desktop repository.
 
