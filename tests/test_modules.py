@@ -140,6 +140,15 @@ class ModuleRegistryTests(unittest.TestCase):
             }))
             self.assertNotIn("bad.capabilities", ModuleRegistry(Path(temp)).discover())
 
+    def test_module_manifest_requires_string_identity_fields(self):
+        with tempfile.TemporaryDirectory() as temp:
+            module = Path(temp) / "bad"
+            module.mkdir()
+            (module / "module.json").write_text(json.dumps({
+                "id": "bad.identity", "name": 12, "version": "1.0.0", "publisher": "Test",
+            }))
+            self.assertNotIn("bad.identity", ModuleRegistry(Path(temp)).discover())
+
     def test_python_module_process_uses_current_interpreter(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "demo"

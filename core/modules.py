@@ -33,6 +33,9 @@ class ModuleManifest:
     @classmethod
     def from_file(cls, path: Path) -> "ModuleManifest":
         data = json.loads(path.read_text(encoding="utf-8"))
+        for field_name in ("id", "name", "version"):
+            if not isinstance(data.get(field_name), str) or not data[field_name].strip():
+                raise ValueError(f"Module {field_name} must be a non-empty string")
         module_id = str(data["id"])
         if not module_id or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in module_id):
             raise ValueError("Module id contains invalid characters")
@@ -50,7 +53,7 @@ class ModuleManifest:
         if any(not value for value in capabilities) or len(set(capabilities)) != len(capabilities):
             raise ValueError("Module capabilities must be non-empty and unique")
         return cls(
-            id=module_id, name=str(data["name"]), version=str(data["version"]),
+            id=module_id, name=data["name"].strip(), version=data["version"].strip(),
             publisher=str(data.get("publisher", "Unknown")), executable=executable,
             minimum_core_version=str(data.get("minimum_core_version", "0.1.0")),
             capabilities=capabilities,

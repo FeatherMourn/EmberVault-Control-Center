@@ -414,6 +414,16 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageManifest.from_file(package / "package.json")
 
+    def test_package_manifest_requires_string_identity_fields(self):
+        with tempfile.TemporaryDirectory() as temp:
+            package = Path(temp) / "package"
+            package.mkdir()
+            (package / "package.json").write_text(json.dumps({
+                "id": "test.mod", "name": 12, "version": "1.0",
+            }))
+            with self.assertRaises(ValueError):
+                PackageManifest.from_file(package / "package.json")
+
     def test_package_enablement_blocks_known_incompatible_build(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

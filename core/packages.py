@@ -28,6 +28,9 @@ class PackageManifest:
     @classmethod
     def from_file(cls, path: Path) -> "PackageManifest":
         data = json.loads(path.read_text(encoding="utf-8"))
+        for field_name in ("id", "name", "version"):
+            if not isinstance(data.get(field_name), str) or not data[field_name].strip():
+                raise ValueError(f"Package {field_name} must be a non-empty string")
         package_id = str(data["id"])
         if not package_id or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in package_id):
             raise ValueError("Package id contains invalid characters")
@@ -46,7 +49,7 @@ class PackageManifest:
         if package_id in dependencies:
             raise ValueError("Package cannot depend on itself")
         return cls(
-            id=package_id, name=str(data["name"]), version=str(data["version"]),
+            id=package_id, name=data["name"].strip(), version=data["version"].strip(),
             author=str(data.get("author", "Unknown")), description=str(data.get("description", "")),
             package_type=str(data.get("package_type", "mod")),
             required_builds=required_builds,
