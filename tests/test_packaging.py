@@ -64,6 +64,14 @@ class PackagingContractTests(unittest.TestCase):
         verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
         self.assertIn('"contracts/tuning-adapter.schema.json"', verifier)
 
+    def test_tuning_adapter_contract_declares_safety_boundaries(self):
+        root = Path(__file__).resolve().parents[1]
+        schema = json.loads((root / "contracts/tuning-adapter.schema.json").read_text(encoding="utf-8"))
+        self.assertEqual(schema["properties"]["schema_version"]["const"], 1)
+        for field in ("process_mode", "supported_setting_keys", "backup_requirements", "mutation_scope", "verification_steps"):
+            self.assertIn(field, schema["required"])
+        self.assertTrue(schema["additionalProperties"] is False)
+
 
 if __name__ == "__main__":
     unittest.main()
