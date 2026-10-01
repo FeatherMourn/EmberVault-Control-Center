@@ -194,10 +194,15 @@ class ControlCenterBackend(QObject):
     def createContentProject(self, name: str):
         if not self.content:
             return
+        operation = self.operations.start("content-project-create", profile_id=self._selected_profile_id) if self.operations else None
         try:
             project = self.content.create(name, self._selected_profile_id)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created content project {project.id}")
             self._last_save_message = f"Created content project {project.id}"
         except ValueError as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
@@ -223,10 +228,15 @@ class ControlCenterBackend(QObject):
     def createCharacter(self, name: str):
         if not self.characters:
             return
+        operation = self.operations.start("character-project-create", profile_id=self._selected_profile_id) if self.operations else None
         try:
             record = self.characters.create(name, self._selected_profile_id)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created character project {record.id}")
             self._last_save_message = f"Created character project {record.id}"
         except ValueError as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
