@@ -86,6 +86,7 @@ class PackagingContractTests(unittest.TestCase):
         self.assertEqual(schema["properties"]["schema_version"]["const"], 1)
         for field in ("process_mode", "supported_setting_keys", "backup_requirements", "mutation_scope", "verification_steps"):
             self.assertIn(field, schema["required"])
+        self.assertEqual(schema["properties"]["process_mode"]["enum"], ["embedded", "separate"])
         self.assertTrue(schema["additionalProperties"] is False)
 
     def test_catalog_verifier_uses_core_contract_validation(self):
