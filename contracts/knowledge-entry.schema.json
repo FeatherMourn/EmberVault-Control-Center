@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embervault.local/contracts/knowledge-entry.schema.json",
+  "title": "EmberVault Knowledge Entry",
+  "type": "object",
+  "required": ["id", "title", "category", "summary", "content", "published_at"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "category": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "content": {"type": "string", "minLength": 1},
+    "published_at": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

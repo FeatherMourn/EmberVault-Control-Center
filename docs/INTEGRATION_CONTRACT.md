@@ -31,6 +31,9 @@ versions declared in the export. A future website synchronizer can validate
 the catalog before attaching repository URLs, discussion links, and moderation
 metadata on the web side.
 
+Public knowledge records use `contracts/knowledge-entry.schema.json`; local
+publication state is intentionally omitted from the public record.
+
 The desktop exporter validates the handoff before writing it. Malformed public
 records are rejected, and research or content records containing private
 evidence, descriptions, profiles, or other local-only fields cannot be

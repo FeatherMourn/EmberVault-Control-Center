@@ -239,6 +239,8 @@ class CoreServiceTests(unittest.TestCase):
         content = json.loads((root / "content-project.schema.json").read_text(encoding="utf-8"))
         self.assertEqual(character["properties"]["application_state"]["const"], "plan-only")
         self.assertEqual(content["properties"]["application_state"]["const"], "design-only")
+        knowledge = json.loads((root / "knowledge-entry.schema.json").read_text(encoding="utf-8"))
+        self.assertIn("published_at", knowledge["required"])
 
     def test_game_settings_reject_out_of_range_or_non_finite_numbers(self):
         with tempfile.TemporaryDirectory() as temp:
