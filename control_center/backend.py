@@ -233,6 +233,19 @@ class ControlCenterBackend(QObject):
         if self.stateChanged is not None:
             self.stateChanged.emit()
 
+    @Slot()
+    def chooseGameFolder(self):
+        try:
+            from PySide6.QtWidgets import QFileDialog
+            selected = QFileDialog.getExistingDirectory(None, "Choose Enshrouded installation folder")
+        except ImportError:
+            selected = ""
+        if selected:
+            self.settings.game_path = selected
+            self.settings_service.save(self.settings)
+            self._last_save_message = f"Game folder set to {selected}"
+            self.refresh()
+
     @Slot(result=str)
     def saveManagerSummary(self):
         return self.saveSummary

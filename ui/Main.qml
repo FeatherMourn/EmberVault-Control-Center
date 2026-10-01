@@ -111,6 +111,7 @@ ApplicationWindow {
                 StatusCard { title: "PROFILE"; value: controlCenter.profileName; note: "Core profile"; accent: ember }
                 StatusCard { title: "SAFETY"; value: "Ready"; note: controlCenter.saveSummary; accent: "#d8b46a" }
             }
+            Button { text: "Choose game folder"; onClicked: controlCenter.chooseGameFolder() }
             Text { text: "Continue"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 10 }
             Button { text: "Open Save Manager"; onClicked: page = 3 }
             Button { text: "Review modules"; onClicked: page = 1 }

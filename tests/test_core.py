@@ -61,6 +61,12 @@ class CoreServiceTests(unittest.TestCase):
             recent = service.list_recent(2)
             self.assertEqual([item.operation_type for item in recent], ["second", "first"])
 
+    def test_settings_preserve_game_folder_for_detection(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = SettingsService(Path(temp))
+            service.save(Settings(game_path="C:/Games/Enshrouded"))
+            self.assertEqual(service.load().game_path, "C:/Games/Enshrouded")
+
     def test_unknown_compatibility_is_not_compatible(self):
         result = evaluate(required_builds=["1076226"], detected_build=None)
         self.assertEqual(result.state, CompatibilityState.UNKNOWN)
