@@ -137,6 +137,12 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend = ControlCenterBackend(Path(temp), runtime=runtime)
             self.assertTrue(any("mod" in item for item in backend.packageOptions))
 
+    def test_module_options_show_version_and_publisher(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            self.assertTrue(any("v0.1.0" in item and "Embervault" in item for item in backend.moduleOptions))
+
     def test_backend_guarded_research_launch_tracks_success(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
