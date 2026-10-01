@@ -192,6 +192,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertTrue(destination.is_file())
             self.assertIn('"schema_version": 1', destination.read_text(encoding="utf-8"))
 
+    def test_catalog_sync_writes_repository_ready_snapshot(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            destination = runtime.catalog.sync_to_directory(Path(temp) / "website" / "public")
+            self.assertEqual(destination.name, "embervault-catalog.json")
+            self.assertTrue(destination.is_file())
+            self.assertEqual(json.loads(destination.read_text(encoding="utf-8"))["schema_version"], 1)
+
     def test_catalog_validation_rejects_private_research_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

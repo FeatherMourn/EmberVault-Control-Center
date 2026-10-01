@@ -78,3 +78,9 @@ class CatalogExportService:
         self.validate(payload)
         write_json_atomic(destination, payload)
         return destination
+
+    def sync_to_directory(self, destination: Path) -> Path:
+        """Write a validated repository-ready snapshot into a chosen folder."""
+        destination = Path(destination)
+        destination.mkdir(parents=True, exist_ok=True)
+        return self.export(destination / "embervault-catalog.json")

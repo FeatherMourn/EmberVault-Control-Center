@@ -302,6 +302,22 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot()
+    def syncCatalogFolder(self):
+        selected = QFileDialog.getExistingDirectory(None, "Choose Ember Vault catalog folder")
+        if selected and self.catalog:
+            operation = self.operations.start("catalog-sync") if self.operations else None
+            try:
+                destination = self.catalog.sync_to_directory(Path(selected))
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Synced catalog to {destination}")
+                self._last_save_message = f"Synced public catalog to {destination}"
+            except (OSError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+            self.stateChanged.emit()
+
     @Slot(str)
     def setLatestContentStatus(self, status: str):
         if not self.content:

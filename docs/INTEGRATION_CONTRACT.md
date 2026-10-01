@@ -33,6 +33,10 @@ records are rejected, and research or content records containing private
 evidence, descriptions, profiles, or other local-only fields cannot be
 exported as public catalog entries.
 
+The Control Center can also publish the validated snapshot to a chosen local
+repository folder as `embervault-catalog.json`. This is a reviewable handoff;
+the desktop application does not commit, push, or modify the website remotely.
+
 Guarded workers must return JSON with `contract_version: 1` and
 `read_only: true`. Control Center rejects successful processes that do not
 provide that contract, preserving the first-release mutation boundary. The
