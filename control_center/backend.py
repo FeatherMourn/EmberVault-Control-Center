@@ -136,7 +136,7 @@ class ControlCenterBackend(QObject):
         detected_build = self._build if self._build not in {"Unknown build", "Choose game folder"} else None
         return [
             f"{'Enabled' if self.packages.is_enabled(profile, package.id) else 'Disabled'} · "
-            f"{package.name} · {package.version} · "
+            f"{package.name} · {package.package_type} · {package.version} · "
             f"Compatibility: {evaluate(required_builds=list(package.required_builds), detected_build=detected_build).state}"
             + (f" · Depends on: {', '.join(package.dependencies)}" if package.dependencies else "")
             for package in self.packages.list()
