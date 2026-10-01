@@ -311,6 +311,25 @@ class CoreServiceTests(unittest.TestCase):
             game.joinpath("mods", package.id).mkdir(parents=True)
             self.assertEqual(service.deployment_plan(profile, game)[0].status, "conflict")
 
+    def test_deploy_ready_packages_copies_only_to_empty_game_mods_destination(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            source = root / "incoming"
+            source.mkdir()
+            (source / "package.json").write_text(json.dumps({"id": "deploy.mod", "name": "Deploy", "version": "1.0"}))
+            (source / "mod.lua").write_text("return {}")
+            service = PackageService(root, profiles)
+            package = service.install_from_directory(source)
+            profile = service.set_enabled(profiles.list()[0], package.id, True)
+            game = root / "game"
+            deployed = service.deploy_ready(profile, game)
+            self.assertEqual(deployed[0].status, "ready")
+            self.assertTrue((game / "mods" / package.id / "mod.lua").exists())
+            with self.assertRaises(ValueError):
+                service.deploy_ready(profile, game)
+
     def test_clean_package_service_can_discover_seed_example(self):
         with tempfile.TemporaryDirectory() as temp:
             profiles = ProfileService(Path(temp))

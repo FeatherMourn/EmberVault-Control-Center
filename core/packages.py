@@ -265,3 +265,21 @@ class PackageService:
             else:
                 actions.append(DeploymentAction(package_id, package.path, target, "ready"))
         return actions
+
+    def deploy_ready(self, profile: Profile, game_directory: Path) -> list[DeploymentAction]:
+        """Install enabled packages only when the complete plan is conflict-free."""
+        plan = self.deployment_plan(profile, game_directory)
+        if any(item.status != "ready" for item in plan):
+            raise ValueError("Resolve deployment conflicts before installing packages")
+        created: list[Path] = []
+        try:
+            for item in plan:
+                item.destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(item.source, item.destination)
+                created.append(item.destination)
+            return plan
+        except (OSError, shutil.Error) as exc:
+            for destination in reversed(created):
+                if destination.is_dir() and not destination.is_symlink():
+                    shutil.rmtree(destination, ignore_errors=True)
+            raise OSError("Package deployment failed; new destinations were removed") from exc

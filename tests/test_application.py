@@ -191,6 +191,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.inspectDeploymentPlan()
             self.assertIn("Deployment plan", backend.lastSaveMessage)
 
+    def test_backend_deploys_ready_packages_to_configured_game_folder(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.settings.game_path = temp
+            backend.deployReadyPackages()
+            self.assertIn("Deployed 0 package", backend.lastSaveMessage)
+
     def test_module_options_show_version_and_publisher(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

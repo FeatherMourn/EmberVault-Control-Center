@@ -186,6 +186,7 @@ ApplicationWindow {
             Text { text: controlCenter.packageOptions.length === 0 ? "No packages discovered yet." : "Available packages"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Button { text: "Import package folder or ZIP"; onClicked: controlCenter.importPackage() }
             Button { text: "Inspect deployment plan"; onClicked: controlCenter.inspectDeploymentPlan() }
+            Button { text: "Deploy ready packages"; onClicked: controlCenter.deployReadyPackages() }
             Repeater { model: controlCenter.deploymentOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
             Repeater {
                 model: controlCenter.packageOptions

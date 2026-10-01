@@ -167,6 +167,24 @@ class ControlCenterBackend(QObject):
             self._last_save_message = f"Deployment plan: {ready} ready, {conflicts} requiring attention"
         self.stateChanged.emit()
 
+    @Slot()
+    def deployReadyPackages(self):
+        if not self.packages or not self.settings.game_path:
+            self._last_save_message = "Choose a game folder before deploying packages"
+        else:
+            profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+            operation = self.operations.start("package-deploy", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                deployed = self.packages.deploy_ready(profile, Path(self.settings.game_path)) if profile else []
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Deployed {len(deployed)} package(s)")
+                self._last_save_message = f"Deployed {len(deployed)} package(s) to the game mods folder"
+            except (OSError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Property("QStringList", notify=stateChanged)
     def diagnosticOptions(self):
         if not self.troubleshooter:
