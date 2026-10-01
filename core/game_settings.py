@@ -32,7 +32,18 @@ class GameSettingsService:
         return DEFINITIONS
 
     def values(self, profile: Profile) -> dict[str, Any]:
-        return {definition.key: profile.settings.get(definition.key, definition.default) for definition in DEFINITIONS}
+        result: dict[str, Any] = {}
+        for definition in DEFINITIONS:
+            value = profile.settings.get(definition.key, definition.default)
+            if definition.value_type == "boolean":
+                valid = isinstance(value, bool)
+            else:
+                valid = (
+                    isinstance(value, (int, float)) and not isinstance(value, bool)
+                    and math.isfinite(value) and 0.25 <= value <= 4.0
+                )
+            result[definition.key] = value if valid else definition.default
+        return result
 
     def stage(self, profile: Profile, key: str, value: Any) -> Profile:
         definition = next((item for item in DEFINITIONS if item.key == key), None)

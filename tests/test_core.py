@@ -6,7 +6,7 @@ from pathlib import Path
 from core.compatibility import CompatibilityState, evaluate
 from core.logging_service import StructuredLogService
 from core.operations import OperationService, OperationStatus
-from core.profiles import ProfileService
+from core.profiles import Profile, ProfileService
 from core.packages import PackageService
 from core.game_settings import GameSettingsService
 from core.risk import RiskGateService
@@ -142,6 +142,20 @@ class CoreServiceTests(unittest.TestCase):
             for value in (0, 4.1, float("nan"), float("inf"), True):
                 with self.assertRaises(ValueError):
                     service.stage(profile, "enemy_damage_multiplier", value)
+
+    def test_game_settings_normalize_corrupt_profile_values(self):
+        with tempfile.TemporaryDirectory() as temp:
+            profiles = ProfileService(Path(temp))
+            profiles.ensure_defaults()
+            profile = profiles.list()[0]
+            corrupt = Profile(**{**profile.__dict__, "settings": {
+                "enemy_damage_multiplier": "not-a-number", "experimental_rules": "yes",
+            }})
+            self.assertEqual(GameSettingsService(profiles).values(corrupt), {
+                "enemy_damage_multiplier": 1.0,
+                "resource_yield_multiplier": 1.0,
+                "experimental_rules": False,
+            })
 
     def test_high_risk_capabilities_require_research_and_backup(self):
         with tempfile.TemporaryDirectory() as temp:
