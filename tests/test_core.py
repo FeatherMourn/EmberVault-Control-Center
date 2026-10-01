@@ -7,6 +7,7 @@ from core.compatibility import CompatibilityState, evaluate
 from core.logging_service import StructuredLogService
 from core.operations import OperationService, OperationStatus
 from core.profiles import ProfileService
+from core.packages import PackageService
 from core.settings import Settings, SettingsService
 
 
@@ -61,6 +62,24 @@ class CoreServiceTests(unittest.TestCase):
     def test_unknown_compatibility_is_not_compatible(self):
         result = evaluate(required_builds=["1076226"], detected_build=None)
         self.assertEqual(result.state, CompatibilityState.UNKNOWN)
+
+    def test_package_enablement_is_profile_scoped(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            package_dir = root / "packages" / "demo"
+            package_dir.mkdir(parents=True)
+            (package_dir / "package.json").write_text(json.dumps({
+                "id": "demo.mod", "name": "Demo Mod", "version": "1.0.0"
+            }))
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            packages = PackageService(root, profiles)
+            packages.discover()
+            default = profiles.list()[0]
+            updated = packages.set_enabled(default, "demo.mod", True)
+            self.assertEqual(updated.enabled_packages, ["demo.mod"])
+            research = next(profile for profile in profiles.list() if profile.id == "research")
+            self.assertFalse(packages.is_enabled(research, "demo.mod"))
 
 
 if __name__ == "__main__":

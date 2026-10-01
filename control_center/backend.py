@@ -37,6 +37,7 @@ class ControlCenterBackend(QObject):
         self.save_workflow = runtime.save_workflow if runtime else None
         self.operations = runtime.operations if runtime else None
         self.modules = runtime.modules if runtime else None
+        self.packages = runtime.packages if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -105,6 +106,18 @@ class ControlCenterBackend(QObject):
         return [f"{module.name} · {module.feature_state}" for module in self.modules.discover().values()]
 
     @Property("QStringList", notify=stateChanged)
+    def packageOptions(self):
+        if not getattr(self, "packages", None):
+            return []
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return []
+        return [
+            f"{'Enabled' if self.packages.is_enabled(profile, package.id) else 'Disabled'} · {package.name} · {package.version}"
+            for package in self.packages.list()
+        ]
+
+    @Property("QStringList", notify=stateChanged)
     def profileDetails(self):
         return [
             f"{profile.name} · {profile.profile_type} · {profile.description}"
@@ -134,6 +147,22 @@ class ControlCenterBackend(QObject):
             self._selected_profile_id = self.profiles[index].id
             self._profile_name = self.profiles[index].name
             self.stateChanged.emit()
+
+    @Slot(int)
+    def togglePackage(self, index: int):
+        if not getattr(self, "packages", None):
+            return
+        available = self.packages.list()
+        if not 0 <= index < len(available):
+            return
+        selected = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not selected:
+            return
+        package = available[index]
+        updated = self.packages.set_enabled(selected, package.id, not self.packages.is_enabled(selected, package.id))
+        self.profiles = [updated if item.id == updated.id else item for item in self.profiles]
+        self._last_save_message = f"{'Enabled' if package.id in updated.enabled_packages else 'Disabled'} {package.name} for {updated.name}"
+        self.stateChanged.emit()
 
     @Slot(int)
     def selectBackup(self, index: int):

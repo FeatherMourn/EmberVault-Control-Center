@@ -69,7 +69,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 currentIndex: page
                 HomePage {}
-                ModulesPage {}
+                PackagesPage {}
                 PlaceholderPage { heading: "Game Settings"; body: "Gameplay tuning will be added as an independently packaged module." }
                 SaveManagerPage {}
                 PlaceholderPage { heading: "Troubleshooter"; body: "Health scans will use Core logs, operations, compatibility, and module state." }
@@ -162,6 +162,21 @@ ApplicationWindow {
                     border.color: line
                     Text { anchors.left: parent.left; anchors.leftMargin: 16; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: ink; font.pixelSize: 14 }
                 }
+            }
+        }
+    }
+
+    component PackagesPage: ScrollView {
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: "MY MODS"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: "Choose what this profile carries."; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: "Packages are enabled per profile. This first release only manages package state; it does not alter gameplay tuning or edit save contents."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Text { text: controlCenter.packageOptions.length === 0 ? "No packages discovered yet." : "Available packages"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater {
+                model: controlCenter.packageOptions
+                delegate: Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.togglePackage(index) }
             }
         }
     }
