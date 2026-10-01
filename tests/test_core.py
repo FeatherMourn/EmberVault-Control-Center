@@ -2,6 +2,7 @@ import json
 import shutil
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 from core.compatibility import CompatibilityState, evaluate
@@ -292,6 +293,21 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(package.package_type, "mod")
             self.assertTrue((root / "packages" / "external.flight" / "package.json").exists())
             self.assertTrue((source / "mod.json").exists())
+
+    def test_external_mod_archive_is_adapted(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            archive = root / "external.zip"
+            with zipfile.ZipFile(archive, "w") as bundle:
+                bundle.writestr("community/mod.json", json.dumps({
+                    "id": "community.mod", "name": "Community", "version": "1.2",
+                }))
+                bundle.writestr("community/mod.lua", "return {}")
+            package = PackageService(root, profiles).install_from_archive(archive)
+            self.assertEqual(package.id, "community.mod")
+            self.assertTrue((root / "packages" / "community.mod" / "package.json").exists())
 
     def test_deployment_plan_is_read_only_and_reports_conflicts(self):
         with tempfile.TemporaryDirectory() as temp:
