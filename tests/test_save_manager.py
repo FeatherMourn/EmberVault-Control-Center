@@ -35,6 +35,18 @@ class SaveManagerTests(unittest.TestCase):
             with self.assertRaises(SaveManagerError):
                 service.restore(snapshot.id, live)
 
+    def test_preview_rejects_corrupted_backup(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            live = root / "live"
+            live.mkdir()
+            (live / "save.dat").write_text("data")
+            service = SaveManagerService(root / "state")
+            snapshot = service.backup(live)
+            (root / "state" / "backups" / snapshot.id / "save" / "save.dat").write_text("tampered")
+            with self.assertRaisesRegex(SaveManagerError, "failed verification"):
+                service.preview_restore(snapshot.id, live)
+
     def test_inspection_rejects_symlinked_save_entries(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

@@ -129,6 +129,8 @@ class SaveManagerService:
         snapshot = next((item for item in self.list_backups() if item.id == snapshot_id), None)
         if not snapshot:
             raise SaveManagerError(f"Unknown backup: {snapshot_id}")
+        if not self.verify_backup(snapshot_id):
+            raise SaveManagerError("Selected backup failed verification; preview is unavailable.")
         destination_path = Path(destination)
         self._reject_symlink_path(destination_path, "Restore destination")
         target = destination_path.resolve()
