@@ -29,7 +29,7 @@ class RiskGateService:
                 if backup and backup.verified:
                     try:
                         backup_valid = self.saves.verify_backup(backup.id)
-                    except SaveManagerError:
+                    except (SaveManagerError, OSError):
                         backup_valid = False
             if not backup_valid:
                 reasons.append("Create or select a verified, checksum-valid backup first.")
