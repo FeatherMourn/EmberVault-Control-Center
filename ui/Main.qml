@@ -227,7 +227,7 @@ ApplicationWindow {
             Repeater { model: controlCenter.externalPackageOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
             Button { text: "Import package folder or ZIP"; onClicked: controlCenter.importPackage() }
             Button { text: "Inspect deployment plan"; onClicked: controlCenter.inspectDeploymentPlan() }
-            Button { text: "Deploy ready packages"; onClicked: deployDialog.open() }
+            Button { text: "Deploy ready packages"; enabled: controlCenter.canDeploy; onClicked: deployDialog.open() }
             Repeater { model: controlCenter.deploymentOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
             property int undeployIndex: -1
             property int removeIndex: -1

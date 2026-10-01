@@ -404,7 +404,9 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             backend = ControlCenterBackend(Path(temp), runtime=runtime)
             backend.settings.game_path = temp
+            self.assertFalse(backend.canDeploy)
             backend.inspectDeploymentPlan()
+            self.assertTrue(backend.canDeploy)
             backend.deployReadyPackages()
             self.assertIn("Deployed 0 package", backend.lastSaveMessage)
 
@@ -415,6 +417,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.settings.game_path = temp
             backend.deployReadyPackages()
             self.assertIn("Inspect the current deployment plan", backend.lastSaveMessage)
+            self.assertFalse(backend.canDeploy)
 
     def test_backend_undeploy_refuses_unowned_destination(self):
         with tempfile.TemporaryDirectory() as temp:

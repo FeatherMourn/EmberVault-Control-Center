@@ -110,6 +110,20 @@ class ControlCenterBackend(QObject):
         return bool(self._save_directory and self._selected_backup_id
                     and self._restore_preview_backup_id == self._selected_backup_id)
 
+    @Property(bool, notify=stateChanged)
+    def canDeploy(self):
+        if not self.packages or not self.settings.game_path:
+            return False
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return False
+        plan = self.packages.deployment_plan(profile, Path(self.settings.game_path))
+        signature = (
+            profile.id, str(Path(self.settings.game_path).resolve()),
+            tuple((item.package_id, item.status, item.destination, item.reason) for item in plan),
+        )
+        return self._deployment_plan_signature == signature
+
     @Property(str, notify=stateChanged)
     def lastSaveMessage(self):
         return self._last_save_message
