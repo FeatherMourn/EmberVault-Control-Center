@@ -1,5 +1,7 @@
+import subprocess
 import tempfile
 import unittest
+from unittest.mock import Mock
 from pathlib import Path
 
 from core.application import EmbervaultRuntime
@@ -100,6 +102,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend = ControlCenterBackend(Path(temp), runtime=runtime)
             backend.launchResearchWorker()
             self.assertIn("Research profile", backend.lastSaveMessage)
+
+    def test_backend_guarded_launch_terminates_timeout(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            process = Mock()
+            process.communicate.side_effect = [subprocess.TimeoutExpired("worker", 15), ("", None)]
+            backend.launcher = Mock()
+            backend.launcher.launch.return_value = process
+            backend.selectProfile(1)
+            backend.launchResearchWorker()
+            process.kill.assert_called_once_with()
+            self.assertIn("timed out and was terminated", backend.lastSaveMessage)
 
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
