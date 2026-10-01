@@ -255,7 +255,7 @@ class PackageService:
         actions: list[DeploymentAction] = []
         for package_id in profile.enabled_packages:
             package = self._packages.get(package_id)
-            if not package or not package.path:
+            if not package or not package.path or not package.path.is_dir():
                 actions.append(DeploymentAction(package_id, Path(), destination_root / package_id,
                                                 "missing", "Package is not installed"))
                 continue

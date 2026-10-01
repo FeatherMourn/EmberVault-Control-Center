@@ -1,4 +1,5 @@
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -335,6 +336,21 @@ class CoreServiceTests(unittest.TestCase):
             (game / "mods" / package.id / ".embervault-managed.json").write_text(json.dumps({"package_id": "other"}))
             with self.assertRaises(ValueError):
                 service.undeploy(package.id, game)
+
+    def test_deployment_plan_marks_missing_source_as_missing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            source = root / "incoming"
+            source.mkdir()
+            (source / "package.json").write_text(json.dumps({"id": "gone.mod", "name": "Gone", "version": "1.0"}))
+            service = PackageService(root, profiles)
+            package = service.install_from_directory(source)
+            profile = service.set_enabled(profiles.list()[0], package.id, True)
+            shutil.rmtree(root / "packages" / package.id)
+            service._packages[package.id] = package
+            self.assertEqual(service.deployment_plan(profile, root / "game")[0].status, "missing")
 
     def test_clean_package_service_can_discover_seed_example(self):
         with tempfile.TemporaryDirectory() as temp:
