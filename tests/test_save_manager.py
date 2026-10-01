@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+import os
 from pathlib import Path
 
 from core.save_manager import SaveManagerError, SaveManagerService
@@ -33,6 +34,21 @@ class SaveManagerTests(unittest.TestCase):
             snapshot = service.backup(live)
             with self.assertRaises(SaveManagerError):
                 service.restore(snapshot.id, live)
+
+    def test_inspection_rejects_symlinked_save_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            live = root / "live"
+            live.mkdir()
+            outside = root / "outside.dat"
+            outside.write_text("outside")
+            link = live / "linked.dat"
+            try:
+                os.symlink(outside, link)
+            except (OSError, NotImplementedError):
+                self.skipTest("Symlink creation is unavailable")
+            with self.assertRaises(SaveManagerError):
+                SaveManagerService.inspect(live)
 
 
 if __name__ == "__main__":

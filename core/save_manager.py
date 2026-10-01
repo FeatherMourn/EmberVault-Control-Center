@@ -57,11 +57,18 @@ class SaveManagerService:
 
     @classmethod
     def inspect(cls, save_dir: Path) -> tuple[SaveFile, ...]:
-        root = Path(save_dir).resolve()
+        requested = Path(save_dir)
+        if requested.is_symlink():
+            raise SaveManagerError("Save directory symlinks are not supported.")
+        root = requested.resolve()
         if not root.is_dir():
             raise SaveManagerError(f"Save directory does not exist: {root}")
         files: list[SaveFile] = []
-        for path in sorted(p for p in root.rglob("*") if p.is_file()):
+        for path in sorted(root.rglob("*")):
+            if path.is_symlink():
+                raise SaveManagerError(f"Save directory contains an unsupported symlink: {path}")
+            if not path.is_file():
+                continue
             stat = path.stat()
             files.append(SaveFile(
                 relative_path=path.relative_to(root).as_posix(),
