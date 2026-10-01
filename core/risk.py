@@ -16,7 +16,7 @@ class RiskDecision:
 class RiskGateService:
     def evaluate(self, capability: str, profile: Profile, *, verified_backup_id: str | None = None) -> RiskDecision:
         reasons: list[str] = []
-        if capability in {"trainer", "research", "content-creator"} and profile.profile_type != "research":
+        if capability in {"trainer", "research", "content-creator", "tuning-audit"} and profile.profile_type != "research":
             reasons.append("Select the isolated Research profile.")
         if capability in {"trainer", "content-creator"} and not verified_backup_id:
             reasons.append("Create or select a verified backup first.")

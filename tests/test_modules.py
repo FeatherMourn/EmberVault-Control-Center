@@ -41,7 +41,7 @@ class ModuleRegistryTests(unittest.TestCase):
     def test_clean_registry_discovers_seed_example_module(self):
         with tempfile.TemporaryDirectory() as temp:
             registry = ModuleRegistry(Path(temp))
-            self.assertEqual(list(registry.discover()), ["embervault.content-creator", "embervault.example", "embervault.research", "embervault.trainer"])
+            self.assertEqual(list(registry.discover()), ["embervault.content-creator", "embervault.example", "embervault.research", "embervault.trainer", "embervault.tuning-audit"])
 
     def test_registry_merges_seed_and_runtime_modules(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -242,6 +242,19 @@ class ModuleRegistryTests(unittest.TestCase):
             result = json.loads(process.communicate(timeout=5)[0])
             self.assertIn("design_workspace_only: True", result["checks"])
             self.assertIn("live_game_content_touched: False", result["checks"])
+
+    def test_tuning_audit_reports_staged_only_boundary(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            process = runtime.launcher.launch(
+                "embervault.tuning-audit", "tuning-audit", profile,
+                LaunchContext(profile.id, temp, "EV-OP-TUNING"),
+            )
+            result = json.loads(process.communicate(timeout=5)[0])
+            self.assertTrue(result["read_only"])
+            self.assertIn("settings_source: staged-profile-values", result["checks"])
+            self.assertIn("live_game_settings_changed: False", result["checks"])
 
     def test_research_worker_reports_read_only_evidence(self):
         with tempfile.TemporaryDirectory() as temp:

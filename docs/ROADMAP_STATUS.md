@@ -34,17 +34,18 @@
   hosting are outside the desktop repository and use the export contract.
 - The seeded Trainer performs a bounded, read-only readiness audit; the Research
   worker performs a bounded filesystem observation probe; and Content Creator
-  performs a bounded design-boundary audit. Worker launch paths are covered by
-  success, denial, and timeout tests.
+  performs a bounded design-boundary audit. The tuning-audit worker performs a
+  bounded review of staged settings without applying them to the game. Worker
+  launch paths are covered by success, denial, and timeout tests.
 
 ## Release evidence
 
 - Python unit suite currently covers the Core services, workflows, module gates,
   profile isolation, package contracts, packaging assets, and installed-process
-  contracts (155 tests).
+  contracts (156 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
-  packaged launcher passes its offscreen smoke test and discovers four modules,
+  packaged launcher passes its offscreen smoke test and discovers five modules,
   one seed package, and three knowledge entries. The package-manifest schema is
   present in the installed wheel data.
 - Save Manager remains inspection/backup/verification/restore-only.

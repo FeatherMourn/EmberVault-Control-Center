@@ -2,7 +2,7 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (155 tests passing).
+- [x] Run the complete Python test suite (156 tests passing).
 - [x] Compile all Python packages with `py_compile`.
 - [x] Load `ui/Main.qml` through an offscreen Qt application.
 - [x] Confirm Save Manager never performs direct save editing.
@@ -20,7 +20,7 @@
 - [x] Bundle the QML UI, contracts, seeded knowledge, and module manifests.
 - [x] `pyproject.toml` declares the QML UI, contracts, knowledge, and sample manifests as wheel data files.
 - [x] Test from a clean environment with an empty runtime-data directory. The
-      installed wheel discovers four modules, one seed package, and three
+      installed wheel discovers five modules, one seed package, and three
       knowledge entries without source-tree assets.
 
 ## Release notes
