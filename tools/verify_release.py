@@ -12,6 +12,7 @@ REQUIRED = (
     "contracts/content-project.schema.json",
     "contracts/knowledge-entry.schema.json",
     "contracts/research-summary.schema.json",
+    "contracts/trainer-plan.schema.json",
     "contracts/game-settings.schema.json",
     "modules/example/module.json",
     "modules/example/module.py",

@@ -53,6 +53,11 @@ class PackagingContractTests(unittest.TestCase):
             with self.subTest(path=path.name):
                 self.assertIsInstance(json.loads(path.read_text(encoding="utf-8")), dict)
 
+    def test_release_verifier_lists_trainer_contract(self):
+        root = Path(__file__).resolve().parents[1]
+        verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
+        self.assertIn('"contracts/trainer-plan.schema.json"', verifier)
+
 
 if __name__ == "__main__":
     unittest.main()
