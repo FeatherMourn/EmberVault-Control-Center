@@ -25,6 +25,7 @@ class PackagingContractTests(unittest.TestCase):
             "modules/tuning-audit/module.json",
             "packages/example-mod/package.json",
             "tools/verify_release.py",
+            "tools/verify_catalog.py",
         ):
             self.assertTrue((root / relative).is_file(), relative)
 
@@ -71,6 +72,11 @@ class PackagingContractTests(unittest.TestCase):
         for field in ("process_mode", "supported_setting_keys", "backup_requirements", "mutation_scope", "verification_steps"):
             self.assertIn(field, schema["required"])
         self.assertTrue(schema["additionalProperties"] is False)
+
+    def test_catalog_verifier_uses_core_contract_validation(self):
+        root = Path(__file__).resolve().parents[1]
+        verifier = (root / "tools" / "verify_catalog.py").read_text(encoding="utf-8")
+        self.assertIn("CatalogExportService.validate", verifier)
 
 
 if __name__ == "__main__":
