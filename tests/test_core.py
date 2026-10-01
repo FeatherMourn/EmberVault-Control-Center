@@ -327,8 +327,14 @@ class CoreServiceTests(unittest.TestCase):
             deployed = service.deploy_ready(profile, game)
             self.assertEqual(deployed[0].status, "ready")
             self.assertTrue((game / "mods" / package.id / "mod.lua").exists())
+            self.assertTrue((game / "mods" / package.id / ".embervault-managed.json").exists())
+            service.undeploy(package.id, game)
+            self.assertFalse((game / "mods" / package.id).exists())
+            service.deploy_ready(profile, game)
+            (game / "mods" / package.id / "user-file.txt").write_text("existing")
+            (game / "mods" / package.id / ".embervault-managed.json").write_text(json.dumps({"package_id": "other"}))
             with self.assertRaises(ValueError):
-                service.deploy_ready(profile, game)
+                service.undeploy(package.id, game)
 
     def test_clean_package_service_can_discover_seed_example(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -33,7 +33,8 @@ Enabled packages can be checked with a deployment plan. The plan reports
 missing packages and destination conflicts under the configured game `mods`
 directory. Deployment is allowed only when every action is `ready`; existing
 destinations block the operation, and partial failures remove newly created
-destinations.
+destinations. Successful deployments carry an EmberVault ownership marker so
+future removal can refuse unmarked or foreign destinations.
 
 ## Save safety
 

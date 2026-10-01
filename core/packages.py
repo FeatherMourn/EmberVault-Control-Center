@@ -15,6 +15,7 @@ from .compatibility import CompatibilityState, evaluate
 
 MAX_ARCHIVE_ENTRIES = 2048
 MAX_ARCHIVE_BYTES = 256 * 1024 * 1024
+DEPLOYMENT_MARKER = ".embervault-managed.json"
 
 
 @dataclass(frozen=True)
@@ -276,6 +277,9 @@ class PackageService:
             for item in plan:
                 item.destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copytree(item.source, item.destination)
+                (item.destination / DEPLOYMENT_MARKER).write_text(json.dumps({
+                    "package_id": item.package_id, "managed_by": "embervault-control-center",
+                }, indent=2) + "\n", encoding="utf-8")
                 created.append(item.destination)
             return plan
         except (OSError, shutil.Error) as exc:
@@ -283,3 +287,17 @@ class PackageService:
                 if destination.is_dir() and not destination.is_symlink():
                     shutil.rmtree(destination, ignore_errors=True)
             raise OSError("Package deployment failed; new destinations were removed") from exc
+
+    def undeploy(self, package_id: str, game_directory: Path) -> None:
+        """Remove only a destination bearing EmberVault's ownership marker."""
+        destination = Path(game_directory) / "mods" / package_id
+        marker = destination / DEPLOYMENT_MARKER
+        if not destination.is_dir() or destination.is_symlink():
+            raise ValueError("Managed deployment destination does not exist")
+        try:
+            metadata = json.loads(marker.read_text(encoding="utf-8"))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            raise ValueError("Refusing to remove an unmarked mod destination") from exc
+        if metadata.get("package_id") != package_id or metadata.get("managed_by") != "embervault-control-center":
+            raise ValueError("Refusing to remove a destination not owned by EmberVault")
+        shutil.rmtree(destination)
