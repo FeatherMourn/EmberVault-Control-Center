@@ -17,7 +17,8 @@
 - Guarded Trainer, Research, and Content Creator process workflows with UI
   launch controls, captured worker output, timeout termination, and audited
   results. Current workers are deliberately non-mutating; Research includes a
-  bounded evidence probe while Trainer and Content Creator remain stubs.
+  bounded evidence probe and Trainer includes a readiness audit, while Content
+  Creator remains a process-isolation stub.
 
 ## Guarded or incomplete
 
@@ -29,11 +30,10 @@
   implemented.
 - Website synchronization, community forums, moderation, and remote catalog
   hosting are outside the desktop repository and use the export contract.
-- The seeded Trainer and Content Creator workers prove process isolation and
-  argument handoff. The Research worker additionally performs a bounded,
-  read-only filesystem observation probe; production Trainer and Content Creator
-  behavior is not implemented. Worker launch paths are covered by success,
-  denial, and timeout tests.
+- The seeded Trainer performs a bounded, read-only readiness audit; the Research
+  worker performs a bounded filesystem observation probe. Content Creator still
+  proves process isolation and argument handoff only. Worker launch paths are
+  covered by success, denial, and timeout tests.
 
 ## Release evidence
 

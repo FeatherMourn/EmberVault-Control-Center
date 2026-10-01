@@ -74,6 +74,7 @@ class LaunchContext:
     profile_id: str | None
     game_path: str | None
     operation_id: str | None
+    backup_id: str | None = None
 
 
 class ModuleRegistry:
@@ -125,6 +126,8 @@ class ModuleRegistry:
             args = [sys.executable, *args]
         if context.operation_id:
             args += ["--operation", context.operation_id]
+        if context.backup_id:
+            args += ["--backup", context.backup_id]
         return subprocess.Popen(
             args,
             cwd=manifest.path,

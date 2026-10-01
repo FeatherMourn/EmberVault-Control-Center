@@ -29,3 +29,6 @@ canonical result schema is `contracts/worker-result.schema.json`. Research
 workers may additionally return a bounded `evidence` string array containing
 observations; these observations must be read-only and are captured in the
 operation log rather than written into game or save data.
+Trainer workers may additionally return a bounded `checks` string array for a
+readiness audit. The backup identifier is passed as context only; the worker
+cannot mutate or restore it.

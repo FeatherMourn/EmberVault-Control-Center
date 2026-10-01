@@ -318,7 +318,8 @@ class ControlCenterBackend(QObject):
                 module_id, capability,
                 profile,
                 LaunchContext(
-                    profile.id, self.settings.game_path or None, operation.id if operation else None
+                    profile.id, self.settings.game_path or None, operation.id if operation else None,
+                    backup_id
                 ),
                 backup_id,
             )
@@ -342,6 +343,10 @@ class ControlCenterBackend(QObject):
                         (not isinstance(worker_result.get("evidence"), list) or
                          any(not isinstance(item, str) or not item.strip()
                              for item in worker_result.get("evidence", []))))
+                    or (module_id == "embervault.trainer" and
+                        (not isinstance(worker_result.get("checks"), list) or
+                         any(not isinstance(item, str) or not item.strip()
+                             for item in worker_result.get("checks", []))))
                     or worker_result.get("profile") != profile.id
                     or (operation and worker_result.get("operation") != operation.id)):
                 raise RuntimeError("Worker returned an invalid or non-read-only contract")
@@ -362,6 +367,11 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = (
                     f"Completed guarded {capability} worker: research evidence probe "
                     f"({evidence_count} observations) · {worker_result.get('game_path', '')}"
+                )
+            elif module_id == "embervault.trainer":
+                self._last_save_message = (
+                    f"Completed guarded {capability} readiness audit "
+                    f"({len(worker_result.get('checks', []))} checks)"
                 )
             else:
                 self._last_save_message = f"Completed guarded {capability} worker: {result}"
