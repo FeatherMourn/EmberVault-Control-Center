@@ -46,11 +46,14 @@ class ModuleManifest:
         raw_capabilities = data.get("capabilities", [])
         if not isinstance(raw_capabilities, list):
             raise ValueError("Module capabilities must be an array")
+        capabilities = tuple(str(value).strip() for value in raw_capabilities)
+        if any(not value for value in capabilities) or len(set(capabilities)) != len(capabilities):
+            raise ValueError("Module capabilities must be non-empty and unique")
         return cls(
             id=module_id, name=str(data["name"]), version=str(data["version"]),
             publisher=str(data.get("publisher", "Unknown")), executable=executable,
             minimum_core_version=str(data.get("minimum_core_version", "0.1.0")),
-            capabilities=tuple(str(x) for x in raw_capabilities),
+            capabilities=capabilities,
             feature_state=str(data.get("feature_state", "stable")),
             entrypoint=data.get("entrypoint"), path=path.parent,
         )
