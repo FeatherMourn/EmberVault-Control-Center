@@ -49,6 +49,8 @@ class ModuleManifest:
         raw_capabilities = data.get("capabilities", [])
         if not isinstance(raw_capabilities, list):
             raise ValueError("Module capabilities must be an array")
+        if any(not isinstance(value, str) for value in raw_capabilities):
+            raise ValueError("Module capability entries must be strings")
         capabilities = tuple(str(value).strip() for value in raw_capabilities)
         if any(not value for value in capabilities) or len(set(capabilities)) != len(capabilities):
             raise ValueError("Module capabilities must be non-empty and unique")

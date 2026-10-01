@@ -140,6 +140,16 @@ class ModuleRegistryTests(unittest.TestCase):
             }))
             self.assertNotIn("bad.capabilities", ModuleRegistry(Path(temp)).discover())
 
+    def test_module_manifest_rejects_non_string_capability_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            module = Path(temp) / "bad"
+            module.mkdir()
+            (module / "module.json").write_text(json.dumps({
+                "id": "bad.entries", "name": "Bad", "version": "1.0.0",
+                "publisher": "Test", "capabilities": ["trainer", 12],
+            }))
+            self.assertNotIn("bad.entries", ModuleRegistry(Path(temp)).discover())
+
     def test_module_manifest_requires_string_identity_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "bad"
