@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from core.application import EmbervaultRuntime
+from control_center.backend import ControlCenterBackend
 
 
 class ApplicationCompositionTests(unittest.TestCase):
@@ -84,6 +85,21 @@ class ApplicationCompositionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
             self.assertTrue(any("trainer" in item for item in runtime.modules.discover()["embervault.trainer"].capabilities))
+
+    def test_backend_guarded_research_launch_tracks_success(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.selectProfile(1)
+            backend.launchResearchWorker()
+            self.assertIn("Completed guarded research worker", backend.lastSaveMessage)
+
+    def test_backend_guarded_launch_reports_stable_profile_gate(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.launchResearchWorker()
+            self.assertIn("Research profile", backend.lastSaveMessage)
 
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:

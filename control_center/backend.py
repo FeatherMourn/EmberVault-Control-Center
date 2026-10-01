@@ -11,6 +11,7 @@ from core.save_workflow import SaveWorkflowService
 from core.settings import SettingsService
 from core.operations import OperationStatus
 from core.compatibility import evaluate
+from core.modules import LaunchContext
 
 try:
     from PySide6.QtCore import QObject, Property, Signal, Slot
@@ -48,6 +49,7 @@ class ControlCenterBackend(QObject):
         self.content = runtime.content if runtime else None
         self.characters = runtime.characters if runtime else None
         self.risk = runtime.risk if runtime else None
+        self.launcher = runtime.launcher if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -271,7 +273,7 @@ class ControlCenterBackend(QObject):
             process = self.launcher.launch(
                 module_id, capability,
                 profile,
-                __import__("core.modules", fromlist=["LaunchContext"]).LaunchContext(
+                LaunchContext(
                     profile.id, self._save_directory or None, operation.id if operation else None
                 ),
                 backup_id,
