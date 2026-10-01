@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .profiles import Profile, ProfileService
+from .compatibility import CompatibilityState, evaluate
 
 
 @dataclass(frozen=True)
@@ -74,9 +75,13 @@ class PackageService:
     def is_enabled(self, profile: Profile, package_id: str) -> bool:
         return package_id in profile.enabled_packages
 
-    def set_enabled(self, profile: Profile, package_id: str, enabled: bool) -> Profile:
+    def set_enabled(self, profile: Profile, package_id: str, enabled: bool, detected_build: str | None = None) -> Profile:
         if package_id not in self._packages:
             raise ValueError(f"Unknown package: {package_id}")
+        if enabled:
+            compatibility = evaluate(required_builds=list(self._packages[package_id].required_builds), detected_build=detected_build)
+            if compatibility.state == CompatibilityState.INCOMPATIBLE:
+                raise ValueError("Package is incompatible with the detected game build")
         enabled_packages = set(profile.enabled_packages)
         if enabled:
             enabled_packages.add(package_id)

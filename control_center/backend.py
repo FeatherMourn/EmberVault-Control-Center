@@ -483,7 +483,8 @@ class ControlCenterBackend(QObject):
         enabled = not self.packages.is_enabled(selected, package.id)
         operation = self.operations.start("package-enable" if enabled else "package-disable", profile_id=selected.id, package_id=package.id) if self.operations else None
         try:
-            updated = self.packages.set_enabled(selected, package.id, enabled)
+            detected_build = self._build if self._build not in {"Unknown build", "Choose game folder"} else None
+            updated = self.packages.set_enabled(selected, package.id, enabled, detected_build)
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, "Package state updated")
             self.profiles = [updated if item.id == updated.id else item for item in self.profiles]

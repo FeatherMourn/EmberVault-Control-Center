@@ -216,6 +216,21 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_directory(incoming)
 
+    def test_package_enablement_blocks_known_incompatible_build(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            incoming = root / "incoming"
+            incoming.mkdir()
+            (incoming / "package.json").write_text(json.dumps({
+                "id": "build.mod", "name": "Build Mod", "version": "1.0.0", "required_builds": ["old"]
+            }))
+            packages = PackageService(root, profiles)
+            packages.install_from_directory(incoming)
+            with self.assertRaises(ValueError):
+                packages.set_enabled(profiles.list()[0], "build.mod", True, "new")
+
 
 if __name__ == "__main__":
     unittest.main()
