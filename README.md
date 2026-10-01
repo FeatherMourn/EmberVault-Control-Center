@@ -1,9 +1,9 @@
-# Embervault Control Center
+# EmberVault Control Center
 
 [![CI](https://github.com/FeatherMourn/EmberVault-Control-Center/actions/workflows/ci.yml/badge.svg)](https://github.com/FeatherMourn/EmberVault-Control-Center/actions/workflows/ci.yml)
 
 The new modular desktop platform for managing, testing, and safely operating
-Enshrouded mods and Embervault packages.
+Enshrouded mods and EmberVault packages.
 
 This repository is being built from a clean architecture. The prior
 `EnshroudedModHub` repository remains available as a reference source for

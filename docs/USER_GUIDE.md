@@ -1,4 +1,4 @@
-# Embervault Control Center user guide
+# EmberVault Control Center user guide
 
 ## First launch
 

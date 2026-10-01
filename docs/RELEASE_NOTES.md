@@ -1,4 +1,4 @@
-# Embervault Control Center 0.1.0
+# EmberVault Control Center 0.1.0
 
 ## Included
 

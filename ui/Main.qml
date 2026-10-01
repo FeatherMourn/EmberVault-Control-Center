@@ -9,7 +9,7 @@ ApplicationWindow {
     height: 760
     minimumWidth: 900
     minimumHeight: 600
-    title: "Embervault Control Center"
+    title: "EmberVault Control Center"
     color: "#0d0c14"
     property color ink: "#edeaf4"
     property color muted: "#918da4"
@@ -65,7 +65,7 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 height: 68
                 color: "#11101a"
-                Text { anchors.left: parent.left; anchors.leftMargin: 30; anchors.verticalCenter: parent.verticalCenter; text: pageTitles[page] || "Embervault"; color: ink; font.bold: true; font.pixelSize: 20 }
+                Text { anchors.left: parent.left; anchors.leftMargin: 30; anchors.verticalCenter: parent.verticalCenter; text: pageTitles[page] || "EmberVault"; color: ink; font.bold: true; font.pixelSize: 20 }
                 RowLayout {
                     anchors.right: parent.right
                     anchors.rightMargin: 24

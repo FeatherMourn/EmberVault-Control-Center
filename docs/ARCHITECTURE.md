@@ -1,8 +1,8 @@
-# Embervault Control Center Architecture
+# EmberVault Control Center Architecture
 
 ## Product definition
 
-Embervault is a modular Enshrouded platform with one Control Center,
+EmberVault is a modular Enshrouded platform with one Control Center,
 independently packaged capability modules, a protected research environment,
 and first-class recovery services.
 

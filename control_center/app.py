@@ -23,7 +23,7 @@ def main() -> int:
         from PySide6.QtCore import QTimer
         from PySide6.QtQml import QQmlApplicationEngine
     except ImportError:
-        print("PySide6 is required to launch Embervault Control Center. Install project dependencies first.", file=sys.stderr)
+        print("PySide6 is required to launch EmberVault Control Center. Install project dependencies first.", file=sys.stderr)
         return 2
 
     app = QApplication(sys.argv)

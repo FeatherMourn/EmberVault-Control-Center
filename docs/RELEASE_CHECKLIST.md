@@ -1,4 +1,4 @@
-# Embervault Control Center release checklist
+# EmberVault Control Center release checklist
 
 ## Before packaging
 
