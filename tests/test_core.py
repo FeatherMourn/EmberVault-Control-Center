@@ -352,6 +352,24 @@ class CoreServiceTests(unittest.TestCase):
             service._packages[package.id] = package
             self.assertEqual(service.deployment_plan(profile, root / "game")[0].status, "missing")
 
+    def test_deployment_plan_blocks_symlinked_package_source(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            source = root / "incoming"
+            source.mkdir()
+            (source / "package.json").write_text(json.dumps({"id": "link.mod", "name": "Link", "version": "1.0"}))
+            service = PackageService(root, profiles)
+            package = service.install_from_directory(source)
+            profile = service.set_enabled(profiles.list()[0], package.id, True)
+            target = root / "packages" / package.id / "outside.txt"
+            outside = root / "outside.txt"
+            outside.write_text("outside")
+            target.symlink_to(outside)
+            service._packages[package.id] = package
+            self.assertEqual(service.deployment_plan(profile, root / "game")[0].status, "unsafe")
+
     def test_clean_package_service_can_discover_seed_example(self):
         with tempfile.TemporaryDirectory() as temp:
             profiles = ProfileService(Path(temp))

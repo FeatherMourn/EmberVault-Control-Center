@@ -259,6 +259,10 @@ class PackageService:
                 actions.append(DeploymentAction(package_id, Path(), destination_root / package_id,
                                                 "missing", "Package is not installed"))
                 continue
+            if package.path.is_symlink() or any(item.is_symlink() for item in package.path.rglob("*")):
+                actions.append(DeploymentAction(package_id, package.path, destination_root / package_id,
+                                                "unsafe", "Package source contains a symlink"))
+                continue
             target = destination_root / package_id
             if target.exists():
                 actions.append(DeploymentAction(package_id, package.path, target, "conflict",

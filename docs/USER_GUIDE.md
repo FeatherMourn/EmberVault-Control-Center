@@ -36,6 +36,7 @@ destinations block the operation, and partial failures remove newly created
 destinations. Successful deployments carry an EmberVault ownership marker so
 future removal can refuse unmarked or foreign destinations.
 The Mods page exposes the same ownership-protected undeploy action.
+Deployment also refuses package sources containing symlinks.
 Troubleshooter also reports deployment conflicts and missing enabled-package
 sources for each profile.
 
