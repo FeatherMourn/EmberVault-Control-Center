@@ -74,7 +74,7 @@ ApplicationWindow {
                 SaveManagerPage {}
                 TroubleshooterPage {}
                 PlaceholderPage { heading: "Content Studio"; body: "Content creation remains a guarded developer preview." }
-                PlaceholderPage { heading: "Research Lab"; body: "Research runs in isolated profiles and records evidence before promotion." }
+                ResearchPage {}
                 PlaceholderPage { heading: "Knowledge"; body: "Offline documentation will be linked from every module." }
                 ProfilesPage {}
             }
@@ -228,6 +228,24 @@ ApplicationWindow {
             Repeater {
                 model: controlCenter.settingOptions
                 delegate: Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.stageSetting(index) }
+            }
+        }
+    }
+
+    component ResearchPage: ScrollView {
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: "RESEARCH LAB"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: "Test ideas without losing the thread."; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: "Research records stay associated with an isolated profile. Evidence is captured before experimental work is promoted into a normal workflow."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            TextField { id: titleField; placeholderText: "Experiment title"; Layout.fillWidth: true }
+            TextField { id: hypothesisField; placeholderText: "Hypothesis"; Layout.fillWidth: true }
+            Button { text: "Create research record"; onClicked: controlCenter.createResearchRecord(titleField.text, hypothesisField.text) }
+            Text { text: controlCenter.researchOptions.length === 0 ? "No research records yet." : "Research records"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater {
+                model: controlCenter.researchOptions
+                delegate: Text { text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             }
         }
     }

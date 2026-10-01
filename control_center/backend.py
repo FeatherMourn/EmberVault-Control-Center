@@ -40,6 +40,7 @@ class ControlCenterBackend(QObject):
         self.packages = runtime.packages if runtime else None
         self.troubleshooter = runtime.troubleshooter if runtime else None
         self.game_settings = runtime.game_settings if runtime else None
+        self.research = runtime.research if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -134,6 +135,23 @@ class ControlCenterBackend(QObject):
             return []
         values = self.game_settings.values(profile)
         return [f"{definition.name} · {values[definition.key]}" for definition in self.game_settings.definitions()]
+
+    @Property("QStringList", notify=stateChanged)
+    def researchOptions(self):
+        if not self.research:
+            return []
+        return [f"{item.status.upper()} · {item.title} · {len(item.evidence)} evidence note(s)" for item in self.research.list()]
+
+    @Slot(str, str)
+    def createResearchRecord(self, title: str, hypothesis: str):
+        if not self.research:
+            return
+        try:
+            record = self.research.create(title, hypothesis, self._selected_profile_id)
+            self._last_save_message = f"Created research record {record.id}"
+        except ValueError as exc:
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
 
     @Slot(int)
     def stageSetting(self, index: int):

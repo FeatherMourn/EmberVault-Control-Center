@@ -11,6 +11,7 @@ from .modules import ModuleRegistry
 from .operations import OperationService
 from .packages import PackageService
 from .profiles import ProfileService
+from .research import ResearchService
 from .save_manager import SaveManagerService
 from .save_workflow import SaveWorkflowService
 from .settings import SettingsService
@@ -31,6 +32,7 @@ class EmbervaultRuntime:
     packages: PackageService
     troubleshooter: TroubleshooterService
     game_settings: GameSettingsService
+    research: ResearchService
 
     @classmethod
     def create(cls, root: Path) -> "EmbervaultRuntime":
@@ -48,6 +50,7 @@ class EmbervaultRuntime:
             packages=None,  # wired immediately below after profiles exist
             troubleshooter=None,
             game_settings=None,
+            research=None,
         )
         runtime.save_workflow = SaveWorkflowService(runtime.saves, runtime.operations, runtime.logs)
         runtime.profiles.ensure_defaults()
@@ -57,6 +60,7 @@ class EmbervaultRuntime:
             root, runtime.settings, runtime.profiles, runtime.modules, runtime.packages, runtime.game
         )
         runtime.game_settings = GameSettingsService(runtime.profiles)
+        runtime.research = ResearchService(root)
         runtime.modules.discover()
         runtime.logs.info("Embervault Core initialized")
         return runtime

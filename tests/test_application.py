@@ -22,6 +22,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(findings[0].key, "game-path")
             self.assertEqual(findings[0].severity, "attention")
 
+    def test_research_record_keeps_evidence_with_profile(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Yield test", "Yield changes under staged setting", "research")
+            updated = runtime.research.add_evidence(record.id, "Observed baseline behavior")
+            self.assertEqual(updated.profile_id, "research")
+            self.assertEqual(updated.evidence, ["Observed baseline behavior"])
+
 
 if __name__ == "__main__":
     unittest.main()
