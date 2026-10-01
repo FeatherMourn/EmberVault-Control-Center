@@ -30,6 +30,10 @@
   newly created destinations.
 - Catalog exports are deterministic and exclude local runtime paths and
   private research state.
+- Restore requires a matching successful preview, and deployment requires a
+  matching inspected plan before either operation can apply changes.
+- Catalog handoffs include freshness metadata, a versioned tuning-adapter
+  contract, a standalone verifier, and a repeatable repository sync command.
 
 ## Important limitations
 
@@ -53,8 +57,9 @@
   performs a bounded evidence probe, Trainer performs a readiness audit, and
   Content Creator performs a design-boundary audit; all are terminated and
   audited if they exceed the worker timeout.
-- Website synchronization, forums, moderation, and hosted databases consume the
-  catalog export but are not implemented in this desktop repository.
+- Forums, moderation, and hosted community databases remain outside this
+  desktop repository; validated catalog synchronization to the public
+  EmberVault repository is implemented.
 
 ## Compatibility and isolation
 
@@ -71,5 +76,5 @@
 ## Verification
 
 The release baseline includes the Python unit suite, Python compilation, an
-offscreen QML load check, wheel construction, and isolated installed-prefix
-smoke testing.
+offscreen QML load check, wheel construction, isolated installed-prefix smoke
+testing, and GitHub Actions verification on Ubuntu and Windows.
