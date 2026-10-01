@@ -5,7 +5,7 @@ from pathlib import Path
 
 from core.game_detection import GameDetector
 from core.profiles import ProfileService
-from core.save_manager import SaveManagerService
+from core.save_manager import SaveManagerError, SaveManagerService
 from core.settings import SettingsService
 
 try:
@@ -37,6 +37,8 @@ class ControlCenterBackend(QObject):
         self._build = "Unknown build"
         self._profile_name = self.profiles[0].name if self.profiles else "No profile"
         self._safety = "No backup required"
+        self._save_directory = ""
+        self._last_save_message = "No save selected"
 
     @Property(str, notify=stateChanged)
     def gameStatus(self):
@@ -59,6 +61,14 @@ class ControlCenterBackend(QObject):
         count = len(self.save_manager.list_backups())
         return f"{count} verified backup{'s' if count != 1 else ''}"
 
+    @Property(bool, notify=stateChanged)
+    def canBackup(self):
+        return bool(self._save_directory)
+
+    @Property(str, notify=stateChanged)
+    def lastSaveMessage(self):
+        return self._last_save_message
+
     @Slot()
     def refresh(self):
         if self.settings.game_path:
@@ -75,3 +85,40 @@ class ControlCenterBackend(QObject):
     @Slot(result=str)
     def saveManagerSummary(self):
         return self.saveSummary
+
+    @Slot()
+    def chooseSaveFolder(self):
+        try:
+            from PySide6.QtWidgets import QFileDialog
+            selected = QFileDialog.getExistingDirectory(None, "Choose Enshrouded save folder")
+        except ImportError:
+            selected = ""
+        if selected:
+            self._save_directory = selected
+            self._last_save_message = f"Selected {selected}"
+            self.stateChanged.emit()
+
+    @Slot()
+    def inspectSaves(self):
+        if not self._save_directory:
+            self._last_save_message = "Choose a save folder first"
+        else:
+            try:
+                files = self.save_manager.inspect(Path(self._save_directory))
+                self._last_save_message = f"Inspected {len(files)} file{'s' if len(files) != 1 else ''}"
+            except SaveManagerError as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot(str)
+    def createBackup(self, label: str):
+        if not self._save_directory:
+            self._last_save_message = "Choose a save folder first"
+        else:
+            try:
+                snapshot = self.save_manager.backup(Path(self._save_directory), label)
+                self._last_save_message = f"Verified {snapshot.id}"
+                self._safety = "Backup verified"
+            except (OSError, SaveManagerError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()

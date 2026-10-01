@@ -12,13 +12,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main() -> int:
     try:
-        from PySide6.QtGui import QGuiApplication
+        from PySide6.QtWidgets import QApplication
         from PySide6.QtQml import QQmlApplicationEngine
     except ImportError:
         print("PySide6 is required to launch Embervault Control Center. Install project dependencies first.", file=sys.stderr)
         return 2
 
-    app = QGuiApplication(sys.argv)
+    app = QApplication(sys.argv)
     engine = QQmlApplicationEngine()
     runtime = EmbervaultRuntime.create(ROOT / "runtime-data")
     backend = ControlCenterBackend(runtime.root)
