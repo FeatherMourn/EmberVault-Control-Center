@@ -25,31 +25,35 @@ ApplicationWindow {
             Layout.fillHeight: true
             Layout.preferredWidth: 230
             color: "#100f18"
-            ColumnLayout {
+            ScrollView {
                 anchors.fill: parent
-                anchors.margins: 20
-                spacing: 9
-                Text { text: "✦  EMBERVAULT"; color: ember; font.bold: true; font.pixelSize: 15 }
-                Text { text: "CONTROL CENTER"; color: muted; font.pixelSize: 10 }
-                Rectangle { Layout.fillWidth: true; height: 1; color: line; Layout.topMargin: 16; Layout.bottomMargin: 12 }
-                Text { text: "WORKSPACE"; color: muted; font.pixelSize: 10; font.letterSpacing: 1.3 }
-                NavButton { label: "Home"; pageIndex: 0 }
-                NavButton { label: "My Mods"; pageIndex: 1 }
-                NavButton { label: "Game Settings"; pageIndex: 2 }
-                NavButton { label: "Save Manager"; pageIndex: 3 }
-                NavButton { label: "Troubleshooter"; pageIndex: 4 }
-                Text { text: "TOOLS"; color: muted; font.pixelSize: 10; font.letterSpacing: 1.3; Layout.topMargin: 18 }
-                NavButton { label: "Content Studio"; pageIndex: 5 }
-                NavButton { label: "Research Lab"; pageIndex: 6 }
-                NavButton { label: "Knowledge"; pageIndex: 7 }
-                NavButton { label: "Profiles"; pageIndex: 8 }
-                NavButton { label: "Characters"; pageIndex: 9 }
-                NavButton { label: "Trainer"; pageIndex: 10 }
-                NavButton { label: "Activity"; pageIndex: 11 }
-                NavButton { label: "Modules"; pageIndex: 12 }
-                Item { Layout.fillHeight: true }
-                Rectangle { Layout.fillWidth: true; height: 1; color: line }
-                Text { text: "●  Core services ready"; color: "#83a77b"; font.pixelSize: 11 }
+                clip: true
+                contentWidth: width
+                ColumnLayout {
+                    width: parent.width
+                    anchors.margins: 20
+                    spacing: 9
+                    Text { text: "✦  EMBERVAULT"; color: ember; font.bold: true; font.pixelSize: 15 }
+                    Text { text: "CONTROL CENTER"; color: muted; font.pixelSize: 10 }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: line; Layout.topMargin: 16; Layout.bottomMargin: 12 }
+                    Text { text: "WORKSPACE"; color: muted; font.pixelSize: 10; font.letterSpacing: 1.3 }
+                    NavButton { label: "Home"; pageIndex: 0 }
+                    NavButton { label: "My Mods"; pageIndex: 1 }
+                    NavButton { label: "Game Settings"; pageIndex: 2 }
+                    NavButton { label: "Save Manager"; pageIndex: 3 }
+                    NavButton { label: "Troubleshooter"; pageIndex: 4 }
+                    Text { text: "TOOLS"; color: muted; font.pixelSize: 10; font.letterSpacing: 1.3; Layout.topMargin: 18 }
+                    NavButton { label: "Content Studio"; pageIndex: 5 }
+                    NavButton { label: "Research Lab"; pageIndex: 6 }
+                    NavButton { label: "Knowledge"; pageIndex: 7 }
+                    NavButton { label: "Profiles"; pageIndex: 8 }
+                    NavButton { label: "Characters"; pageIndex: 9 }
+                    NavButton { label: "Trainer"; pageIndex: 10 }
+                    NavButton { label: "Activity"; pageIndex: 11 }
+                    NavButton { label: "Modules"; pageIndex: 12 }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: line; Layout.topMargin: 12 }
+                    Text { text: "●  Core services ready"; color: "#83a77b"; font.pixelSize: 11 }
+                }
             }
         }
         ColumnLayout {
