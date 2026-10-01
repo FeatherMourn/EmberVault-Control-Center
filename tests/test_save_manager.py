@@ -50,6 +50,26 @@ class SaveManagerTests(unittest.TestCase):
             with self.assertRaises(SaveManagerError):
                 SaveManagerService.inspect(live)
 
+    def test_backup_and_restore_reject_symlinked_roots(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            live = root / "live"
+            live.mkdir()
+            (live / "save.dat").write_text("data")
+            link = root / "live-link"
+            try:
+                os.symlink(live, link, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest("Symlink creation is unavailable")
+            service = SaveManagerService(root / "state")
+            with self.assertRaises(SaveManagerError):
+                service.backup(link)
+            snapshot = service.backup(live)
+            with self.assertRaises(SaveManagerError):
+                service.preview_restore(snapshot.id, link)
+            with self.assertRaises(SaveManagerError):
+                service.restore(snapshot.id, link, current_backup=snapshot)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -79,8 +79,9 @@ class SaveManagerService:
         return tuple(files)
 
     def backup(self, save_dir: Path, label: str = "") -> SaveSnapshot:
-        source = Path(save_dir).resolve()
-        files = self.inspect(source)
+        source_path = Path(save_dir)
+        files = self.inspect(source_path)
+        source = source_path.resolve()
         snapshot_id = f"EV-BACKUP-{uuid.uuid4().hex[:8].upper()}"
         staging = Path(tempfile.mkdtemp(prefix=f"{snapshot_id}-", dir=self.backups_root))
         destination = self.backups_root / snapshot_id
@@ -122,7 +123,10 @@ class SaveManagerService:
         snapshot = next((item for item in self.list_backups() if item.id == snapshot_id), None)
         if not snapshot:
             raise SaveManagerError(f"Unknown backup: {snapshot_id}")
-        target = Path(destination).resolve()
+        destination_path = Path(destination)
+        if destination_path.is_symlink():
+            raise SaveManagerError("Restore destination symlinks are not supported.")
+        target = destination_path.resolve()
         current = self.inspect(target) if target.is_dir() else ()
         source_paths = {item.relative_path for item in snapshot.files}
         current_paths = {item.relative_path for item in current}
@@ -135,13 +139,16 @@ class SaveManagerService:
         }
 
     def restore(self, snapshot_id: str, destination: Path, *, current_backup: SaveSnapshot | None = None) -> SaveSnapshot | None:
-        if current_backup is None and Path(destination).exists():
+        destination_path = Path(destination)
+        if destination_path.is_symlink():
+            raise SaveManagerError("Restore destination symlinks are not supported.")
+        if current_backup is None and destination_path.exists():
             raise SaveManagerError("Restore requires a verified backup of the current destination.")
         snapshot = next((item for item in self.list_backups() if item.id == snapshot_id), None)
         if not snapshot or not self.verify_backup(snapshot_id):
             raise SaveManagerError("Selected backup is missing or failed verification.")
         source = self.backups_root / snapshot_id / "save"
-        target = Path(destination).resolve()
+        target = destination_path.resolve()
         staging = Path(tempfile.mkdtemp(prefix="restore-", dir=self.backups_root))
         try:
             shutil.copytree(source, staging / "save")
