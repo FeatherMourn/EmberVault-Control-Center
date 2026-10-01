@@ -162,7 +162,7 @@ class ControlCenterBackend(QObject):
             return []
         return [
             f"{module.name} · v{module.version} · {module.publisher} · {module.feature_state} · "
-            f"{', '.join(module.capabilities) or 'no declared capabilities'}"
+            f"{module.process_mode} · {', '.join(module.capabilities) or 'no declared capabilities'}"
             for module in self.modules.discover().values()
         ]
 
