@@ -78,6 +78,13 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(record["operation_id"], "EV-OP-1")
             self.assertEqual(record["profile_id"], "default")
 
+    def test_structured_log_tolerates_non_json_details(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "logs" / "events.jsonl"
+            StructuredLogService(path).info("Diagnostic", details={"path": Path(temp)})
+            record = json.loads(path.read_text().splitlines()[0])
+            self.assertEqual(record["details"]["path"], str(Path(temp)))
+
     def test_operation_lifecycle_records_backup(self):
         with tempfile.TemporaryDirectory() as temp:
             service = OperationService(Path(temp) / "operations.jsonl")

@@ -24,10 +24,10 @@ class StructuredLogService:
             "operation_id": operation_id,
             "profile_id": profile_id,
             "package_id": package_id,
-            "details": details or {},
+            "details": details if isinstance(details, dict) else ({"value": details} if details is not None else {}),
         }
         with self.path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record, sort_keys=True) + "\n")
+            handle.write(json.dumps(record, sort_keys=True, default=str) + "\n")
 
     def info(self, message: str, **kwargs) -> None:
         self.write("info", message, **kwargs)
