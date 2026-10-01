@@ -249,10 +249,15 @@ class ControlCenterBackend(QObject):
     def createResearchRecord(self, title: str, hypothesis: str):
         if not self.research:
             return
+        operation = self.operations.start("research-create", profile_id=self._selected_profile_id) if self.operations else None
         try:
             record = self.research.create(title, hypothesis, self._selected_profile_id)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created research record {record.id}")
             self._last_save_message = f"Created research record {record.id}"
         except ValueError as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
@@ -264,10 +269,15 @@ class ControlCenterBackend(QObject):
         if not records:
             self._last_save_message = "Create a research record first"
         else:
+            operation = self.operations.start("research-evidence", profile_id=self._selected_profile_id) if self.operations else None
             try:
                 record = self.research.add_evidence(records[-1].id, note)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Added evidence to {record.id}")
                 self._last_save_message = f"Added evidence to {record.id}"
             except (KeyError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
@@ -279,10 +289,15 @@ class ControlCenterBackend(QObject):
         if not records:
             self._last_save_message = "Create a research record first"
         else:
+            operation = self.operations.start("research-status", profile_id=self._selected_profile_id) if self.operations else None
             try:
                 record = self.research.set_status(records[-1].id, status)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Research status {record.status}")
                 self._last_save_message = f"Research record is {record.status}"
             except (KeyError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
