@@ -2,7 +2,7 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (109 tests passing).
+- [x] Run the complete Python test suite (110 tests passing).
 - [x] Compile all Python packages with `py_compile`.
 - [x] Load `ui/Main.qml` through an offscreen Qt application.
 - [x] Confirm Save Manager never performs direct save editing.

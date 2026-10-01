@@ -13,6 +13,10 @@ from .profiles import Profile, ProfileService
 from .compatibility import CompatibilityState, evaluate
 
 
+MAX_ARCHIVE_ENTRIES = 2048
+MAX_ARCHIVE_BYTES = 256 * 1024 * 1024
+
+
 @dataclass(frozen=True)
 class PackageManifest:
     id: str
@@ -155,8 +159,13 @@ class PackageService:
         with tempfile.TemporaryDirectory(prefix="embervault-package-") as temp:
             staging = Path(temp)
             with zipfile.ZipFile(archive) as bundle:
+                members = bundle.infolist()
+                if len(members) > MAX_ARCHIVE_ENTRIES:
+                    raise ValueError("Package archive contains too many entries")
+                if sum(member.file_size for member in members) > MAX_ARCHIVE_BYTES:
+                    raise ValueError("Package archive is too large to import safely")
                 member_names: set[str] = set()
-                for member in bundle.infolist():
+                for member in members:
                     normalized_name = member.filename.replace("\\", "/")
                     if normalized_name in member_names:
                         raise ValueError("Package archive contains duplicate paths")

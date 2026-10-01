@@ -368,6 +368,19 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_archive(archive)
 
+    def test_package_archive_rejects_excessive_entry_count(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            archive = root / "too-many.zip"
+            import zipfile
+            with zipfile.ZipFile(archive, "w") as bundle:
+                for index in range(2049):
+                    bundle.writestr(f"package/file-{index}.txt", "x")
+            with self.assertRaises(ValueError):
+                PackageService(root, profiles).install_from_archive(archive)
+
     def test_package_archive_imports_nested_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
