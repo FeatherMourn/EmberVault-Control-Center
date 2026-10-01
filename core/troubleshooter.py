@@ -51,6 +51,30 @@ class TroubleshooterService:
         findings.append(Diagnostic("modules", "Module registry", "ready", f"{len(modules)} module manifest{'s' if len(modules) != 1 else ''} discovered."))
         packages = self.packages.list()
         findings.append(Diagnostic("packages", "Package registry", "ready", f"{len(packages)} package{'s' if len(packages) != 1 else ''} discovered."))
+        package_map = {item.id: item for item in packages}
+        cycle_nodes: set[str] = set()
+        visiting: set[str] = set()
+        visited: set[str] = set()
+
+        def visit(package_id: str, trail: tuple[str, ...] = ()) -> None:
+            if package_id in visiting:
+                cycle_nodes.update(trail[trail.index(package_id):] if package_id in trail else trail)
+                return
+            if package_id in visited or package_id not in package_map:
+                return
+            visiting.add(package_id)
+            for dependency in package_map[package_id].dependencies:
+                visit(dependency, (*trail, package_id))
+            visiting.remove(package_id)
+            visited.add(package_id)
+
+        for package_id in package_map:
+            visit(package_id)
+        if cycle_nodes:
+            findings.append(Diagnostic(
+                "package-dependency-cycle", "Package dependencies", "attention",
+                f"Dependency cycle detected: {', '.join(sorted(cycle_nodes))}",
+            ))
         for package in packages:
             compatibility = evaluate(required_builds=list(package.required_builds), detected_build=detected_build)
             if compatibility.state in {CompatibilityState.INCOMPATIBLE, CompatibilityState.BLOCKED}:

@@ -69,6 +69,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             findings = runtime.troubleshooter.scan()
             self.assertTrue(any(item.key == "package-dependency-addon.mod" for item in findings))
 
+    def test_troubleshooter_flags_package_dependency_cycle(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            for package_id, dependency in (("alpha.mod", "beta.mod"), ("beta.mod", "alpha.mod")):
+                package = root / "packages" / package_id
+                package.mkdir(parents=True)
+                (package / "package.json").write_text(json.dumps({
+                    "id": package_id, "name": package_id, "version": "1.0", "dependencies": [dependency],
+                }))
+            findings = runtime.troubleshooter.scan()
+            self.assertTrue(any(item.key == "package-dependency-cycle" for item in findings))
+
     def test_catalog_export_excludes_local_paths(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
