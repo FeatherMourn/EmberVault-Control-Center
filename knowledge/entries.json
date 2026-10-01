@@ -19,5 +19,12 @@
     "category": "Architecture",
     "summary": "Modules use contracts and explicit capability boundaries.",
     "content": "Normal workflows can be embedded in Control Center. Trainer, Research, and other higher-risk tools may run as separate processes with an explicit launch context."
+  },
+  {
+    "id": "evidence-before-claims",
+    "title": "Evidence before in-game claims",
+    "category": "Research",
+    "summary": "An offline build or registration result does not prove visible in-game behavior.",
+    "content": "Treat successful validation, packaging, or runtime registration as an intermediate result only. A feature should remain experimental or research-only until the target Enshrouded build has fresh runtime evidence and, where relevant, in-game visual confirmation. Record the build context and limitations before promoting the result."
   }
 ]
