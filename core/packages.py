@@ -66,17 +66,22 @@ class PackageService:
 
     def discover(self) -> dict[str, PackageManifest]:
         self._packages = {}
-        directory = self.directory if self.directory.is_dir() else self.seed_directory
-        if not directory.is_dir():
-            return {}
-        for manifest_path in sorted(directory.glob("*/package.json")):
-            try:
-                manifest = PackageManifest.from_file(manifest_path)
-                if manifest.id in self._packages:
-                    raise ValueError(f"Duplicate package id: {manifest.id}")
-                self._packages[manifest.id] = manifest
-            except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
+        directories = [self.seed_directory]
+        if self.directory.is_dir():
+            directories.append(self.directory)
+        for directory in directories:
+            if not directory.is_dir():
                 continue
+            for manifest_path in sorted(directory.glob("*/package.json")):
+                try:
+                    manifest = PackageManifest.from_file(manifest_path)
+                    if manifest.id in self._packages:
+                        if directory == self.directory:
+                            self._packages[manifest.id] = manifest
+                        continue
+                    self._packages[manifest.id] = manifest
+                except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
+                    continue
         return dict(self._packages)
 
     def list(self) -> list[PackageManifest]:

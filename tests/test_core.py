@@ -251,6 +251,20 @@ class CoreServiceTests(unittest.TestCase):
             packages = PackageService(Path(temp), profiles)
             self.assertEqual([item.id for item in packages.list()], ["embervault.example-mod"])
 
+    def test_package_discovery_merges_seed_and_runtime_packages(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            (root / "packages").mkdir()
+            service = PackageService(root, profiles)
+            self.assertEqual([item.id for item in service.list()], ["embervault.example-mod"])
+            incoming = root / "incoming"
+            incoming.mkdir()
+            (incoming / "package.json").write_text(json.dumps({"id": "local.mod", "name": "Local", "version": "1.0.0"}))
+            service.install_from_directory(incoming)
+            self.assertEqual({item.id for item in service.list()}, {"embervault.example-mod", "local.mod"})
+
     def test_managed_package_cannot_be_removed_while_enabled(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
