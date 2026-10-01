@@ -19,7 +19,9 @@ as a portable tuning manifest and consumed later by an explicitly identified
 mod or tuning module. Such a module must declare its input contract, backup
 requirements, mutation scope, and verification procedure before live
 application is enabled. The portable handoff is defined by
-`contracts/game-settings.schema.json`.
+`contracts/game-settings.schema.json`. Any future adapter must declare its
+process mode, supported keys, backup requirements, mutation scope, and
+verification steps in `contracts/tuning-adapter.schema.json`.
 
 The guarded tuning-audit worker consumes the exported staged manifest, verifies
 its `staged-only` state, and reports the inspection without applying it.

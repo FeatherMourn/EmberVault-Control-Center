@@ -13,6 +13,7 @@ class PackagingContractTests(unittest.TestCase):
             "contracts/catalog.schema.json",
             "contracts/worker-result.schema.json",
             "contracts/game-settings.schema.json",
+            "contracts/tuning-adapter.schema.json",
             "contracts/character-plan.schema.json",
             "contracts/content-project.schema.json",
             "knowledge/entries.json",
@@ -57,6 +58,11 @@ class PackagingContractTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
         self.assertIn('"contracts/trainer-plan.schema.json"', verifier)
+
+    def test_release_verifier_lists_tuning_adapter_contract(self):
+        root = Path(__file__).resolve().parents[1]
+        verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
+        self.assertIn('"contracts/tuning-adapter.schema.json"', verifier)
 
 
 if __name__ == "__main__":

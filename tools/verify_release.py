@@ -14,6 +14,7 @@ REQUIRED = (
     "contracts/research-summary.schema.json",
     "contracts/trainer-plan.schema.json",
     "contracts/game-settings.schema.json",
+    "contracts/tuning-adapter.schema.json",
     "modules/example/module.json",
     "modules/example/module.py",
     "modules/research/research_stub.py",
