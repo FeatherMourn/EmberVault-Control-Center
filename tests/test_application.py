@@ -99,6 +99,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             updated = runtime.research.add_evidence(record.id, "Observed result")
             self.assertEqual(updated.evidence, ["Observed result"])
 
+    def test_research_cannot_complete_without_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Test", "Observe", "research")
+            with self.assertRaises(ValueError):
+                runtime.research.set_status(record.id, "completed")
+            runtime.research.add_evidence(record.id, "Observed")
+            self.assertEqual(runtime.research.set_status(record.id, "completed").status, "completed")
+
     def test_character_project_can_stage_valid_level(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

@@ -264,6 +264,10 @@ ApplicationWindow {
             Button { text: "Create research record"; onClicked: controlCenter.createResearchRecord(titleField.text, hypothesisField.text) }
             TextField { id: evidenceField; placeholderText: "Evidence note for latest record"; Layout.fillWidth: true }
             Button { text: "Add evidence note"; onClicked: controlCenter.addResearchEvidence(evidenceField.text) }
+            RowLayout {
+                Button { text: "Mark running"; onClicked: controlCenter.setLatestResearchStatus("running") }
+                Button { text: "Mark completed"; onClicked: controlCenter.setLatestResearchStatus("completed") }
+            }
             Text { text: controlCenter.researchOptions.length === 0 ? "No research records yet." : "Research records"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
                 model: controlCenter.researchOptions

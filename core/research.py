@@ -55,3 +55,16 @@ class ResearchService:
                 self.path.write_text(json.dumps([asdict(item) for item in records], indent=2) + "\n", encoding="utf-8")
                 return record
         raise KeyError(record_id)
+
+    def set_status(self, record_id: str, status: str) -> ResearchRecord:
+        if status not in {"planned", "running", "completed", "blocked"}:
+            raise ValueError("Unknown research status")
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                if status == "completed" and not record.evidence:
+                    raise ValueError("Add evidence before completing research")
+                record.status = status
+                self.path.write_text(json.dumps([asdict(item) for item in records], indent=2) + "\n", encoding="utf-8")
+                return record
+        raise KeyError(record_id)
