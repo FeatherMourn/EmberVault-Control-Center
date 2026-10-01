@@ -1,13 +1,13 @@
 """Portable catalog export for the Ember Vault website and research hub."""
 from __future__ import annotations
 
-import json
 from dataclasses import asdict
 from pathlib import Path
 
 from .knowledge import KnowledgeService
 from .modules import ModuleRegistry
 from .packages import PackageService
+from .storage import write_json_atomic
 
 
 class CatalogExportService:
@@ -28,5 +28,5 @@ class CatalogExportService:
     def export(self, destination: Path) -> Path:
         destination = Path(destination)
         destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(json.dumps(self.build(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        write_json_atomic(destination, self.build())
         return destination
