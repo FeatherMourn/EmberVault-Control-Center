@@ -2,6 +2,8 @@
 
 ## Working
 
+- Frozen terminology and module-boundary contracts in
+  `docs/TERMINOLOGY.md` and `docs/MODULE_BOUNDARIES.md`.
 - Core composition, settings, game detection, profiles, structured logs, and
   operation tracking.
 - Save Manager inspection, verified backup, re-verification, restore preview,
