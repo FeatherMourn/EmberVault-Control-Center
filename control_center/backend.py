@@ -52,6 +52,7 @@ class ControlCenterBackend(QObject):
         self.knowledge = runtime.knowledge if runtime else None
         self.catalog = runtime.catalog if runtime else None
         self.content = runtime.content if runtime else None
+        self.trainer = runtime.trainer if runtime else None
         self.characters = runtime.characters if runtime else None
         self.risk = runtime.risk if runtime else None
         self.launcher = runtime.launcher if runtime else None
@@ -637,6 +638,46 @@ class ControlCenterBackend(QObject):
     @Slot()
     def launchTrainer(self):
         self._launchGuardedModule("embervault.trainer", "trainer")
+
+    @Slot(str, str)
+    def createTrainerPlan(self, target: str, notes: str):
+        if not self.trainer:
+            return
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        backup_id = self._selected_backup_id or ""
+        operation = self.operations.start("trainer-plan-create", profile_id=self._selected_profile_id) if self.operations else None
+        try:
+            if not profile:
+                raise ValueError("Select a profile first")
+            plan = self.trainer.create(profile, target, notes, backup_id)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created Trainer plan {plan.id}")
+            self._last_save_message = f"Created Trainer plan {plan.id}"
+        except (OSError, ValueError) as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot()
+    def exportLatestTrainerPlan(self):
+        if not self.trainer:
+            return
+        plans = [item for item in self.trainer.list() if item.profile_id == self._selected_profile_id]
+        if not plans:
+            self._last_save_message = "Create a Trainer plan first"
+        else:
+            operation = self.operations.start("trainer-plan-export", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                destination = self.trainer.export(plans[-1])
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Exported Trainer plan {plans[-1].id}")
+                self._last_save_message = f"Exported Trainer plan to {destination}"
+            except OSError as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
 
     @Slot()
     def launchResearchWorker(self):

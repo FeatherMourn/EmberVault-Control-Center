@@ -60,7 +60,8 @@ Research records belong to a selected profile and can collect evidence notes.
 Use **Export latest research summary** for a profile-free handoff with an
 evidence count; private evidence text is never included.
 Character and Content Creator pages store project plans separately from live
-game data. Content projects can classify furniture, building, recipe, or other
+game data. Trainer can store a backup-bound, plan-only session target and export
+it without mutating the game. Content projects can classify furniture, building, recipe, or other
 designs and track project-relative asset references; absolute paths and
 traversal are rejected. Trainer, Research, and Content Creator execution remains guarded by
 profile isolation and recovery requirements. Guarded workers are read-only in

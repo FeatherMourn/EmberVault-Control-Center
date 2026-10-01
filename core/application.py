@@ -22,6 +22,7 @@ from .save_manager import SaveManagerService
 from .save_workflow import SaveWorkflowService
 from .settings import SettingsService
 from .troubleshooter import TroubleshooterService
+from .trainer import TrainerPlanService
 
 
 @dataclass
@@ -45,6 +46,7 @@ class EmbervaultRuntime:
     launcher: ModuleLaunchService
     catalog: CatalogExportService
     content: ContentProjectService
+    trainer: TrainerPlanService
 
     @classmethod
     def create(cls, root: Path) -> "EmbervaultRuntime":
@@ -69,6 +71,7 @@ class EmbervaultRuntime:
             launcher=None,
             catalog=None,
             content=None,
+            trainer=None,
         )
         runtime.save_workflow = SaveWorkflowService(runtime.saves, runtime.operations, runtime.logs)
         runtime.profiles.ensure_defaults()
@@ -85,6 +88,7 @@ class EmbervaultRuntime:
         runtime.launcher = ModuleLaunchService(runtime.modules, runtime.risk)
         runtime.catalog = CatalogExportService(root, runtime.modules, runtime.packages, runtime.knowledge, runtime.research)
         runtime.content = ContentProjectService(root)
+        runtime.trainer = TrainerPlanService(root)
         runtime.catalog.set_content(runtime.content)
         runtime.modules.discover()
         runtime.logs.info("Embervault Core initialized")

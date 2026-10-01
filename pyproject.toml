@@ -17,7 +17,7 @@ include = ["core*", "control_center*"]
 
 [tool.setuptools.data-files]
 "ui" = ["ui/Main.qml"]
-"contracts" = ["contracts/module-manifest.schema.json", "contracts/package-manifest.schema.json", "contracts/catalog.schema.json", "contracts/worker-result.schema.json", "contracts/game-settings.schema.json", "contracts/character-plan.schema.json", "contracts/content-project.schema.json", "contracts/knowledge-entry.schema.json", "contracts/research-summary.schema.json"]
+"contracts" = ["contracts/module-manifest.schema.json", "contracts/package-manifest.schema.json", "contracts/catalog.schema.json", "contracts/worker-result.schema.json", "contracts/game-settings.schema.json", "contracts/character-plan.schema.json", "contracts/content-project.schema.json", "contracts/knowledge-entry.schema.json", "contracts/research-summary.schema.json", "contracts/trainer-plan.schema.json"]
 "knowledge" = ["knowledge/entries.json"]
 "modules/example" = ["modules/example/module.json", "modules/example/module.py"]
 "modules/trainer" = ["modules/trainer/module.json", "modules/trainer/trainer_stub.py"]

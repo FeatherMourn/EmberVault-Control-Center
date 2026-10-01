@@ -385,6 +385,13 @@ ApplicationWindow {
             Text { text: heading; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: body; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Text { text: "Safety gates"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            TextField { id: trainerTarget; visible: capability === "trainer"; placeholderText: "Trainer target or test objective"; Layout.fillWidth: true }
+            TextField { id: trainerNotes; visible: capability === "trainer"; placeholderText: "Trainer plan notes"; Layout.fillWidth: true }
+            RowLayout {
+                visible: capability === "trainer"
+                Button { text: "Create plan"; onClicked: controlCenter.createTrainerPlan(trainerTarget.text, trainerNotes.text) }
+                Button { text: "Export latest plan"; onClicked: controlCenter.exportLatestTrainerPlan() }
+            }
             TextField { id: contentName; placeholderText: "Content project name"; Layout.fillWidth: true }
             TextField { id: contentDescription; placeholderText: "Development brief or intended outcome"; Layout.fillWidth: true }
             TextField { id: contentDesignNotes; placeholderText: "Design notes, dimensions, materials, or recipe details"; Layout.fillWidth: true }

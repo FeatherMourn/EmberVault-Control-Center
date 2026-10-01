@@ -20,6 +20,7 @@ class PackagingContractTests(unittest.TestCase):
             "modules/example/module.py",
             "contracts/knowledge-entry.schema.json",
             "contracts/research-summary.schema.json",
+            "contracts/trainer-plan.schema.json",
             "modules/tuning-audit/module.json",
             "packages/example-mod/package.json",
             "tools/verify_release.py",

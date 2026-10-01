@@ -604,6 +604,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(updated.notes, "Revised progression plan")
             self.assertEqual(runtime.saves.list_backups(), [])
 
+    def test_trainer_plan_is_backup_bound_and_plan_only(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            plan = runtime.trainer.create(profile, "damage multiplier", "Read-only rehearsal", "EV-BACKUP-TEST")
+            destination = runtime.trainer.export(plan)
+            payload = json.loads(destination.read_text(encoding="utf-8"))
+            self.assertEqual(payload["application_state"], "trainer-plan-only")
+            self.assertEqual(payload["plan"]["backup_id"], "EV-BACKUP-TEST")
+
     def test_character_records_normalize_invalid_planned_level(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
