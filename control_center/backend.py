@@ -42,6 +42,7 @@ class ControlCenterBackend(QObject):
         self.game_settings = runtime.game_settings if runtime else None
         self.research = runtime.research if runtime else None
         self.knowledge = runtime.knowledge if runtime else None
+        self.characters = runtime.characters if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -148,6 +149,23 @@ class ControlCenterBackend(QObject):
         if not self.knowledge:
             return []
         return [f"{entry.category} · {entry.title} — {entry.summary}" for entry in self.knowledge.search()]
+
+    @Property("QStringList", notify=stateChanged)
+    def characterOptions(self):
+        if not self.characters:
+            return []
+        return [f"{item.name} · level {item.planned_level} · {item.profile_id}" for item in self.characters.list()]
+
+    @Slot(str)
+    def createCharacter(self, name: str):
+        if not self.characters:
+            return
+        try:
+            record = self.characters.create(name, self._selected_profile_id)
+            self._last_save_message = f"Created character project {record.id}"
+        except ValueError as exc:
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
 
     @Slot(str, str)
     def createResearchRecord(self, title: str, hypothesis: str):

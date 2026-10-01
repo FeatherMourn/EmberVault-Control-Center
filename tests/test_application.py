@@ -36,6 +36,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             entries = runtime.knowledge.search("restore")
             self.assertEqual([entry.id for entry in entries], ["save-safety"])
 
+    def test_character_project_is_separate_from_save_manager(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.characters.create("Ash", "default")
+            self.assertEqual(record.profile_id, "default")
+            self.assertEqual(runtime.saves.list_backups(), [])
+
 
 if __name__ == "__main__":
     unittest.main()

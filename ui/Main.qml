@@ -42,6 +42,7 @@ ApplicationWindow {
                 NavButton { label: "Research Lab"; pageIndex: 6 }
                 NavButton { label: "Knowledge"; pageIndex: 7 }
                 NavButton { label: "Profiles"; pageIndex: 8 }
+                NavButton { label: "Characters"; pageIndex: 9 }
                 Item { Layout.fillHeight: true }
                 Rectangle { Layout.fillWidth: true; height: 1; color: line }
                 Text { text: "●  Core services ready"; color: "#83a77b"; font.pixelSize: 11 }
@@ -77,6 +78,7 @@ ApplicationWindow {
                 ResearchPage {}
                 KnowledgePage {}
                 ProfilesPage {}
+                CharacterPage {}
             }
         }
     }
@@ -267,6 +269,23 @@ ApplicationWindow {
                     border.color: line
                     Text { anchors.fill: parent; anchors.margins: 16; text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap; verticalAlignment: Text.AlignVCenter }
                 }
+            }
+        }
+    }
+
+    component CharacterPage: ScrollView {
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: "CHARACTER EDITOR"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: "Plan a character, protect the original."; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: "Character projects are stored separately from saves. This first slice records plans only; it does not write character changes into game data."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            TextField { id: characterName; placeholderText: "Character name"; Layout.fillWidth: true }
+            Button { text: "Create character project"; onClicked: controlCenter.createCharacter(characterName.text) }
+            Text { text: controlCenter.characterOptions.length === 0 ? "No character projects yet." : "Character projects"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater {
+                model: controlCenter.characterOptions
+                delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true }
             }
         }
     }
