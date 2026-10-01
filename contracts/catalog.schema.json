@@ -19,7 +19,27 @@
       }
     },
     "packages": {"type": "array", "items": {"type": "object"}},
-    "modules": {"type": "array", "items": {"type": "object"}},
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "version", "publisher", "capabilities", "feature_state", "process_mode"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "name": {"type": "string", "minLength": 1},
+          "version": {"type": "string", "minLength": 1},
+          "publisher": {"type": "string", "minLength": 1},
+          "capabilities": {"type": "array", "items": {"type": "string"}},
+          "feature_state": {"type": "string"},
+          "process_mode": {"enum": ["embedded", "separate"]},
+          "minimum_core_version": {"type": "string"},
+          "executable": {"type": ["string", "null"]},
+          "entrypoint": {"type": ["string", "null"]},
+          "path": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
     "knowledge": {"type": "array", "items": {"type": "object"}},
     "research": {
       "type": "array",
