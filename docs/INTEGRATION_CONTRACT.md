@@ -30,9 +30,10 @@ Paths are deliberately removed from exported records. Runtime folders,
 profiles, save backups, logs, and research-local evidence are not published by
 this export. The canonical validation document is
 `contracts/catalog.schema.json`; package and module entries use the contract
-versions declared in the export. A future website synchronizer can validate
-the catalog before attaching repository URLs, discussion links, and moderation
-metadata on the web side.
+versions declared in the export. The companion EmberVault public repository
+accepts this handoff through `schemas/public-catalog.schema.json` and
+`tools/verify_catalog.py` before attaching repository URLs, discussion links,
+and moderation metadata on the web side.
 
 Public knowledge records use `contracts/knowledge-entry.schema.json`; local
 publication state is intentionally omitted from the public record.
