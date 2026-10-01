@@ -36,6 +36,23 @@ class ApplicationCompositionTests(unittest.TestCase):
             entries = runtime.knowledge.search("restore")
             self.assertEqual([entry.id for entry in entries], ["save-safety"])
 
+    def test_troubleshooter_flags_package_with_unsupported_build(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            package = root / "packages" / "tested"
+            package.mkdir(parents=True)
+            (package / "package.json").write_text(
+                '{"id":"tested.mod","name":"Tested Mod","version":"1.0.0","required_builds":["old-build"]}'
+            )
+            game = root / "game" / "steamapps"
+            game.mkdir(parents=True)
+            (game.parent / "Enshrouded.exe").write_bytes(b"")
+            (game / "appmanifest_1203620.acf").write_text('"buildid" "123"')
+            runtime.settings.save(type(runtime.settings.load())(game_path=str(game.parent)))
+            findings = runtime.troubleshooter.scan()
+            self.assertTrue(any(item.key == "package-tested.mod" for item in findings))
+
     def test_character_project_is_separate_from_save_manager(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
