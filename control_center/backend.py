@@ -134,6 +134,7 @@ class ControlCenterBackend(QObject):
             f"{'Enabled' if self.packages.is_enabled(profile, package.id) else 'Disabled'} · "
             f"{package.name} · {package.version} · "
             f"Compatibility: {evaluate(required_builds=list(package.required_builds), detected_build=detected_build).state}"
+            + (f" · Depends on: {', '.join(package.dependencies)}" if package.dependencies else "")
             for package in self.packages.list()
         ]
 

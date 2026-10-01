@@ -22,6 +22,7 @@ class PackageManifest:
     description: str = ""
     package_type: str = "mod"
     required_builds: tuple[str, ...] = ()
+    dependencies: tuple[str, ...] = ()
     path: Path | None = None
 
     @classmethod
@@ -35,6 +36,7 @@ class PackageManifest:
             author=str(data.get("author", "Unknown")), description=str(data.get("description", "")),
             package_type=str(data.get("package_type", "mod")),
             required_builds=tuple(str(value) for value in data.get("required_builds", [])),
+            dependencies=tuple(str(value) for value in data.get("dependencies", [])),
             path=path.parent,
         )
 
@@ -82,6 +84,12 @@ class PackageService:
             compatibility = evaluate(required_builds=list(self._packages[package_id].required_builds), detected_build=detected_build)
             if compatibility.state == CompatibilityState.INCOMPATIBLE:
                 raise ValueError("Package is incompatible with the detected game build")
+            missing = [
+                dependency for dependency in self._packages[package_id].dependencies
+                if dependency not in self._packages or not self.is_enabled(profile, dependency)
+            ]
+            if missing:
+                raise ValueError(f"Enable package dependencies first: {', '.join(missing)}")
         enabled_packages = set(profile.enabled_packages)
         if enabled:
             enabled_packages.add(package_id)
