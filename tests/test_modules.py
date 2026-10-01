@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from core.modules import ModuleRegistry
+from core.application import EmbervaultRuntime
 
 
 class ModuleRegistryTests(unittest.TestCase):
@@ -26,6 +27,14 @@ class ModuleRegistryTests(unittest.TestCase):
             module.mkdir()
             (module / "module.json").write_text("not json")
             self.assertEqual(ModuleRegistry(Path(temp)).discover(), {})
+
+    def test_high_risk_launch_is_denied_before_process_start(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "default")
+            decision = runtime.launcher.check("trainer", "trainer", profile)
+            self.assertFalse(decision.allowed)
+            self.assertIn("Research profile", decision.reasons[0])
 
 
 if __name__ == "__main__":
