@@ -43,6 +43,7 @@ class ControlCenterBackend(QObject):
         self.research = runtime.research if runtime else None
         self.knowledge = runtime.knowledge if runtime else None
         self.characters = runtime.characters if runtime else None
+        self.risk = runtime.risk if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -155,6 +156,18 @@ class ControlCenterBackend(QObject):
         if not self.characters:
             return []
         return [f"{item.name} · level {item.planned_level} · {item.profile_id}" for item in self.characters.list()]
+
+    @Property("QStringList", notify=stateChanged)
+    def riskOptions(self):
+        if not self.risk:
+            return []
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return []
+        return [
+            f"{capability}: {'ready' if self.risk.evaluate(capability, profile).allowed else 'gated'}"
+            for capability in ("trainer", "research", "content-creator")
+        ]
 
     @Slot(str)
     def createCharacter(self, name: str):

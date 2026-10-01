@@ -43,6 +43,7 @@ ApplicationWindow {
                 NavButton { label: "Knowledge"; pageIndex: 7 }
                 NavButton { label: "Profiles"; pageIndex: 8 }
                 NavButton { label: "Characters"; pageIndex: 9 }
+                NavButton { label: "Trainer"; pageIndex: 10 }
                 Item { Layout.fillHeight: true }
                 Rectangle { Layout.fillWidth: true; height: 1; color: line }
                 Text { text: "●  Core services ready"; color: "#83a77b"; font.pixelSize: 11 }
@@ -74,11 +75,12 @@ ApplicationWindow {
                 GameSettingsPage {}
                 SaveManagerPage {}
                 TroubleshooterPage {}
-                PlaceholderPage { heading: "Content Studio"; body: "Content creation remains a guarded developer preview." }
+                RiskToolsPage { heading: "Content Studio"; capability: "content-creator"; body: "Content creation remains a guarded developer preview." }
                 ResearchPage {}
                 KnowledgePage {}
                 ProfilesPage {}
                 CharacterPage {}
+                RiskToolsPage { heading: "Trainer"; capability: "trainer"; body: "Trainer capabilities require a research profile, a verified recovery backup, and a separate-process launch contract." }
             }
         }
     }
@@ -287,6 +289,25 @@ ApplicationWindow {
                 model: controlCenter.characterOptions
                 delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true }
             }
+        }
+    }
+
+    component RiskToolsPage: ScrollView {
+        property string heading
+        property string capability
+        property string body
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: capability.toUpperCase(); color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: heading; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: body; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Text { text: "Safety gates"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater {
+                model: controlCenter.riskOptions
+                delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true }
+            }
+            Text { text: "This capability cannot be launched from the stable profile without the required isolation and recovery conditions."; color: muted; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
         }
     }
 

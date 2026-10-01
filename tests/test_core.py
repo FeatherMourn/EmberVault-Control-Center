@@ -9,6 +9,7 @@ from core.operations import OperationService, OperationStatus
 from core.profiles import ProfileService
 from core.packages import PackageService
 from core.game_settings import GameSettingsService
+from core.risk import RiskGateService
 from core.settings import Settings, SettingsService
 
 
@@ -91,6 +92,16 @@ class CoreServiceTests(unittest.TestCase):
             profile = profiles.list()[0]
             updated = service.stage(profile, "enemy_damage_multiplier", 1.5)
             self.assertEqual(service.values(updated)["enemy_damage_multiplier"], 1.5)
+
+    def test_high_risk_capabilities_require_research_and_backup(self):
+        with tempfile.TemporaryDirectory() as temp:
+            profiles = ProfileService(Path(temp))
+            profiles.ensure_defaults()
+            stable, research = profiles.list()
+            gate = RiskGateService()
+            self.assertFalse(gate.evaluate("trainer", stable).allowed)
+            self.assertFalse(gate.evaluate("trainer", research).allowed)
+            self.assertTrue(gate.evaluate("trainer", research, verified_backup_id="EV-BACKUP-1").allowed)
 
 
 if __name__ == "__main__":

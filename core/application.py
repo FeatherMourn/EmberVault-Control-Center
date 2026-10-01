@@ -14,6 +14,7 @@ from .operations import OperationService
 from .packages import PackageService
 from .profiles import ProfileService
 from .research import ResearchService
+from .risk import RiskGateService
 from .save_manager import SaveManagerService
 from .save_workflow import SaveWorkflowService
 from .settings import SettingsService
@@ -37,6 +38,7 @@ class EmbervaultRuntime:
     research: ResearchService
     knowledge: KnowledgeService
     characters: CharacterService
+    risk: RiskGateService
 
     @classmethod
     def create(cls, root: Path) -> "EmbervaultRuntime":
@@ -57,6 +59,7 @@ class EmbervaultRuntime:
             research=None,
             knowledge=None,
             characters=None,
+            risk=None,
         )
         runtime.save_workflow = SaveWorkflowService(runtime.saves, runtime.operations, runtime.logs)
         runtime.profiles.ensure_defaults()
@@ -69,6 +72,7 @@ class EmbervaultRuntime:
         runtime.research = ResearchService(root)
         runtime.knowledge = KnowledgeService(root.parent)
         runtime.characters = CharacterService(root)
+        runtime.risk = RiskGateService()
         runtime.modules.discover()
         runtime.logs.info("Embervault Core initialized")
         return runtime
