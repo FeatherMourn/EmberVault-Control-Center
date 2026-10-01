@@ -81,7 +81,7 @@ this release and must return the versioned worker-result contract.
 Knowledge contains the local safety and architecture guidance. Search it from
 the Knowledge page. New entries are private until explicitly published, and
 the page labels entries PUBLIC or PRIVATE. Export or publish the public catalog
-JSON for the Ember Vault website. The export excludes paths, saves, logs,
+JSON for the EmberVault website. The export excludes paths, saves, logs,
 profiles, private knowledge, and private research evidence. **Publish catalog
 to repository folder** writes a validated local `embervault-catalog.json`
 handoff; the desktop app does not commit or push it.
