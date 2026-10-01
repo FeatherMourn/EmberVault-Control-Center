@@ -88,3 +88,15 @@ jobs:
         run: |
           $wheel = Get-ChildItem dist -Filter *.whl | Sort-Object LastWriteTime -Descending | Select-Object -First 1
           python tools/verify_release.py $wheel.FullName
+
+      - name: Smoke-test installed wheel
+        shell: pwsh
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python -m venv .ci-wheel-venv
+          $python = (Resolve-Path .ci-wheel-venv\Scripts\python.exe).Path
+          $wheel = (Get-ChildItem dist -Filter *.whl | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+          & $python -m pip install $wheel
+          Set-Location $env:TEMP
+          & $python -m control_center.app --smoke-test
