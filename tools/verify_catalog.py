@@ -29,6 +29,8 @@ def validate_catalog(payload: dict) -> None:
         for item in payload[collection]:
             if not isinstance(item, dict) or not isinstance(item.get("id"), str) or not item["id"].strip():
                 raise ValueError(f"{collection.title()} catalog records must contain an id")
+            if collection == "modules" and item.get("process_mode") not in {"embedded", "separate"}:
+                raise ValueError("Module catalog records must declare embedded or separate process_mode")
     for item in payload["knowledge"]:
         if not isinstance(item, dict) or set(item) != {"id", "title", "category", "summary", "content", "published_at"}:
             raise ValueError("Knowledge catalog records must match the public contract")
