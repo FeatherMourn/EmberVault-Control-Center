@@ -104,6 +104,11 @@ class ControlCenterBackend(QObject):
     def canBackup(self):
         return bool(self._save_directory)
 
+    @Property(bool, notify=stateChanged)
+    def canRestore(self):
+        return bool(self._save_directory and self._selected_backup_id
+                    and self._restore_preview_backup_id == self._selected_backup_id)
+
     @Property(str, notify=stateChanged)
     def lastSaveMessage(self):
         return self._last_save_message

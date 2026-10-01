@@ -181,7 +181,7 @@ ApplicationWindow {
                 Button { text: "Backup now"; enabled: controlCenter.canBackup; onClicked: controlCenter.createBackup("manual") }
                 Button { text: "Verify selected"; enabled: controlCenter.backupOptions.length > 0; onClicked: controlCenter.verifySelected() }
                 Button { text: "Preview restore"; enabled: controlCenter.backupOptions.length > 0; onClicked: controlCenter.previewRestore() }
-                Button { text: "Restore selected"; enabled: controlCenter.backupOptions.length > 0; onClicked: restoreDialog.open() }
+                Button { text: "Restore selected"; enabled: controlCenter.canRestore; onClicked: restoreDialog.open() }
             }
             Text { text: controlCenter.restorePreview; color: muted; wrapMode: Text.WordWrap }
             Text { text: controlCenter.lastSaveMessage; color: ink; wrapMode: Text.WordWrap }

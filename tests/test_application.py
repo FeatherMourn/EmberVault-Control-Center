@@ -49,6 +49,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend._save_directory = temp
             backend.restoreSelected()
             self.assertIn("Preview the selected restore", backend.lastSaveMessage)
+            self.assertFalse(backend.canRestore)
 
     def test_troubleshooter_reports_unconfigured_game_without_mutation(self):
         with tempfile.TemporaryDirectory() as temp:
