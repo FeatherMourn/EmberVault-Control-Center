@@ -46,3 +46,8 @@ class GameSettingsService:
         updated = Profile(**{**profile.__dict__, "settings": settings})
         self.profiles.save(updated)
         return updated
+
+    def reset(self, profile: Profile) -> Profile:
+        updated = Profile(**{**profile.__dict__, "settings": {}})
+        self.profiles.save(updated)
+        return updated

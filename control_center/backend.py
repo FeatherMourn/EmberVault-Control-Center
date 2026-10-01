@@ -301,6 +301,21 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot()
+    def resetGameSettings(self):
+        if not self.game_settings:
+            return
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return
+        operation = self.operations.start("game-settings-reset", profile_id=profile.id) if self.operations else None
+        updated = self.game_settings.reset(profile)
+        if operation and self.operations:
+            self.operations.finish(operation, OperationStatus.SUCCEEDED, "Reset game settings")
+        self.profiles = [updated if item.id == updated.id else item for item in self.profiles]
+        self._last_save_message = f"Reset game settings for {updated.name}"
+        self.stateChanged.emit()
+
     @Property("QStringList", notify=stateChanged)
     def profileDetails(self):
         return [

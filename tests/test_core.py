@@ -115,6 +115,17 @@ class CoreServiceTests(unittest.TestCase):
             updated = service.stage(profile, "enemy_damage_multiplier", 1.5)
             self.assertEqual(service.values(updated)["enemy_damage_multiplier"], 1.5)
 
+    def test_game_settings_reset_restores_documented_defaults(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            service = GameSettingsService(profiles)
+            profile = profiles.list()[0]
+            changed = service.stage(profile, "enemy_damage_multiplier", 2.0)
+            reset = service.reset(changed)
+            self.assertEqual(service.values(reset)["enemy_damage_multiplier"], 1.0)
+
     def test_high_risk_capabilities_require_research_and_backup(self):
         with tempfile.TemporaryDirectory() as temp:
             profiles = ProfileService(Path(temp))
