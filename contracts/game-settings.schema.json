@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embervault.local/contracts/game-settings.schema.json",
+  "title": "EmberVault Staged Game Settings",
+  "type": "object",
+  "required": ["schema_version", "profile_id", "profile_name", "settings", "generated_at", "application_state"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "profile_id": {"type": "string", "minLength": 1},
+    "profile_name": {"type": "string", "minLength": 1},
+    "settings": {
+      "type": "object",
+      "required": ["enemy_damage_multiplier", "resource_yield_multiplier", "experimental_rules"],
+      "properties": {
+        "enemy_damage_multiplier": {"type": "number", "minimum": 0.25, "maximum": 4.0},
+        "resource_yield_multiplier": {"type": "number", "minimum": 0.25, "maximum": 4.0},
+        "experimental_rules": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "generated_at": {"type": "string", "minLength": 1},
+    "application_state": {"const": "staged-only"}
+  },
+  "additionalProperties": false
+}

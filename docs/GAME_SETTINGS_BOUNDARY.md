@@ -18,7 +18,8 @@ mod-owned source files as part of Game Settings. Staged values can be exported
 as a portable tuning manifest and consumed later by an explicitly identified
 mod or tuning module. Such a module must declare its input contract, backup
 requirements, mutation scope, and verification procedure before live
-application is enabled.
+application is enabled. The portable handoff is defined by
+`contracts/game-settings.schema.json`.
 
 This preserves the first-release Save Manager boundary and prevents treating
 client display settings as gameplay controls.

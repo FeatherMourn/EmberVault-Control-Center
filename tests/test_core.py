@@ -228,6 +228,11 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(payload["settings"]["resource_yield_multiplier"], 2.0)
             self.assertNotIn("game", destination.parts)
 
+    def test_game_settings_contract_declares_staged_only_boundary(self):
+        schema = json.loads((Path(__file__).parents[1] / "contracts" / "game-settings.schema.json").read_text(encoding="utf-8"))
+        self.assertEqual(schema["properties"]["application_state"]["const"], "staged-only")
+        self.assertIn("settings", schema["required"])
+
     def test_game_settings_reject_out_of_range_or_non_finite_numbers(self):
         with tempfile.TemporaryDirectory() as temp:
             profiles = ProfileService(Path(temp))
