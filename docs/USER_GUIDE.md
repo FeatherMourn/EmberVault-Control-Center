@@ -54,6 +54,15 @@ backup, preview a restore, and restore after preserving the current state. It
 does not edit save contents. Use Activity to review the recorded operation
 history.
 
+## Game Settings
+
+Game Settings are staged per profile and do not modify the live game. Use the
+setting buttons to change the selected profile, then export a JSON manifest for
+review or import a previously exported manifest. Imports must belong to the
+selected profile and use the `staged-only` contract; invalid or mismatched
+manifests are rejected before the profile is changed. The tuning audit can
+inspect the staged manifest without applying it.
+
 ## Research and tools
 
 Research records belong to a selected profile and can collect evidence notes.
