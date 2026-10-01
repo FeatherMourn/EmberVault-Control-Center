@@ -33,5 +33,19 @@
     "category": "Research",
     "summary": "Staged tuning is portable input, not a direct game mutation.",
     "content": "The installation exposes client preference settings but no supported native gameplay-tuning document. EmberVault therefore exports staged profile values and keeps live application behind an explicitly identified mod or tuning adapter that declares its input contract, backup requirements, mutation scope, and verification procedure."
+  },
+  {
+    "id": "capability-status-labels",
+    "title": "Capability status labels",
+    "category": "Research",
+    "summary": "Separate verified, experimental, research-only, and blocked work.",
+    "content": "Verified route means the documented boundary has passed its evidence requirements. Experimental means controlled testing is possible while important questions remain. Research-only belongs in an isolated profile or disposable world. Blocked means a missing dependency, unsafe boundary, or unresolved failure prevents promotion."
+  },
+  {
+    "id": "furniture-registration-boundary",
+    "title": "Furniture registration is not visual proof",
+    "category": "Content Creator",
+    "summary": "A resource registration route does not prove complete rendering behavior.",
+    "content": "The recorded furniture research demonstrates an independent ItemInfo registration route for a specific build. Catalog exposure, mesh and texture rendering, multiplayer behavior, and complete visual presentation require separate evidence. Keep the work in a disposable test world while those boundaries remain research-only."
   }
 ]
