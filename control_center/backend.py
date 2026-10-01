@@ -113,7 +113,10 @@ class ControlCenterBackend(QObject):
     def moduleOptions(self):
         if not self.modules:
             return []
-        return [f"{module.name} · {module.feature_state}" for module in self.modules.discover().values()]
+        return [
+            f"{module.name} · {module.feature_state} · {', '.join(module.capabilities) or 'no declared capabilities'}"
+            for module in self.modules.discover().values()
+        ]
 
     @Property("QStringList", notify=stateChanged)
     def packageOptions(self):

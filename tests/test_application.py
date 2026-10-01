@@ -80,6 +80,11 @@ class ApplicationCompositionTests(unittest.TestCase):
             second = runtime.troubleshooter.scan()
             self.assertEqual(first, second)
 
+    def test_module_catalog_exposes_capabilities(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            self.assertTrue(any("trainer" in item for item in runtime.modules.discover()["embervault.trainer"].capabilities))
+
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
