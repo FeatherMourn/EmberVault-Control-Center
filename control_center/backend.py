@@ -10,6 +10,7 @@ from core.save_manager import SaveManagerError, SaveManagerService
 from core.save_workflow import SaveWorkflowService
 from core.settings import SettingsService
 from core.operations import OperationStatus
+from core.compatibility import evaluate
 
 try:
     from PySide6.QtCore import QObject, Property, Signal, Slot
@@ -125,8 +126,11 @@ class ControlCenterBackend(QObject):
         profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
         if not profile:
             return []
+        detected_build = self._build if self._build not in {"Unknown build", "Choose game folder"} else None
         return [
-            f"{'Enabled' if self.packages.is_enabled(profile, package.id) else 'Disabled'} · {package.name} · {package.version}"
+            f"{'Enabled' if self.packages.is_enabled(profile, package.id) else 'Disabled'} · "
+            f"{package.name} · {package.version} · "
+            f"Compatibility: {evaluate(required_builds=list(package.required_builds), detected_build=detected_build).state}"
             for package in self.packages.list()
         ]
 
