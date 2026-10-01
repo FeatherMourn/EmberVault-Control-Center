@@ -40,6 +40,7 @@ class ControlCenterBackend(QObject):
         self.save_manager = runtime.saves if runtime else SaveManagerService(self.data_root)
         self.save_workflow = runtime.save_workflow if runtime else None
         self.operations = runtime.operations if runtime else None
+        self.logs = runtime.logs if runtime else None
         self.modules = runtime.modules if runtime else None
         self.packages = runtime.packages if runtime else None
         self.troubleshooter = runtime.troubleshooter if runtime else None
@@ -153,6 +154,9 @@ class ControlCenterBackend(QObject):
                 attention = sum(1 for item in findings if item.severity == "attention")
                 if operation and self.operations:
                     self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Diagnostics completed: {attention} attention finding(s)")
+                if self.logs:
+                    self.logs.info("Troubleshooter scan completed", operation_id=operation.id if operation else None,
+                                    profile_id=self._selected_profile_id, details={"attention": attention})
                 self._last_save_message = f"Read-only health scan completed: {attention} attention finding(s)"
             except (OSError, ValueError) as exc:
                 if operation and self.operations:
@@ -298,6 +302,9 @@ class ControlCenterBackend(QObject):
             result = output.strip() if output else "no worker output"
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Launched {module_id}: {result}")
+            if self.logs:
+                self.logs.info("Guarded module completed", operation_id=operation.id if operation else None,
+                                profile_id=profile.id, details={"module_id": module_id, "output": result})
             self._last_save_message = f"Completed guarded {capability} worker: {result}"
         except subprocess.TimeoutExpired:
             process.kill()

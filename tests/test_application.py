@@ -178,6 +178,8 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.runDiagnostics()
             self.assertIn("attention finding(s)", backend.lastSaveMessage)
             self.assertTrue(any(item.operation_type == "troubleshooter-scan" for item in runtime.operations.list_recent()))
+            log_text = (Path(temp) / "logs" / "events.jsonl").read_text(encoding="utf-8")
+            self.assertIn("Troubleshooter scan completed", log_text)
 
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
