@@ -408,23 +408,25 @@ ApplicationWindow {
                 Button { text: "Create plan"; onClicked: controlCenter.createTrainerPlan(trainerTarget.text, trainerNotes.text) }
                 Button { text: "Export latest plan"; onClicked: controlCenter.exportLatestTrainerPlan() }
             }
-            TextField { id: contentName; placeholderText: "Content project name"; Layout.fillWidth: true }
-            TextField { id: contentDescription; placeholderText: "Development brief or intended outcome"; Layout.fillWidth: true }
-            TextField { id: contentDesignNotes; placeholderText: "Design notes, dimensions, materials, or recipe details"; Layout.fillWidth: true }
-            TextField { id: contentAssetRefs; placeholderText: "Asset references (comma-separated, project-relative)"; Layout.fillWidth: true }
-            ComboBox { id: contentDesignType; model: ["furniture", "building", "recipe", "other"]; Layout.fillWidth: true }
-            Button { text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text) }
-            Button { text: "Update latest design"; onClicked: controlCenter.updateLatestContentDesign(contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text) }
-            Button { text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
+            TextField { id: contentName; visible: capability === "content-creator"; placeholderText: "Content project name"; Layout.fillWidth: true }
+            TextField { id: contentDescription; visible: capability === "content-creator"; placeholderText: "Development brief or intended outcome"; Layout.fillWidth: true }
+            TextField { id: contentDesignNotes; visible: capability === "content-creator"; placeholderText: "Design notes, dimensions, materials, or recipe details"; Layout.fillWidth: true }
+            TextField { id: contentAssetRefs; visible: capability === "content-creator"; placeholderText: "Asset references (comma-separated, project-relative)"; Layout.fillWidth: true }
+            ComboBox { id: contentDesignType; visible: capability === "content-creator"; model: ["furniture", "building", "recipe", "other"]; Layout.fillWidth: true }
+            Button { visible: capability === "content-creator"; text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text) }
+            Button { visible: capability === "content-creator"; text: "Update latest design"; onClicked: controlCenter.updateLatestContentDesign(contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text) }
+            Button { visible: capability === "content-creator"; text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
             RowLayout {
+                visible: capability === "content-creator"
                 Button { text: "Publish latest"; onClicked: controlCenter.publishLatestContentProject() }
                 Button { text: "Unpublish latest"; onClicked: controlCenter.unpublishLatestContentProject() }
             }
             RowLayout {
+                visible: capability === "content-creator"
                 Button { text: "Mark ready"; onClicked: controlCenter.setLatestContentStatus("ready") }
                 Button { text: "Mark blocked"; onClicked: controlCenter.setLatestContentStatus("blocked") }
             }
-            Repeater { model: controlCenter.contentOptions; delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true } }
+            Repeater { visible: capability === "content-creator"; model: controlCenter.contentOptions; delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true } }
             Repeater {
                 model: controlCenter.riskOptions
                 delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true }
