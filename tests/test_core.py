@@ -238,6 +238,19 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_directory(incoming)
 
+    def test_package_manifest_rejects_path_like_dependency(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            incoming = root / "incoming"
+            incoming.mkdir()
+            (incoming / "package.json").write_text(json.dumps({
+                "id": "unsafe.mod", "name": "Unsafe", "version": "1.0", "dependencies": ["../escape"],
+            }))
+            with self.assertRaises(ValueError):
+                PackageService(root, profiles).install_from_directory(incoming)
+
     def test_package_enablement_blocks_known_incompatible_build(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

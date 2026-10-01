@@ -31,12 +31,15 @@ class PackageManifest:
         package_id = str(data["id"])
         if not package_id or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in package_id):
             raise ValueError("Package id contains invalid characters")
+        dependencies = tuple(str(value) for value in data.get("dependencies", []))
+        if any(not dependency or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in dependency) for dependency in dependencies):
+            raise ValueError("Package dependency contains invalid characters")
         return cls(
             id=package_id, name=str(data["name"]), version=str(data["version"]),
             author=str(data.get("author", "Unknown")), description=str(data.get("description", "")),
             package_type=str(data.get("package_type", "mod")),
             required_builds=tuple(str(value) for value in data.get("required_builds", [])),
-            dependencies=tuple(str(value) for value in data.get("dependencies", [])),
+            dependencies=dependencies,
             path=path.parent,
         )
 
