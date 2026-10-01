@@ -33,7 +33,9 @@
 ## Release evidence
 
 - Python unit suite currently covers the Core services, workflows, module gates,
-  packaging assets, and installed-process contracts.
+  profile isolation, packaging assets, and installed-process contracts (60 tests).
 - QML is smoke-tested through an offscreen Qt application.
-- Wheels have been built and installed into isolated temporary targets.
+- Wheels have been built and installed into isolated temporary targets; the
+  packaged launcher passes its offscreen smoke test and discovers four modules,
+  one seed package, and three knowledge entries.
 - Save Manager remains inspection/backup/verification/restore-only.
