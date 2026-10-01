@@ -23,6 +23,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(health["content_projects"], 0)
             self.assertEqual(health["trainer_plans"], 0)
 
+    def test_backend_exposes_workspace_summary(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            self.assertIn("Research · 0 records", backend.workspaceSummary)
+            self.assertIn("Knowledge · 4 entries", backend.workspaceSummary)
+            self.assertIn("Content · 0 projects", backend.workspaceSummary)
+            self.assertIn("Trainer · 0 plans", backend.workspaceSummary)
+
     def test_troubleshooter_reports_unconfigured_game_without_mutation(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

@@ -115,6 +115,22 @@ ApplicationWindow {
                 StatusCard { title: "PROFILE"; value: controlCenter.profileName; note: "Core profile"; accent: ember }
                 StatusCard { title: "SAFETY"; value: "Ready"; note: controlCenter.saveSummary; accent: "#d8b46a" }
             }
+            Text { text: "Vault state"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 4 }
+            Flow {
+                Layout.fillWidth: true
+                spacing: 8
+                Repeater {
+                    model: controlCenter.workspaceSummary
+                    delegate: Rectangle {
+                        width: stateLabel.implicitWidth + 24
+                        height: 32
+                        radius: 4
+                        color: panel
+                        border.color: line
+                        Text { id: stateLabel; anchors.centerIn: parent; text: modelData; color: muted; font.pixelSize: 12 }
+                    }
+                }
+            }
             Button { text: "Choose game folder"; onClicked: controlCenter.chooseGameFolder() }
             Text { text: "Continue"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 10 }
             Button { text: "Open Save Manager"; onClicked: page = 3 }

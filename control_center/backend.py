@@ -89,6 +89,16 @@ class ControlCenterBackend(QObject):
         count = len(self.save_manager.list_backups())
         return f"{count} verified backup{'s' if count != 1 else ''}"
 
+    @Property("QStringList", notify=stateChanged)
+    def workspaceSummary(self):
+        """Expose the current workspace footprint without exposing private records."""
+        return [
+            f"Research · {len(self.research.list()) if self.research else 0} records",
+            f"Knowledge · {len(self.knowledge.entries()) if self.knowledge else 0} entries",
+            f"Content · {len(self.content.list()) if self.content else 0} projects",
+            f"Trainer · {len(self.trainer.list()) if self.trainer else 0} plans",
+        ]
+
     @Property(bool, notify=stateChanged)
     def canBackup(self):
         return bool(self._save_directory)
