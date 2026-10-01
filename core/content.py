@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import datetime, timezone
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from .storage import write_json_atomic
 
@@ -18,6 +18,7 @@ class ContentProject:
     description: str = ""
     design_type: str = "furniture"
     design_notes: str = ""
+    asset_references: list[str] = field(default_factory=list)
     published: bool = False
     published_at: str = ""
 
@@ -48,6 +49,11 @@ class ContentProjectService:
                     project.design_type = "furniture"
                 if not isinstance(project.design_notes, str):
                     project.design_notes = ""
+                if not isinstance(project.asset_references, list):
+                    project.asset_references = []
+                else:
+                    project.asset_references = [item.strip() for item in project.asset_references
+                                                if isinstance(item, str) and item.strip() and not Path(item).is_absolute() and ".." not in Path(item).parts]
                 if not isinstance(project.published, bool):
                     project.published = False
                 if not isinstance(project.published_at, str):
@@ -57,14 +63,15 @@ class ContentProjectService:
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
 
-    def create(self, name: str, profile_id: str, description: str = "", design_type: str = "furniture", design_notes: str = "") -> ContentProject:
+    def create(self, name: str, profile_id: str, description: str = "", design_type: str = "furniture", design_notes: str = "", asset_references: list[str] | None = None) -> ContentProject:
         if not name.strip() or not profile_id.strip():
             raise ValueError("Content project name and profile are required")
         if design_type not in {"furniture", "building", "recipe", "other"}:
             raise ValueError("Unknown content design type")
+        references = self._normalize_asset_references(asset_references or [])
         project = ContentProject(f"EV-CONTENT-{uuid.uuid4().hex[:8].upper()}", name.strip(), profile_id,
                                  description=description.strip(), design_type=design_type,
-                                 design_notes=design_notes.strip())
+                                 design_notes=design_notes.strip(), asset_references=references)
         projects = self.list()
         projects.append(project)
         write_json_atomic(self.path, [asdict(item) for item in projects])
@@ -86,7 +93,7 @@ class ContentProjectService:
                 return project
         raise KeyError(project_id)
 
-    def update_design(self, project_id: str, design_type: str, design_notes: str) -> ContentProject:
+    def update_design(self, project_id: str, design_type: str, design_notes: str, asset_references: list[str] | None = None) -> ContentProject:
         if design_type not in {"furniture", "building", "recipe", "other"}:
             raise ValueError("Unknown content design type")
         projects = self.list()
@@ -94,12 +101,27 @@ class ContentProjectService:
             if project.id == project_id:
                 project.design_type = design_type
                 project.design_notes = design_notes.strip()
+                project.asset_references = self._normalize_asset_references(asset_references or [])
                 if project.published:
                     project.published = False
                     project.published_at = ""
                 write_json_atomic(self.path, [asdict(item) for item in projects])
                 return project
         raise KeyError(project_id)
+
+    @staticmethod
+    def _normalize_asset_references(references: list[str]) -> list[str]:
+        if not isinstance(references, list):
+            raise ValueError("Asset references must be a list")
+        result = []
+        for reference in references:
+            if not isinstance(reference, str) or not reference.strip():
+                continue
+            path = Path(reference.strip())
+            if path.is_absolute() or ".." in path.parts:
+                raise ValueError("Asset references must remain relative to the project")
+            result.append(reference.strip())
+        return list(dict.fromkeys(result))
 
     def publish(self, project_id: str) -> ContentProject:
         projects = self.list()

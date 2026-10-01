@@ -498,6 +498,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(payload["project"]["id"], project.id)
             self.assertNotIn("game", destination.parts)
 
+    def test_content_asset_references_are_relative_and_persisted(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            project = runtime.content.create("Furniture", "research", "Brief", "furniture", "Oak", ["assets/chair.png"])
+            self.assertEqual(project.asset_references, ["assets/chair.png"])
+            with self.assertRaises(ValueError):
+                runtime.content.update_design(project.id, "furniture", "Oak", ["..\\outside.png"])
+
     def test_content_project_publication_is_explicit_and_catalog_sanitized(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

@@ -368,12 +368,13 @@ class ControlCenterBackend(QObject):
         ]
 
     @Slot(str, str, str, str)
-    def createContentProject(self, name: str, description: str = "", design_type: str = "furniture", design_notes: str = ""):
+    def createContentProject(self, name: str, description: str = "", design_type: str = "furniture", design_notes: str = "", asset_references: str = ""):
         if not self.content:
             return
         operation = self.operations.start("content-project-create", profile_id=self._selected_profile_id) if self.operations else None
         try:
-            project = self.content.create(name, self._selected_profile_id, description, design_type, design_notes)
+            references = [item.strip() for item in asset_references.split(",") if item.strip()]
+            project = self.content.create(name, self._selected_profile_id, description, design_type, design_notes, references)
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created content project {project.id}")
             self._last_save_message = f"Created content project {project.id}"
@@ -419,8 +420,8 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
-    @Slot(str, str)
-    def updateLatestContentDesign(self, design_type: str, design_notes: str):
+    @Slot(str, str, str)
+    def updateLatestContentDesign(self, design_type: str, design_notes: str, asset_references: str):
         if not self.content:
             return
         projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
@@ -429,7 +430,8 @@ class ControlCenterBackend(QObject):
         else:
             operation = self.operations.start("content-design-update", profile_id=self._selected_profile_id) if self.operations else None
             try:
-                project = self.content.update_design(projects[-1].id, design_type, design_notes)
+                references = [item.strip() for item in asset_references.split(",") if item.strip()]
+                project = self.content.update_design(projects[-1].id, design_type, design_notes, references)
                 if operation and self.operations:
                     self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Updated content design {project.id}")
                 self._last_save_message = f"Updated design for {project.id}"

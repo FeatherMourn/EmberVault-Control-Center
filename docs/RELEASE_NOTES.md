@@ -41,7 +41,8 @@
   live game was not changed; it does not apply tuning.
 - Character projects remain planning metadata, not live mutations, and their
   planning notes can be revised safely. Content
-  projects remain design-only locally; a ready project may be explicitly
+  projects remain design-only locally, can track project-relative asset
+  references, and a ready project may be explicitly
   published as a sanitized catalog summary, but no design brief or live game
   content is exposed or mutated.
 - High-risk worker processes remain non-mutating in this release. Research

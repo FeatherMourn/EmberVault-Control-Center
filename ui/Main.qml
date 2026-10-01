@@ -388,9 +388,10 @@ ApplicationWindow {
             TextField { id: contentName; placeholderText: "Content project name"; Layout.fillWidth: true }
             TextField { id: contentDescription; placeholderText: "Development brief or intended outcome"; Layout.fillWidth: true }
             TextField { id: contentDesignNotes; placeholderText: "Design notes, dimensions, materials, or recipe details"; Layout.fillWidth: true }
+            TextField { id: contentAssetRefs; placeholderText: "Asset references (comma-separated, project-relative)"; Layout.fillWidth: true }
             ComboBox { id: contentDesignType; model: ["furniture", "building", "recipe", "other"]; Layout.fillWidth: true }
-            Button { text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text) }
-            Button { text: "Update latest design"; onClicked: controlCenter.updateLatestContentDesign(contentDesignType.currentText, contentDesignNotes.text) }
+            Button { text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text) }
+            Button { text: "Update latest design"; onClicked: controlCenter.updateLatestContentDesign(contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text) }
             Button { text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
             RowLayout {
                 Button { text: "Publish latest"; onClicked: controlCenter.publishLatestContentProject() }

@@ -8,7 +8,7 @@
     "schema_version": {"const": 1},
     "project": {
       "type": "object",
-      "required": ["id", "name", "profile_id", "status", "description", "design_type", "design_notes", "published", "published_at"],
+      "required": ["id", "name", "profile_id", "status", "description", "design_type", "design_notes", "asset_references", "published", "published_at"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "name": {"type": "string", "minLength": 1},
@@ -17,6 +17,7 @@
         "description": {"type": "string"},
         "design_type": {"enum": ["furniture", "building", "recipe", "other"]},
         "design_notes": {"type": "string"},
+        "asset_references": {"type": "array", "items": {"type": "string", "minLength": 1}},
         "published": {"type": "boolean"},
         "published_at": {"type": "string"}
       },
