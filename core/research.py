@@ -30,8 +30,16 @@ class ResearchService:
             return []
         try:
             records = []
-            for item in json.loads(self.path.read_text(encoding="utf-8")):
-                record = ResearchRecord(**item)
+            raw_records = json.loads(self.path.read_text(encoding="utf-8"))
+            if not isinstance(raw_records, list):
+                return []
+            for item in raw_records:
+                if not isinstance(item, dict):
+                    continue
+                try:
+                    record = ResearchRecord(**item)
+                except (TypeError, ValueError):
+                    continue
                 if record.status not in {"planned", "running", "completed", "blocked"}:
                     record.status = "planned"
                 if not isinstance(record.evidence, list):

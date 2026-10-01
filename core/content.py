@@ -27,8 +27,16 @@ class ContentProjectService:
             return []
         try:
             projects = []
-            for item in json.loads(self.path.read_text(encoding="utf-8")):
-                project = ContentProject(**item)
+            raw_projects = json.loads(self.path.read_text(encoding="utf-8"))
+            if not isinstance(raw_projects, list):
+                return []
+            for item in raw_projects:
+                if not isinstance(item, dict):
+                    continue
+                try:
+                    project = ContentProject(**item)
+                except (TypeError, ValueError):
+                    continue
                 if project.status not in {"draft", "ready", "blocked"}:
                     project.status = "draft"
                 projects.append(project)
