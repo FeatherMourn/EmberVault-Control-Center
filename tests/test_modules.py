@@ -92,6 +92,16 @@ class ModuleRegistryTests(unittest.TestCase):
             }))
             self.assertEqual(ModuleRegistry(Path(temp)).discover(), {})
 
+    def test_module_manifest_rejects_unsafe_executable_declaration(self):
+        with tempfile.TemporaryDirectory() as temp:
+            module = Path(temp) / "unsafe"
+            module.mkdir()
+            (module / "module.json").write_text(json.dumps({
+                "id": "unsafe", "name": "Unsafe", "version": "1.0.0",
+                "publisher": "Test", "executable": "../outside.py",
+            }))
+            self.assertEqual(ModuleRegistry(Path(temp)).discover(), {})
+
     def test_python_module_process_uses_current_interpreter(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "demo"

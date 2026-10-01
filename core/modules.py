@@ -36,9 +36,16 @@ class ModuleManifest:
         module_id = str(data["id"])
         if not module_id or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in module_id):
             raise ValueError("Module id contains invalid characters")
+        executable = data.get("executable")
+        if executable is not None:
+            if not isinstance(executable, str) or not executable.strip():
+                raise ValueError("Module executable must be a non-empty relative path")
+            executable_path = Path(executable)
+            if executable_path.is_absolute() or ".." in executable_path.parts:
+                raise ValueError("Module executable must remain inside its package directory")
         return cls(
             id=module_id, name=str(data["name"]), version=str(data["version"]),
-            publisher=str(data.get("publisher", "Unknown")), executable=data.get("executable"),
+            publisher=str(data.get("publisher", "Unknown")), executable=executable,
             minimum_core_version=str(data.get("minimum_core_version", "0.1.0")),
             capabilities=tuple(str(x) for x in data.get("capabilities", [])),
             feature_state=str(data.get("feature_state", "stable")),
