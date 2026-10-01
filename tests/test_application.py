@@ -41,6 +41,29 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.selectProfile(1)
             self.assertEqual(backend.selectedProfileIndex, 1)
 
+    def test_backend_imports_staged_settings_for_selected_profile(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            backend = ControlCenterBackend(root, runtime=runtime)
+            profile = runtime.profiles.list()[0]
+            manifest = root / "settings.json"
+            manifest.write_text(json.dumps({
+                "schema_version": 1,
+                "profile_id": profile.id,
+                "application_state": "staged-only",
+                "settings": {
+                    "enemy_damage_multiplier": 1.25,
+                    "resource_yield_multiplier": 1.0,
+                    "experimental_rules": False,
+                },
+            }), encoding="utf-8")
+            backend.importGameSettings(str(manifest))
+            self.assertIn("Imported staged settings", backend.lastSaveMessage)
+            selected = next(item for item in backend.profiles if item.id == profile.id)
+            self.assertEqual(selected.settings["enemy_damage_multiplier"], 1.25)
+            self.assertEqual(backend.operations.list_recent(1)[0].operation_type, "game-settings-import")
+
     def test_backend_requires_restore_preview_before_restore(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
