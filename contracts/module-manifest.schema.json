@@ -5,12 +5,12 @@
   "required": ["id", "name", "version", "publisher", "capabilities"],
   "properties": {
     "id": {"type": "string", "pattern": "^embervault\\.[a-z0-9-]+$"},
-    "name": {"type": "string"},
-    "version": {"type": "string"},
-    "publisher": {"type": "string"},
-    "executable": {"type": ["string", "null"]},
+    "name": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "publisher": {"type": "string", "minLength": 1},
+    "executable": {"type": ["string", "null"], "pattern": "^(?!/)(?!.*\\.\\.).+"},
     "minimum_core_version": {"type": "string"},
-    "capabilities": {"type": "array", "items": {"type": "string"}},
+    "capabilities": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
     "feature_state": {"enum": ["stable", "verified", "experimental", "research-only", "blocked"]},
     "entrypoint": {"type": ["string", "null"]}
   }

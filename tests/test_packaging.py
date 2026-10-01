@@ -28,6 +28,14 @@ class PackagingContractTests(unittest.TestCase):
             text = (root / relative).read_text(encoding="utf-8")
             self.assertIn("sys.prefix", text)
 
+    def test_contracts_declare_strict_manifest_entries(self):
+        root = Path(__file__).resolve().parents[1]
+        module_schema = (root / "contracts/module-manifest.schema.json").read_text(encoding="utf-8")
+        package_schema = (root / "contracts/package-manifest.schema.json").read_text(encoding="utf-8")
+        self.assertIn('"uniqueItems": true', module_schema)
+        self.assertIn('"minLength": 1', module_schema)
+        self.assertIn('"minLength": 1', package_schema)
+
 
 if __name__ == "__main__":
     unittest.main()
