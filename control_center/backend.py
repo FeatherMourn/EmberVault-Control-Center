@@ -323,6 +323,46 @@ class ControlCenterBackend(QObject):
         self.stateChanged.emit()
 
     @Slot()
+    def publishLatestContentProject(self):
+        if not self.content:
+            return
+        projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
+        if not projects:
+            self._last_save_message = "Create a content project first"
+        else:
+            operation = self.operations.start("content-project-publish", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                project = self.content.publish(projects[-1].id)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Published content project {project.id}")
+                self._last_save_message = f"Published content project {project.id}"
+            except (KeyError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot()
+    def unpublishLatestContentProject(self):
+        if not self.content:
+            return
+        projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
+        if not projects:
+            self._last_save_message = "Create a content project first"
+        else:
+            operation = self.operations.start("content-project-unpublish", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                project = self.content.unpublish(projects[-1].id)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Unpublished content project {project.id}")
+                self._last_save_message = f"Unpublished content project {project.id}"
+            except KeyError as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot()
     def exportLatestContentProject(self):
         if not self.content:
             return

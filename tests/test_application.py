@@ -430,6 +430,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(payload["project"]["id"], project.id)
             self.assertNotIn("game", destination.parts)
 
+    def test_content_project_publication_is_explicit_and_catalog_sanitized(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            project = runtime.content.create("Furniture", "research", "A public design brief")
+            self.assertEqual(runtime.catalog.build()["content_projects"], [])
+            runtime.content.set_status(project.id, "ready")
+            runtime.content.publish(project.id)
+            public = runtime.catalog.build()["content_projects"]
+            self.assertEqual(public[0]["id"], project.id)
+            self.assertNotIn("description", public[0])
+            runtime.content.unpublish(project.id)
+            self.assertEqual(runtime.catalog.build()["content_projects"], [])
+
     def test_content_project_cannot_be_ready_without_brief(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

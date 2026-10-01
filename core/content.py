@@ -16,6 +16,8 @@ class ContentProject:
     profile_id: str
     status: str = "draft"
     description: str = ""
+    published: bool = False
+    published_at: str = ""
 
 
 class ContentProjectService:
@@ -40,6 +42,10 @@ class ContentProjectService:
                     continue
                 if project.status not in {"draft", "ready", "blocked"}:
                     project.status = "draft"
+                if not isinstance(project.published, bool):
+                    project.published = False
+                if not isinstance(project.published_at, str):
+                    project.published_at = ""
                 projects.append(project)
             return projects
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
@@ -63,6 +69,31 @@ class ContentProjectService:
                 if status == "ready" and not project.description.strip():
                     raise ValueError("Add a development brief before marking content ready")
                 project.status = status
+                if project.published:
+                    project.published = False
+                    project.published_at = ""
+                write_json_atomic(self.path, [asdict(item) for item in projects])
+                return project
+        raise KeyError(project_id)
+
+    def publish(self, project_id: str) -> ContentProject:
+        projects = self.list()
+        for project in projects:
+            if project.id == project_id:
+                if project.status != "ready" or not project.description.strip():
+                    raise ValueError("Mark the content project ready before publishing")
+                project.published = True
+                project.published_at = datetime.now(timezone.utc).isoformat()
+                write_json_atomic(self.path, [asdict(item) for item in projects])
+                return project
+        raise KeyError(project_id)
+
+    def unpublish(self, project_id: str) -> ContentProject:
+        projects = self.list()
+        for project in projects:
+            if project.id == project_id:
+                project.published = False
+                project.published_at = ""
                 write_json_atomic(self.path, [asdict(item) for item in projects])
                 return project
         raise KeyError(project_id)

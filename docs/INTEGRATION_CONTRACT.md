@@ -15,6 +15,10 @@ state.
   publication timestamps (never local evidence text or profile identifiers)
   and can be explicitly unpublished without deleting the local record. Changes
   to published evidence or status automatically retract publication.
+- explicitly published, sanitized Content project summaries for projects marked
+  ready (never local descriptions, profiles, or design-workspace details). A
+  project can be unpublished without deleting its local design record, and any
+  status change automatically retracts publication.
 
 Paths are deliberately removed from exported records. Runtime folders,
 profiles, save backups, logs, and research-local evidence are not published by

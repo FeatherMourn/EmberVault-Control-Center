@@ -35,7 +35,10 @@
 
 - Save Manager does not edit save contents.
 - Staged Game Settings are not applied directly to a live game.
-- Character and Content projects are planning metadata, not live mutations.
+- Character projects remain planning metadata, not live mutations. Content
+  projects remain design-only locally; a ready project may be explicitly
+  published as a sanitized catalog summary, but no design brief or live game
+  content is exposed or mutated.
 - High-risk worker processes remain non-mutating in this release. Research
   performs a bounded evidence probe, Trainer performs a readiness audit, and
   Content Creator performs a design-boundary audit; all are terminated and

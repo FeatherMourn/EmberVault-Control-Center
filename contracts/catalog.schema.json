@@ -3,7 +3,7 @@
   "$id": "https://embervault.local/contracts/catalog.schema.json",
   "title": "EmberVault Public Catalog",
   "type": "object",
-  "required": ["schema_version", "contract_versions", "packages", "modules", "knowledge", "research"],
+  "required": ["schema_version", "contract_versions", "packages", "modules", "knowledge", "research", "content_projects"],
   "properties": {
     "schema_version": {"const": 1},
     "contract_versions": {
@@ -12,7 +12,8 @@
       "properties": {
         "module_manifest": {"type": "integer", "minimum": 1},
         "package_manifest": {"type": "integer", "minimum": 1},
-        "research_record": {"type": "integer", "minimum": 1}
+        "research_record": {"type": "integer", "minimum": 1},
+        "content_project": {"type": "integer", "minimum": 1}
       }
     },
     "packages": {"type": "array", "items": {"type": "object"}},
@@ -30,6 +31,20 @@
           "status": {"const": "completed"},
           "evidence_count": {"type": "integer", "minimum": 1},
           "created_at": {"type": "string"},
+          "published_at": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "content_projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "status", "published_at"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "name": {"type": "string", "minLength": 1},
+          "status": {"const": "ready"},
           "published_at": {"type": "string", "minLength": 1}
         },
         "additionalProperties": false

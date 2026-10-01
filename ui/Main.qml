@@ -372,6 +372,10 @@ ApplicationWindow {
             Button { text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text) }
             Button { text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
             RowLayout {
+                Button { text: "Publish latest"; onClicked: controlCenter.publishLatestContentProject() }
+                Button { text: "Unpublish latest"; onClicked: controlCenter.unpublishLatestContentProject() }
+            }
+            RowLayout {
                 Button { text: "Mark ready"; onClicked: controlCenter.setLatestContentStatus("ready") }
                 Button { text: "Mark blocked"; onClicked: controlCenter.setLatestContentStatus("blocked") }
             }
