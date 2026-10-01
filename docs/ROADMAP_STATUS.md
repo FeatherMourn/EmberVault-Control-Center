@@ -24,8 +24,9 @@
 - Gameplay settings are validated, profile-scoped staged values and can be
   exported as a portable manifest; applying them to a live game is not
   implemented.
-- Character projects remain planning data; content projects can be exported as
-  design-only manifests, while direct game mutation is not implemented.
+- Character projects can be exported as plan-only manifests; content projects
+  can be exported as design-only manifests, while direct game mutation is not
+  implemented.
 - Website synchronization, community forums, moderation, and remote catalog
   hosting are outside the desktop repository and use the export contract.
 - The seeded Trainer and Content Creator workers prove process isolation and
@@ -38,7 +39,7 @@
 
 - Python unit suite currently covers the Core services, workflows, module gates,
   profile isolation, package contracts, packaging assets, and installed-process
-  contracts (130 tests).
+  contracts (131 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
   packaged launcher passes its offscreen smoke test and discovers four modules,

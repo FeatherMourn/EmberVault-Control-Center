@@ -432,6 +432,27 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot()
+    def exportLatestCharacterPlan(self):
+        if not self.characters:
+            return
+        records = [item for item in self.characters.list() if item.profile_id == self._selected_profile_id]
+        if not records:
+            self._last_save_message = "Create a character project first"
+        else:
+            record = records[-1]
+            operation = self.operations.start("character-plan-export", profile_id=record.profile_id) if self.operations else None
+            try:
+                destination = self.characters.export(record)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Exported character plan {record.id}")
+                self._last_save_message = f"Exported character plan to {destination}"
+            except OSError as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot(str, str)
     def createResearchRecord(self, title: str, hypothesis: str):
         if not self.research:

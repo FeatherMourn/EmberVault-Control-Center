@@ -320,6 +320,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runtime.content.set_status(project.id, "ready")
 
+    def test_character_plan_export_is_save_safe(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.characters.create("Ash", "research", "Build plan")
+            destination = runtime.characters.export(record)
+            payload = json.loads(destination.read_text(encoding="utf-8"))
+            self.assertEqual(payload["application_state"], "plan-only")
+            self.assertEqual(payload["character"]["id"], record.id)
+            self.assertNotIn("saves", destination.parts)
+
     def test_research_evidence_can_be_appended_to_record(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

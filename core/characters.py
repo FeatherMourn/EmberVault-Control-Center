@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import uuid
+from datetime import datetime, timezone
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from .storage import write_json_atomic
@@ -63,3 +64,14 @@ class CharacterService:
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
+
+    def export(self, record: CharacterRecord) -> Path:
+        """Export a character plan without modifying save data."""
+        destination = self.path.parent.parent / "exports" / "character-plans" / f"{record.id}.json"
+        write_json_atomic(destination, {
+            "schema_version": 1,
+            "character": asdict(record),
+            "application_state": "plan-only",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        })
+        return destination
