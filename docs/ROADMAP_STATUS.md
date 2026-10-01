@@ -21,8 +21,9 @@
 
 ## Guarded or incomplete
 
-- Gameplay settings are staged profile values; applying them to a live game is
-  not implemented.
+- Gameplay settings are validated, profile-scoped staged values and can be
+  exported as a portable manifest; applying them to a live game is not
+  implemented.
 - Character and content projects are planning data; direct game mutation is not
   implemented.
 - Website synchronization, community forums, moderation, and remote catalog
@@ -37,7 +38,7 @@
 
 - Python unit suite currently covers the Core services, workflows, module gates,
   profile isolation, package contracts, packaging assets, and installed-process
-  contracts (128 tests).
+  contracts (129 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
   packaged launcher passes its offscreen smoke test and discovers four modules,

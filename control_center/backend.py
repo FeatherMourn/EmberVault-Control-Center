@@ -512,6 +512,25 @@ class ControlCenterBackend(QObject):
         self._last_save_message = f"Reset game settings for {updated.name}"
         self.stateChanged.emit()
 
+    @Slot()
+    def exportGameSettings(self):
+        if not self.game_settings:
+            return
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return
+        operation = self.operations.start("game-settings-export", profile_id=profile.id) if self.operations else None
+        try:
+            destination = self.game_settings.export(profile)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Exported settings to {destination.name}")
+            self._last_save_message = f"Exported staged settings to {destination}"
+        except OSError as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Property("QStringList", notify=stateChanged)
     def profileDetails(self):
         return [

@@ -4,8 +4,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 from typing import Any
+from datetime import datetime, timezone
+import json
+from pathlib import Path
 
 from .profiles import Profile, ProfileService
+from .storage import write_json_atomic
 
 
 @dataclass(frozen=True)
@@ -66,3 +70,17 @@ class GameSettingsService:
         updated = Profile(**{**profile.__dict__, "settings": {}})
         self.profiles.save(updated)
         return updated
+
+    def export(self, profile: Profile) -> Path:
+        """Write a portable tuning manifest outside the live game directory."""
+        destination = self.profiles.root / "exports" / "game-settings" / f"{profile.id}.json"
+        payload = {
+            "schema_version": 1,
+            "profile_id": profile.id,
+            "profile_name": profile.name,
+            "settings": self.values(profile),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "application_state": "staged-only",
+        }
+        write_json_atomic(destination, payload)
+        return destination

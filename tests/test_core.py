@@ -213,6 +213,19 @@ class CoreServiceTests(unittest.TestCase):
             reset = service.reset(changed)
             self.assertEqual(service.values(reset)["enemy_damage_multiplier"], 1.0)
 
+    def test_game_settings_export_is_outside_game_and_marks_staged_state(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            service = GameSettingsService(profiles)
+            profile = service.stage(profiles.list()[0], "resource_yield_multiplier", 2.0)
+            destination = service.export(profile)
+            payload = json.loads(destination.read_text(encoding="utf-8"))
+            self.assertEqual(payload["application_state"], "staged-only")
+            self.assertEqual(payload["settings"]["resource_yield_multiplier"], 2.0)
+            self.assertNotIn("game", destination.parts)
+
     def test_game_settings_reject_out_of_range_or_non_finite_numbers(self):
         with tempfile.TemporaryDirectory() as temp:
             profiles = ProfileService(Path(temp))

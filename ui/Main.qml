@@ -245,6 +245,7 @@ ApplicationWindow {
             Text { text: "Tune a profile, safely."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "Values are stored with the selected profile and staged for a future tuning module. This page does not edit save data or inject changes into the game."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Button { text: "Reset profile settings"; onClicked: controlCenter.resetGameSettings() }
+            Button { text: "Export staged tuning manifest"; onClicked: controlCenter.exportGameSettings() }
             Repeater {
                 model: controlCenter.settingOptions
                 delegate: Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.stageSetting(index) }
