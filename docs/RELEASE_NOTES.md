@@ -34,6 +34,8 @@
   matching inspected plan before either operation can apply changes.
 - Catalog handoffs include freshness metadata, a versioned tuning-adapter
   contract, a standalone verifier, and a repeatable repository sync command.
+- Release verification validates the contents of packaged JSON contracts,
+  manifests, and the seeded knowledge catalog, not only their filenames.
 
 ## Important limitations
 
