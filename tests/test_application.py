@@ -295,6 +295,18 @@ class ApplicationCompositionTests(unittest.TestCase):
             manifest = TuningAdapterService(root).manifest()
             self.assertEqual(manifest["supported_setting_keys"], ["baseCritChance"])
 
+    def test_eml_tuning_adapter_prepares_preview_without_mutation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            preview = TuningAdapterService(root).prepare_operation("research", True, False, 0.2, 0.425)
+            self.assertEqual(preview["field"], "baseCritChance")
+            self.assertFalse(preview["mutation_performed"])
+
     def test_catalog_sync_writes_repository_ready_snapshot(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

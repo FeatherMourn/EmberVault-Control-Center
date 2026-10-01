@@ -336,6 +336,7 @@ ApplicationWindow {
             Button { text: "Export staged tuning manifest"; onClicked: controlCenter.exportGameSettings() }
             Button { text: "Import staged tuning manifest"; onClicked: settingsFileDialog.open() }
             Button { text: "Audit staged settings safely"; onClicked: controlCenter.launchTuningAudit() }
+            Button { text: "Prepare EML operation (no write)"; onClicked: controlCenter.prepareTuningOperation() }
             Text { text: controlCenter.lastSaveMessage; color: ink; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             FileDialog {
                 id: settingsFileDialog

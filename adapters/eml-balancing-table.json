@@ -11,6 +11,7 @@
     "source": "Control_Center/research/probe_sessions/balancing_table_scalar_write_safe_20260929_evidence.json",
     "resource": "keen::BalancingTable",
     "field": "baseCritChance",
+    "test_value": 0.425,
     "write_ok": true,
     "readback_ok": true,
     "restore_ok": true,

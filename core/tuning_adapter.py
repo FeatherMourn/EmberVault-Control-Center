@@ -49,3 +49,30 @@ class TuningAdapterService:
         if payload["feature_state"] != "experimental":
             raise ValueError("Adapter must remain experimental until behavior is verified")
 
+    def prepare_operation(self, profile_type: str, backup_verified: bool,
+                          game_running: bool, staged_value: float,
+                          current_value: float) -> dict[str, Any]:
+        """Build a fail-closed preview; this method never writes game state."""
+        manifest = self.manifest()
+        if profile_type != "research":
+            raise ValueError("EML tuning requires the Research profile")
+        if not backup_verified:
+            raise ValueError("A verified recovery point is required")
+        if game_running:
+            raise ValueError("Close Enshrouded before preparing a tuning operation")
+        if not isinstance(staged_value, (int, float)) or not 0.0 <= staged_value <= 1.0:
+            raise ValueError("baseCritChance must be between 0.0 and 1.0")
+        if not isinstance(current_value, (int, float)) or not 0.0 <= current_value <= 1.0:
+            raise ValueError("The current adapter value is invalid")
+        return {
+            "adapter_id": manifest["id"],
+            "loader": manifest["loader"],
+            "game_build": manifest["game_build"],
+            "resource": manifest["evidence"]["resource"],
+            "field": manifest["evidence"]["field"],
+            "old_value": float(current_value),
+            "new_value": float(staged_value),
+            "mutation_performed": False,
+            "state": "prepared",
+        }
+

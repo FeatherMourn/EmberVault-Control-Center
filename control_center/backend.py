@@ -139,6 +139,32 @@ class ControlCenterBackend(QObject):
         except ValueError as exc:
             return f"EML adapter blocked · {exc}"
 
+    @Slot(result=str)
+    def prepareTuningOperation(self):
+        if not self.tuning_adapter or not self.game_settings:
+            return "EML adapter unavailable"
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return "Select a profile first"
+        try:
+            values = self.game_settings.values(profile)
+            preview = self.tuning_adapter.prepare_operation(
+                profile.profile_type,
+                bool(self._selected_backup_id and self.save_manager.verify_backup(self._selected_backup_id)),
+                self._game_status == "Running",
+                values["base_crit_chance"],
+                self.tuning_adapter.manifest()["evidence"]["test_value"],
+            )
+            self._last_save_message = (
+                f"Prepared {preview['field']}: {preview['old_value']} → {preview['new_value']}; no game changes made"
+            )
+            self.stateChanged.emit()
+            return self._last_save_message
+        except (ValueError, KeyError, OSError) as exc:
+            self._last_save_message = str(exc)
+            self.stateChanged.emit()
+            return self._last_save_message
+
     @Property("QStringList", notify=stateChanged)
     def profileOptions(self):
         return [profile.name for profile in self.profiles]
