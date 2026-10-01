@@ -501,7 +501,7 @@ class CoreServiceTests(unittest.TestCase):
             incoming.mkdir()
             (incoming / "package.json").write_text(json.dumps({"id": "local.mod", "name": "Local", "version": "1.0.0"}))
             service.install_from_directory(incoming)
-            self.assertEqual({item.id for item in service.list()}, {"embervault.example-mod", "local.mod"})
+            self.assertEqual({item.id for item in service.list()}, {"embervault.eml-tuning-adapter", "embervault.example-mod", "local.mod"})
 
     def test_managed_package_cannot_be_removed_while_enabled(self):
         with tempfile.TemporaryDirectory() as temp:
