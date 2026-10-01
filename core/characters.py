@@ -40,7 +40,7 @@ class CharacterService:
         return record
 
     def stage_level(self, record_id: str, level: int) -> CharacterRecord:
-        if not 1 <= level <= 50:
+        if isinstance(level, bool) or not isinstance(level, int) or not 1 <= level <= 50:
             raise ValueError("Planned level must be between 1 and 50")
         records = self.list()
         for record in records:

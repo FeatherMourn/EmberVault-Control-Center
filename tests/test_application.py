@@ -243,6 +243,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(record.profile_id, "default")
             self.assertEqual(runtime.saves.list_backups(), [])
 
+    def test_character_level_rejects_boolean(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.characters.create("Ash", "default")
+            with self.assertRaises(ValueError):
+                runtime.characters.stage_level(record.id, True)
+
 
 if __name__ == "__main__":
     unittest.main()
