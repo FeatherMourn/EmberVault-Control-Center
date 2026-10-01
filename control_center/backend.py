@@ -388,13 +388,13 @@ class ControlCenterBackend(QObject):
     def importPackage(self):
         try:
             from PySide6.QtWidgets import QFileDialog
-            selected = QFileDialog.getExistingDirectory(None, "Choose package folder")
+            selected, _ = QFileDialog.getOpenFileName(None, "Choose package folder or ZIP", "", "Packages (*.zip);;All files (*)")
         except ImportError:
             selected = ""
         if selected and self.packages:
             try:
                 operation = self.operations.start("package-import") if self.operations else None
-                package = self.packages.install_from_directory(Path(selected))
+                package = self.packages.install_from_archive(Path(selected)) if selected.lower().endswith(".zip") else self.packages.install_from_directory(Path(selected))
                 if operation and self.operations:
                     self.operations.finish(operation, OperationStatus.SUCCEEDED, "Package imported")
                 self._last_save_message = f"Imported {package.name}"

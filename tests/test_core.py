@@ -155,6 +155,18 @@ class CoreServiceTests(unittest.TestCase):
             packages.remove("managed.mod")
             self.assertIsNone(packages.get("managed.mod"))
 
+    def test_package_archive_import_rejects_unsafe_paths(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            archive = root / "unsafe.zip"
+            import zipfile
+            with zipfile.ZipFile(archive, "w") as bundle:
+                bundle.writestr("../escape.txt", "no")
+            with self.assertRaises(ValueError):
+                PackageService(root, profiles).install_from_archive(archive)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -182,7 +182,7 @@ ApplicationWindow {
             Text { text: "Choose what this profile carries."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "Packages are enabled per profile. This first release only manages package state; it does not alter gameplay tuning or edit save contents."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Text { text: controlCenter.packageOptions.length === 0 ? "No packages discovered yet." : "Available packages"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
-            Button { text: "Import package folder"; onClicked: controlCenter.importPackage() }
+            Button { text: "Import package folder or ZIP"; onClicked: controlCenter.importPackage() }
             Repeater {
                 model: controlCenter.packageOptions
                 delegate: RowLayout {

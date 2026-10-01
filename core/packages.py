@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 import shutil
 import sys
+import tempfile
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -95,6 +97,24 @@ class PackageService:
         shutil.copytree(source, target)
         self._packages[manifest.id] = PackageManifest.from_file(target / "package.json")
         return self._packages[manifest.id]
+
+    def install_from_archive(self, archive: Path) -> PackageManifest:
+        archive = Path(archive)
+        if not archive.is_file() or archive.suffix.lower() != ".zip":
+            raise ValueError("Package archive must be a .zip file")
+        with tempfile.TemporaryDirectory(prefix="embervault-package-") as temp:
+            staging = Path(temp)
+            with zipfile.ZipFile(archive) as bundle:
+                for member in bundle.infolist():
+                    target = (staging / member.filename).resolve()
+                    if staging.resolve() not in target.parents and target != staging.resolve():
+                        raise ValueError("Package archive contains an unsafe path")
+                bundle.extractall(staging)
+            candidates = [staging, *[item for item in staging.iterdir() if item.is_dir()]]
+            source = next((item for item in candidates if (item / "package.json").is_file()), None)
+            if source is None:
+                raise ValueError("Package archive must contain package.json")
+            return self.install_from_directory(source)
 
     def remove(self, package_id: str) -> None:
         package = self.get(package_id)
