@@ -328,6 +328,11 @@ ApplicationWindow {
             Button { text: "Export website catalog"; onClicked: controlCenter.exportCatalog() }
             Button { text: "Publish catalog to repository folder"; onClicked: controlCenter.syncCatalogFolder() }
             TextField { placeholderText: "Search knowledge"; Layout.fillWidth: true; onTextChanged: controlCenter.searchKnowledge(text) }
+            TextField { id: knowledgeTitle; placeholderText: "Knowledge title"; Layout.fillWidth: true }
+            TextField { id: knowledgeCategory; placeholderText: "Category"; Layout.fillWidth: true }
+            TextField { id: knowledgeSummary; placeholderText: "Short summary"; Layout.fillWidth: true }
+            TextField { id: knowledgeContent; placeholderText: "Knowledge content or research note"; Layout.fillWidth: true }
+            Button { text: "Save local knowledge entry"; onClicked: controlCenter.createKnowledgeEntry(knowledgeTitle.text, knowledgeCategory.text, knowledgeSummary.text, knowledgeContent.text) }
             Repeater {
                 model: controlCenter.knowledgeOptions
                 delegate: Rectangle {

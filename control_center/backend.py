@@ -291,6 +291,22 @@ class ControlCenterBackend(QObject):
         self._knowledge_query = query
         self.stateChanged.emit()
 
+    @Slot(str, str, str, str)
+    def createKnowledgeEntry(self, title: str, category: str, summary: str, content: str):
+        if not self.knowledge:
+            return
+        operation = self.operations.start("knowledge-entry-create") if self.operations else None
+        try:
+            entry = self.knowledge.create(title, category, summary, content)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created knowledge entry {entry.id}")
+            self._last_save_message = f"Created knowledge entry {entry.id}"
+        except (OSError, ValueError) as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot()
     def exportCatalog(self):
         try:

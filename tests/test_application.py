@@ -40,6 +40,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             entries = runtime.knowledge.search("restore")
             self.assertEqual([entry.id for entry in entries], ["save-safety"])
 
+    def test_knowledge_entry_creation_preserves_seeded_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            seeded_count = len(runtime.knowledge.entries())
+            entry = runtime.knowledge.create("Local Finding", "Research", "A local summary", "Observed during a safe probe.")
+            self.assertEqual(len(runtime.knowledge.entries()), seeded_count + 1)
+            self.assertEqual(runtime.knowledge.search("safe probe")[0].id, entry.id)
+
     def test_troubleshooter_flags_package_with_unsupported_build(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

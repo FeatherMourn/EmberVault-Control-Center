@@ -3,8 +3,11 @@ from __future__ import annotations
 
 import json
 import sys
-from dataclasses import dataclass
+import uuid
+from dataclasses import asdict, dataclass
 from pathlib import Path
+
+from .storage import write_json_atomic
 
 
 @dataclass(frozen=True)
@@ -54,3 +57,17 @@ class KnowledgeService:
         if not needle:
             return self.entries()
         return [entry for entry in self.entries() if needle in " ".join((entry.title, entry.category, entry.summary, entry.content)).lower()]
+
+    def create(self, title: str, category: str, summary: str, content: str) -> KnowledgeEntry:
+        values = (title, category, summary, content)
+        if not all(isinstance(value, str) and value.strip() for value in values):
+            raise ValueError("Knowledge title, category, summary, and content are required")
+        entry = KnowledgeEntry(
+            id=f"EV-KNOW-{uuid.uuid4().hex[:8].upper()}",
+            title=title.strip(), category=category.strip(),
+            summary=summary.strip(), content=content.strip(),
+        )
+        records = self.entries()
+        records.append(entry)
+        write_json_atomic(self.path, [asdict(item) for item in records])
+        return entry
