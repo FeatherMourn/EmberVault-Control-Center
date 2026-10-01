@@ -13,6 +13,7 @@ from core.packages import PackageManifest, PackageService
 from core.game_settings import GameSettingsService
 from core.risk import RiskGateService
 from core.settings import Settings, SettingsService
+from core.save_manager import SaveManagerService
 
 
 class CoreServiceTests(unittest.TestCase):
@@ -271,10 +272,16 @@ class CoreServiceTests(unittest.TestCase):
             profiles = ProfileService(Path(temp))
             profiles.ensure_defaults()
             stable, research = profiles.list()
-            gate = RiskGateService()
+            saves = SaveManagerService(Path(temp))
+            source = Path(temp) / "save-source"
+            source.mkdir()
+            (source / "world.dat").write_text("safe", encoding="utf-8")
+            backup = saves.backup(source)
+            gate = RiskGateService(saves)
             self.assertFalse(gate.evaluate("trainer", stable).allowed)
             self.assertFalse(gate.evaluate("trainer", research).allowed)
-            self.assertTrue(gate.evaluate("trainer", research, verified_backup_id="EV-BACKUP-1").allowed)
+            self.assertFalse(gate.evaluate("trainer", research, verified_backup_id="EV-BACKUP-FAKE").allowed)
+            self.assertTrue(gate.evaluate("trainer", research, verified_backup_id=backup.id).allowed)
 
     def test_package_import_requires_manifest_and_copies_valid_package(self):
         with tempfile.TemporaryDirectory() as temp:

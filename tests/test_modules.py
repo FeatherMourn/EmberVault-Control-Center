@@ -66,6 +66,10 @@ class ModuleRegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
             profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            save_dir = Path(temp) / "save-source"
+            save_dir.mkdir()
+            (save_dir / "world.dat").write_text("safe", encoding="utf-8")
+            backup = runtime.saves.backup(save_dir)
             with self.assertRaises(PermissionError):
                 runtime.launcher.launch(
                     "embervault.content-creator", "content-creator", profile,
@@ -73,7 +77,7 @@ class ModuleRegistryTests(unittest.TestCase):
                 )
             process = runtime.launcher.launch(
                 "embervault.content-creator", "content-creator", profile,
-                LaunchContext(profile.id, None, "EV-OP-CONTENT"), "EV-BACKUP-CONTENT",
+                LaunchContext(profile.id, None, "EV-OP-CONTENT"), backup.id,
             )
             process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)
@@ -206,9 +210,13 @@ class ModuleRegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
             profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            save_dir = Path(temp) / "save-source"
+            save_dir.mkdir()
+            (save_dir / "world.dat").write_text("safe", encoding="utf-8")
+            backup = runtime.saves.backup(save_dir)
             process = runtime.launcher.launch(
                 "embervault.trainer", "trainer", profile,
-                LaunchContext(profile.id, None, "EV-OP-TEST"), "EV-BACKUP-TEST",
+                LaunchContext(profile.id, None, "EV-OP-TEST"), backup.id,
             )
             process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)
@@ -231,9 +239,13 @@ class ModuleRegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
             profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            save_dir = Path(temp) / "save-source"
+            save_dir.mkdir()
+            (save_dir / "world.dat").write_text("safe", encoding="utf-8")
+            backup = runtime.saves.backup(save_dir)
             process = runtime.launcher.launch(
                 "embervault.trainer", "trainer", profile,
-                LaunchContext(profile.id, temp, "EV-OP-TRAINER", "EV-BACKUP-1"), "EV-BACKUP-1",
+                LaunchContext(profile.id, temp, "EV-OP-TRAINER", backup.id), backup.id,
             )
             result = json.loads(process.communicate(timeout=5)[0])
             self.assertIn("recovery_backup_supplied: True", result["checks"])
@@ -243,9 +255,13 @@ class ModuleRegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
             profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            save_dir = Path(temp) / "save-source"
+            save_dir.mkdir()
+            (save_dir / "world.dat").write_text("safe", encoding="utf-8")
+            backup = runtime.saves.backup(save_dir)
             process = runtime.launcher.launch(
                 "embervault.content-creator", "content-creator", profile,
-                LaunchContext(profile.id, temp, "EV-OP-CONTENT", "EV-BACKUP-1"), "EV-BACKUP-1",
+                LaunchContext(profile.id, temp, "EV-OP-CONTENT", backup.id), backup.id,
             )
             result = json.loads(process.communicate(timeout=5)[0])
             self.assertIn("design_workspace_only: True", result["checks"])
@@ -294,9 +310,13 @@ class ModuleRegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
             profile = next(item for item in runtime.profiles.list() if item.id == "research")
-            decision = runtime.launcher.check("embervault.research", "trainer", profile, "EV-BACKUP-TEST")
+            save_dir = Path(temp) / "save-source"
+            save_dir.mkdir()
+            (save_dir / "world.dat").write_text("safe", encoding="utf-8")
+            backup = runtime.saves.backup(save_dir)
+            decision = runtime.launcher.check("embervault.research", "trainer", profile, backup.id)
             self.assertFalse(decision.allowed)
-            self.assertIn("does not declare", decision.reasons[0])
+            self.assertIn("does not declare", decision.reasons[-1])
 
 
 if __name__ == "__main__":

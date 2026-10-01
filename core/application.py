@@ -81,7 +81,7 @@ class EmbervaultRuntime:
         runtime.research = ResearchService(root)
         runtime.knowledge = KnowledgeService(root)
         runtime.characters = CharacterService(root)
-        runtime.risk = RiskGateService()
+        runtime.risk = RiskGateService(runtime.saves)
         runtime.launcher = ModuleLaunchService(runtime.modules, runtime.risk)
         runtime.catalog = CatalogExportService(root, runtime.modules, runtime.packages, runtime.knowledge, runtime.research)
         runtime.content = ContentProjectService(root)

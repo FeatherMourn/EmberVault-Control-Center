@@ -39,6 +39,8 @@
   the seeded safety catalog.
 - The isolated tuning-audit worker can review staged settings and confirm the
   live game was not changed; it does not apply tuning.
+- Trainer and Content Creator gates now require an existing checksum-valid
+  verified backup, not merely a backup identifier.
 - Character projects remain planning metadata, not live mutations, and their
   planning notes can be revised safely. Content
   projects remain design-only locally, can track project-relative asset
