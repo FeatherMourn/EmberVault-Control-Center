@@ -308,7 +308,10 @@ class ControlCenterBackend(QObject):
                 raise RuntimeError("Worker returned invalid JSON") from exc
             if (not isinstance(worker_result, dict)
                     or worker_result.get("contract_version") != 1
-                    or worker_result.get("read_only") is not True):
+                    or worker_result.get("read_only") is not True
+                    or worker_result.get("status") != "ready"
+                    or worker_result.get("profile") != profile.id
+                    or (operation and worker_result.get("operation") != operation.id)):
                 raise RuntimeError("Worker returned an invalid or non-read-only contract")
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Launched {module_id}: {result}")
