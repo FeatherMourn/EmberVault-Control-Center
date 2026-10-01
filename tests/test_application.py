@@ -41,6 +41,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.selectProfile(1)
             self.assertEqual(backend.selectedProfileIndex, 1)
 
+    def test_backend_requires_restore_preview_before_restore(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend._selected_backup_id = "unpreviewed"
+            backend._save_directory = temp
+            backend.restoreSelected()
+            self.assertIn("Preview the selected restore", backend.lastSaveMessage)
+
     def test_troubleshooter_reports_unconfigured_game_without_mutation(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

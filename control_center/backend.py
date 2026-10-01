@@ -64,6 +64,7 @@ class ControlCenterBackend(QObject):
         self._save_directory = ""
         self._last_save_message = "No save selected"
         self._selected_backup_id = ""
+        self._restore_preview_backup_id = ""
         self._restore_preview = "No restore selected"
         self._selected_profile_id = self.profiles[0].id if self.profiles else ""
         self._knowledge_query = ""
@@ -1157,6 +1158,7 @@ class ControlCenterBackend(QObject):
     def selectBackup(self, index: int):
         backups = self.save_manager.list_backups()
         self._selected_backup_id = backups[index].id if 0 <= index < len(backups) else ""
+        self._restore_preview_backup_id = ""
         self._restore_preview = "Backup selected" if self._selected_backup_id else "No restore selected"
         self.stateChanged.emit()
 
@@ -1174,8 +1176,10 @@ class ControlCenterBackend(QObject):
                 else:
                     plan = self.save_manager.preview_restore(self._selected_backup_id, Path(self._save_directory))
                 self._restore_preview = f"{len(plan['files_to_add_or_replace'])} files will be restored; current state will be backed up first"
+                self._restore_preview_backup_id = self._selected_backup_id
             except SaveManagerError as exc:
                 self._restore_preview = str(exc)
+                self._restore_preview_backup_id = ""
         self.stateChanged.emit()
 
     @Slot()
@@ -1197,6 +1201,8 @@ class ControlCenterBackend(QObject):
     def restoreSelected(self):
         if not self._selected_backup_id or not self._save_directory:
             self._last_save_message = "Choose a save folder and backup first"
+        elif self._restore_preview_backup_id != self._selected_backup_id:
+            self._last_save_message = "Preview the selected restore before restoring"
         else:
             try:
                 if self.save_workflow:
@@ -1224,6 +1230,7 @@ class ControlCenterBackend(QObject):
             selected = ""
         if selected:
             self._save_directory = selected
+            self._restore_preview_backup_id = ""
             self._last_save_message = f"Selected {selected}"
             self.stateChanged.emit()
 
