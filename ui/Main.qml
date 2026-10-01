@@ -163,12 +163,25 @@ ApplicationWindow {
                 StatusCard { title: "WRITE POLICY"; value: "Protected"; note: "No direct editing"; accent: "#83a77b" }
             }
             ComboBox { Layout.fillWidth: true; model: controlCenter.backupOptions; onActivated: controlCenter.selectBackup(currentIndex) }
+            Dialog {
+                id: restoreDialog
+                title: "Restore selected backup?"
+                modal: true
+                standardButtons: Dialog.Ok | Dialog.Cancel
+                contentItem: Text {
+                    text: "EmberVault will create the required recovery snapshot and then restore the selected verified backup. The current save folder will be replaced."
+                    color: ink
+                    wrapMode: Text.WordWrap
+                    width: 360
+                }
+                onAccepted: controlCenter.restoreSelected()
+            }
             RowLayout {
                 Button { text: "Inspect"; onClicked: controlCenter.inspectSaves() }
                 Button { text: "Backup now"; enabled: controlCenter.canBackup; onClicked: controlCenter.createBackup("manual") }
                 Button { text: "Verify selected"; enabled: controlCenter.backupOptions.length > 0; onClicked: controlCenter.verifySelected() }
                 Button { text: "Preview restore"; enabled: controlCenter.backupOptions.length > 0; onClicked: controlCenter.previewRestore() }
-                Button { text: "Restore selected"; enabled: controlCenter.backupOptions.length > 0; onClicked: controlCenter.restoreSelected() }
+                Button { text: "Restore selected"; enabled: controlCenter.backupOptions.length > 0; onClicked: restoreDialog.open() }
             }
             Text { text: controlCenter.restorePreview; color: muted; wrapMode: Text.WordWrap }
             Text { text: controlCenter.lastSaveMessage; color: ink; wrapMode: Text.WordWrap }
