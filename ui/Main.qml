@@ -341,7 +341,10 @@ ApplicationWindow {
                 model: controlCenter.riskOptions
                 delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true }
             }
-            Text { text: "This capability cannot be launched from the stable profile without the required isolation and recovery conditions."; color: muted; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            RowLayout {
+                Button { text: "Run guarded worker"; onClicked: capability === "trainer" ? controlCenter.launchTrainer() : capability === "research" ? controlCenter.launchResearchWorker() : controlCenter.launchContentWorker() }
+            }
+            Text { text: "Launch is permitted only when this profile and recovery state satisfy the gate. Included workers are non-mutating contract tests."; color: muted; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
         }
     }
 

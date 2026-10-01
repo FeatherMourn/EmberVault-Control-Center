@@ -257,6 +257,49 @@ class ControlCenterBackend(QObject):
             for capability in ("trainer", "research", "content-creator")
         ]
 
+    def _launchGuardedModule(self, module_id: str, capability: str):
+        if not self.launcher:
+            return
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            self._last_save_message = "Select a profile first"
+            self.stateChanged.emit()
+            return
+        operation = self.operations.start(f"module-launch-{capability}", profile_id=profile.id) if self.operations else None
+        backup_id = self._selected_backup_id or None
+        try:
+            process = self.launcher.launch(
+                module_id, capability,
+                profile,
+                __import__("core.modules", fromlist=["LaunchContext"]).LaunchContext(
+                    profile.id, self._save_directory or None, operation.id if operation else None
+                ),
+                backup_id,
+            )
+            process.wait(timeout=15)
+            if process.returncode != 0:
+                raise RuntimeError(f"Module exited with code {process.returncode}")
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Launched {module_id}")
+            self._last_save_message = f"Completed guarded {capability} worker"
+        except (PermissionError, KeyError, OSError, RuntimeError, ValueError) as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot()
+    def launchTrainer(self):
+        self._launchGuardedModule("embervault.trainer", "trainer")
+
+    @Slot()
+    def launchResearchWorker(self):
+        self._launchGuardedModule("embervault.research", "research")
+
+    @Slot()
+    def launchContentWorker(self):
+        self._launchGuardedModule("embervault.content-creator", "content-creator")
+
     @Slot(str)
     def createCharacter(self, name: str):
         if not self.characters:
