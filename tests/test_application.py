@@ -61,6 +61,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIn("knowledge", export)
             self.assertTrue(all(item["path"] is None for item in export["modules"]))
 
+    def test_catalog_export_writes_json_document(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            destination = runtime.catalog.export(Path(temp) / "out" / "catalog.json")
+            self.assertTrue(destination.is_file())
+            self.assertIn('"schema_version": 1', destination.read_text(encoding="utf-8"))
+
     def test_character_project_is_separate_from_save_manager(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

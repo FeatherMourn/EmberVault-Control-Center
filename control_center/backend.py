@@ -43,6 +43,7 @@ class ControlCenterBackend(QObject):
         self.game_settings = runtime.game_settings if runtime else None
         self.research = runtime.research if runtime else None
         self.knowledge = runtime.knowledge if runtime else None
+        self.catalog = runtime.catalog if runtime else None
         self.characters = runtime.characters if runtime else None
         self.risk = runtime.risk if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
@@ -151,6 +152,21 @@ class ControlCenterBackend(QObject):
         if not self.knowledge:
             return []
         return [f"{entry.category} · {entry.title} — {entry.summary}" for entry in self.knowledge.search()]
+
+    @Slot()
+    def exportCatalog(self):
+        try:
+            from PySide6.QtWidgets import QFileDialog
+            selected, _ = QFileDialog.getSaveFileName(None, "Export Ember Vault catalog", "embervault-catalog.json", "JSON (*.json)")
+        except ImportError:
+            selected = ""
+        if selected and self.catalog:
+            try:
+                destination = self.catalog.export(Path(selected))
+                self._last_save_message = f"Catalog exported to {destination}"
+            except OSError as exc:
+                self._last_save_message = str(exc)
+            self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
     def characterOptions(self):
