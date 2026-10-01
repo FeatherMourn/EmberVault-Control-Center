@@ -329,6 +329,18 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_archive(archive)
 
+    def test_package_archive_rejects_windows_traversal_paths(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            archive = root / "windows-unsafe.zip"
+            import zipfile
+            with zipfile.ZipFile(archive, "w") as bundle:
+                bundle.writestr("..\\outside.txt", "unsafe")
+            with self.assertRaises(ValueError):
+                PackageService(root, profiles).install_from_archive(archive)
+
     def test_package_archive_imports_nested_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

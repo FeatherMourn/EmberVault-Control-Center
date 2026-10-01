@@ -7,7 +7,7 @@ import sys
 import tempfile
 import zipfile
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from .profiles import Profile, ProfileService
 from .compatibility import CompatibilityState, evaluate
@@ -157,7 +157,9 @@ class PackageService:
             with zipfile.ZipFile(archive) as bundle:
                 for member in bundle.infolist():
                     target = (staging / member.filename).resolve()
-                    if staging.resolve() not in target.parents and target != staging.resolve():
+                    windows_member = PureWindowsPath(member.filename)
+                    if (windows_member.is_absolute() or ".." in windows_member.parts
+                            or (staging.resolve() not in target.parents and target != staging.resolve())):
                         raise ValueError("Package archive contains an unsafe path")
                 bundle.extractall(staging)
             candidates = [staging, *[item for item in staging.iterdir() if item.is_dir()]]
