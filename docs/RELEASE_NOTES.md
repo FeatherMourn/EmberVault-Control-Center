@@ -8,7 +8,9 @@
 - Save Manager inspection, verified backup, re-verification, restore preview,
   safe restore, and post-restore verification.
 - Profile-scoped package discovery, folder/ZIP import, enablement, compatibility
-  diagnostics, dependency-aware enablement, and safe removal.
+  diagnostics, dependency-aware enablement, safe removal, guarded deployment,
+  ownership-protected undeploy, and read-only inspection of existing external
+  `mod.json` mods.
 - Staged Game Settings, Troubleshooter, Character projects, Research records
   with evidence lifecycle, Content projects, Knowledge search, and public
   catalog export.
@@ -23,6 +25,9 @@
   lifecycle state, compatibility metadata, and portable executable paths.
 - Package folder and ZIP imports reject symlinks, traversal, duplicate paths,
   oversized archives, and excessive entry counts.
+- Live deployment requires an existing game directory, a conflict-free plan,
+  symlink-free sources, and `package_type: "mod"`; failed deployments roll back
+  newly created destinations.
 - Catalog exports are deterministic and exclude local runtime paths and
   private research state.
 
@@ -31,9 +36,10 @@
 - Save Manager does not edit save contents.
 - Staged Game Settings are not applied directly to a live game.
 - Character and Content projects are planning metadata, not live mutations.
-- High-risk worker processes are non-mutating contract stubs in this release.
-  They can be launched from eligible profiles, report captured output, and are
-  terminated and audited if they exceed the worker timeout.
+- High-risk worker processes remain non-mutating in this release. Research
+  performs a bounded evidence probe, Trainer performs a readiness audit, and
+  Content Creator performs a design-boundary audit; all are terminated and
+  audited if they exceed the worker timeout.
 - Website synchronization, forums, moderation, and hosted databases consume the
   catalog export but are not implemented in this desktop repository.
 
@@ -44,7 +50,7 @@
   compatible, or incompatible status and blocks known-incompatible enablement.
 - Normal package and settings workflows are embedded. Trainer, Research, and
   Content Creator use guarded separate-process contracts; their included
-  workers are non-mutating reference stubs.
+  workers cannot mutate live game or save data.
 - Verified backups are stored under the runtime data directory in the Save
   Manager backup area. Restore requires a current-state backup and performs
   post-restore verification.
