@@ -9,7 +9,11 @@ research, evidence, and selected proven service concepts.
 
 ## Current status
 
-Stage 0 — architecture and contract freeze.
+The first working vertical slice is in place. The Control Center currently
+includes Home, Profiles, Save Manager safety workflows, profile-scoped package
+management, staged Game Settings, read-only Troubleshooter diagnostics, a safe
+Character Editor project layer, isolated Research records, and a local
+Knowledge catalog.
 
 Read:
 
@@ -17,8 +21,15 @@ Read:
 - [Stage 0 Contracts](docs/STAGE_0_CONTRACTS.md)
 - [Legacy Migration Inventory](docs/MIGRATION_INVENTORY.md)
 
-## Planned first vertical slice
+## Safety boundaries
 
-Embervault Core → game detection → settings → profiles → logging → operation
-tracking → backup contract → minimal Control Center shell → Save Manager
-inspection and backup.
+Save Manager is inspection, backup, verification, restore preview, and safe
+restore only. It does not directly edit save contents. Gameplay tuning and
+higher-risk tools remain separate from normal embedded workflows and must use
+explicit profiles, operation tracking, and recovery evidence.
+
+## Development checks
+
+Run the test suite with `python -m unittest discover -s tests -p "test*.py"`.
+The QML shell can be smoke-tested with an offscreen Qt application after
+installing the project dependencies.
