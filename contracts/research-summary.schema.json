@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embervault.local/contracts/research-summary.schema.json",
+  "title": "EmberVault Research Summary",
+  "type": "object",
+  "required": ["schema_version", "record", "application_state", "generated_at"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "record": {
+      "type": "object",
+      "required": ["id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "hypothesis": {"type": "string", "minLength": 1},
+        "status": {"enum": ["planned", "running", "completed", "blocked"]},
+        "evidence_count": {"type": "integer", "minimum": 0},
+        "created_at": {"type": "string"},
+        "published_at": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "application_state": {"const": "research-summary"},
+    "generated_at": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

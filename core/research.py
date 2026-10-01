@@ -121,3 +121,18 @@ class ResearchService:
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
+
+    def export_summary(self, record: ResearchRecord) -> Path:
+        """Export a profile-free research handoff without evidence text."""
+        destination = self.path.parent.parent / "exports" / "research" / f"{record.id}.json"
+        write_json_atomic(destination, {
+            "schema_version": 1,
+            "record": {
+                "id": record.id, "title": record.title, "hypothesis": record.hypothesis,
+                "status": record.status, "evidence_count": len(record.evidence),
+                "created_at": record.created_at, "published_at": record.published_at,
+            },
+            "application_state": "research-summary",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        })
+        return destination

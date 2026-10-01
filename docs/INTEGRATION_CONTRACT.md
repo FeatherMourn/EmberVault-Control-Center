@@ -34,6 +34,10 @@ metadata on the web side.
 Public knowledge records use `contracts/knowledge-entry.schema.json`; local
 publication state is intentionally omitted from the public record.
 
+Research handoffs use `contracts/research-summary.schema.json`; exported
+summaries contain evidence counts only and never profile identifiers or
+evidence text.
+
 The desktop exporter validates the handoff before writing it. Malformed public
 records are rejected, and research or content records containing private
 evidence, descriptions, profiles, or other local-only fields cannot be

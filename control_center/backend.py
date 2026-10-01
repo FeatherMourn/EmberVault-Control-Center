@@ -818,6 +818,26 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot()
+    def exportLatestResearchSummary(self):
+        if not self.research:
+            return
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
+        if not records:
+            self._last_save_message = "Create a research record first"
+        else:
+            operation = self.operations.start("research-summary-export", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                destination = self.research.export_summary(records[-1])
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Exported research summary {records[-1].id}")
+                self._last_save_message = f"Exported research summary to {destination}"
+            except OSError as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot(int)
     def stageSetting(self, index: int):
         if not self.game_settings:

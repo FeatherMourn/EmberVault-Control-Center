@@ -34,6 +34,18 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(updated.profile_id, "research")
             self.assertEqual(updated.evidence, ["Observed baseline behavior"])
 
+    def test_research_summary_export_excludes_profile_and_evidence_text(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Yield test", "Test staged yield", "research")
+            runtime.research.add_evidence(record.id, "Private observation")
+            destination = runtime.research.export_summary(runtime.research.list()[0])
+            payload = json.loads(destination.read_text(encoding="utf-8"))
+            self.assertEqual(payload["application_state"], "research-summary")
+            self.assertEqual(payload["record"]["evidence_count"], 1)
+            self.assertNotIn("profile_id", payload["record"])
+            self.assertNotIn("Private observation", destination.read_text(encoding="utf-8"))
+
     def test_knowledge_catalog_searches_seeded_entries(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
