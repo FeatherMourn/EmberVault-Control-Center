@@ -404,8 +404,17 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             backend = ControlCenterBackend(Path(temp), runtime=runtime)
             backend.settings.game_path = temp
+            backend.inspectDeploymentPlan()
             backend.deployReadyPackages()
             self.assertIn("Deployed 0 package", backend.lastSaveMessage)
+
+    def test_backend_requires_current_deployment_plan_before_deploy(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.settings.game_path = temp
+            backend.deployReadyPackages()
+            self.assertIn("Inspect the current deployment plan", backend.lastSaveMessage)
 
     def test_backend_undeploy_refuses_unowned_destination(self):
         with tempfile.TemporaryDirectory() as temp:

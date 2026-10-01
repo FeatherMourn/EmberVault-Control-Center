@@ -65,6 +65,7 @@ class ControlCenterBackend(QObject):
         self._last_save_message = "No save selected"
         self._selected_backup_id = ""
         self._restore_preview_backup_id = ""
+        self._deployment_plan_signature = None
         self._restore_preview = "No restore selected"
         self._selected_profile_id = self.profiles[0].id if self.profiles else ""
         self._knowledge_query = ""
@@ -232,6 +233,11 @@ class ControlCenterBackend(QObject):
             operation = self.operations.start("package-deployment-plan", profile_id=self._selected_profile_id) if self.operations else None
             try:
                 plan = self.packages.deployment_plan(profile, Path(self.settings.game_path)) if profile else []
+                self._deployment_plan_signature = (
+                    profile.id if profile else "",
+                    str(Path(self.settings.game_path).resolve()),
+                    tuple((item.package_id, item.status, item.destination, item.reason) for item in plan),
+                )
                 ready = sum(1 for item in plan if item.status == "ready")
                 conflicts = sum(1 for item in plan if item.status != "ready")
                 message = f"Deployment plan: {ready} ready, {conflicts} requiring attention"
@@ -250,16 +256,25 @@ class ControlCenterBackend(QObject):
             self._last_save_message = "Choose a game folder before deploying packages"
         else:
             profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
-            operation = self.operations.start("package-deploy", profile_id=self._selected_profile_id) if self.operations else None
-            try:
-                deployed = self.packages.deploy_ready(profile, Path(self.settings.game_path)) if profile else []
-                if operation and self.operations:
-                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Deployed {len(deployed)} package(s)")
-                self._last_save_message = f"Deployed {len(deployed)} package(s) to the game mods folder"
-            except (OSError, ValueError) as exc:
-                if operation and self.operations:
-                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
-                self._last_save_message = str(exc)
+            path = Path(self.settings.game_path)
+            plan = self.packages.deployment_plan(profile, path) if profile else []
+            signature = (
+                profile.id if profile else "", str(path.resolve()),
+                tuple((item.package_id, item.status, item.destination, item.reason) for item in plan),
+            )
+            if self._deployment_plan_signature != signature:
+                self._last_save_message = "Inspect the current deployment plan before deploying packages"
+            else:
+                operation = self.operations.start("package-deploy", profile_id=self._selected_profile_id) if self.operations else None
+                try:
+                    deployed = self.packages.deploy_ready(profile, path) if profile else []
+                    if operation and self.operations:
+                        self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Deployed {len(deployed)} package(s)")
+                    self._last_save_message = f"Deployed {len(deployed)} package(s) to the game mods folder"
+                except (OSError, ValueError) as exc:
+                    if operation and self.operations:
+                        self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                    self._last_save_message = str(exc)
         self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
