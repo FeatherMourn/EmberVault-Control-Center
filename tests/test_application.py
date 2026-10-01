@@ -278,6 +278,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(runtime.research.list()[0].evidence, [])
             self.assertEqual(runtime.content.list()[0].status, "draft")
 
+    def test_research_records_normalize_malformed_evidence_items(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            runtime.research.path.write_text(json.dumps([{
+                "id": "EV-RES-EVIDENCE", "title": "Test", "hypothesis": "Test", "profile_id": "default",
+                "status": "planned", "evidence": ["  observed  ", 12, "", "second"],
+            }]))
+            self.assertEqual(runtime.research.list()[0].evidence, ["observed", "second"])
+
 
 if __name__ == "__main__":
     unittest.main()

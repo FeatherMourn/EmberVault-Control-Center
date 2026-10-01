@@ -36,6 +36,8 @@ class ResearchService:
                     record.status = "planned"
                 if not isinstance(record.evidence, list):
                     record.evidence = []
+                else:
+                    record.evidence = [item.strip() for item in record.evidence if isinstance(item, str) and item.strip()]
                 records.append(record)
             return records
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
