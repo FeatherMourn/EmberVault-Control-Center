@@ -24,6 +24,9 @@ jobs:
       - name: Run test suite
         run: python -m unittest discover -s tests
 
+      - name: Compile Python packages
+        run: python -m compileall -q core control_center tools
+
       - name: Smoke-test QML shell
         env:
           QT_QPA_PLATFORM: offscreen
