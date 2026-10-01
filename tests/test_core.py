@@ -98,6 +98,20 @@ class CoreServiceTests(unittest.TestCase):
             service.save(Settings(game_path="C:/Games/Enshrouded"))
             self.assertEqual(service.load().game_path, "C:/Games/Enshrouded")
 
+    def test_settings_normalize_corrupt_value_types(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = SettingsService(Path(temp))
+            service.path.write_text(json.dumps({
+                "game_path": 12, "backup_directory": [], "update_channel": "",
+                "theme": None, "advanced_mode": "yes",
+            }))
+            settings = service.load()
+            self.assertIsNone(settings.game_path)
+            self.assertIsNone(settings.backup_directory)
+            self.assertEqual(settings.update_channel, "stable")
+            self.assertEqual(settings.theme, "ember-dark")
+            self.assertFalse(settings.advanced_mode)
+
     def test_unknown_compatibility_is_not_compatible(self):
         result = evaluate(required_builds=["1076226"], detected_build=None)
         self.assertEqual(result.state, CompatibilityState.UNKNOWN)

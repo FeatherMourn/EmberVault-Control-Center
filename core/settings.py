@@ -28,7 +28,17 @@ class SettingsService:
             return Settings()
         try:
             raw = json.loads(self.path.read_text(encoding="utf-8"))
-            return Settings(**{k: raw[k] for k in asdict(Settings()) if k in raw})
+            defaults = Settings()
+            values = {k: raw[k] for k in asdict(defaults) if isinstance(raw, dict) and k in raw}
+            for key in ("game_path", "backup_directory", "module_directory"):
+                if key in values and values[key] is not None and not isinstance(values[key], str):
+                    values[key] = getattr(defaults, key)
+            for key in ("update_channel", "theme"):
+                if key in values and (not isinstance(values[key], str) or not values[key].strip()):
+                    values[key] = getattr(defaults, key)
+            if "advanced_mode" in values and not isinstance(values["advanced_mode"], bool):
+                values["advanced_mode"] = defaults.advanced_mode
+            return Settings(**values)
         except (OSError, ValueError, TypeError):
             return Settings()
 
