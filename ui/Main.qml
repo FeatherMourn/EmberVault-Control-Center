@@ -16,6 +16,7 @@ ApplicationWindow {
     property color line: "#2b2739"
     property color ember: "#ef8b4d"
     property int page: 0
+    property var pageTitles: ["Home", "My Mods", "Game Settings", "Save Manager", "Troubleshooter", "Content Studio", "Research Lab", "Knowledge", "Profiles", "Characters", "Trainer", "Activity", "Modules"]
 
     RowLayout {
         anchors.fill: parent
@@ -59,7 +60,7 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 height: 68
                 color: "#11101a"
-                Text { anchors.left: parent.left; anchors.leftMargin: 30; anchors.verticalCenter: parent.verticalCenter; text: page === 3 ? "Save Manager" : page === 0 ? "Home" : "Embervault"; color: ink; font.bold: true; font.pixelSize: 20 }
+                Text { anchors.left: parent.left; anchors.leftMargin: 30; anchors.verticalCenter: parent.verticalCenter; text: pageTitles[page] || "Embervault"; color: ink; font.bold: true; font.pixelSize: 20 }
                 RowLayout {
                     anchors.right: parent.right
                     anchors.rightMargin: 24
