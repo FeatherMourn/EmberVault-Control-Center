@@ -403,6 +403,17 @@ class CoreServiceTests(unittest.TestCase):
             }))
             self.assertEqual(PackageManifest.from_file(package / "package.json").required_builds, ("123",))
 
+    def test_package_manifest_rejects_non_string_build_or_dependency_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            package = Path(temp) / "package"
+            package.mkdir()
+            (package / "package.json").write_text(json.dumps({
+                "id": "test.mod", "name": "Test", "version": "1.0",
+                "required_builds": [123], "dependencies": ["base.mod"],
+            }))
+            with self.assertRaises(ValueError):
+                PackageManifest.from_file(package / "package.json")
+
     def test_package_enablement_blocks_known_incompatible_build(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

@@ -35,6 +35,8 @@ class PackageManifest:
         raw_dependencies = data.get("dependencies", [])
         if not isinstance(raw_required_builds, list) or not isinstance(raw_dependencies, list):
             raise ValueError("Package required_builds and dependencies must be arrays")
+        if any(not isinstance(value, str) for value in [*raw_required_builds, *raw_dependencies]):
+            raise ValueError("Package build and dependency entries must be strings")
         required_builds = tuple(str(value).strip() for value in raw_required_builds if str(value).strip())
         dependencies = tuple(str(value) for value in raw_dependencies)
         if any(not dependency or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in dependency) for dependency in dependencies):
