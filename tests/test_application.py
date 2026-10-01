@@ -171,6 +171,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIn("owns project records", backend.lastSaveMessage)
             self.assertTrue(any(item.id == profile.id for item in backend.profile_service.list()))
 
+    def test_backend_diagnostics_runs_and_audits_scan(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.runDiagnostics()
+            self.assertIn("attention finding(s)", backend.lastSaveMessage)
+            self.assertTrue(any(item.operation_type == "troubleshooter-scan" for item in runtime.operations.list_recent()))
+
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

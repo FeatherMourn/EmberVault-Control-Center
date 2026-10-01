@@ -147,7 +147,17 @@ class ControlCenterBackend(QObject):
     @Slot()
     def runDiagnostics(self):
         if self.troubleshooter:
-            self._last_save_message = "Read-only health scan completed"
+            operation = self.operations.start("troubleshooter-scan", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                findings = self.troubleshooter.scan()
+                attention = sum(1 for item in findings if item.severity == "attention")
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Diagnostics completed: {attention} attention finding(s)")
+                self._last_save_message = f"Read-only health scan completed: {attention} attention finding(s)"
+            except (OSError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
         self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
