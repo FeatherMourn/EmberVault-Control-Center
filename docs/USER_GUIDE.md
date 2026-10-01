@@ -35,6 +35,7 @@ directory. Deployment is allowed only when every action is `ready`; existing
 destinations block the operation, and partial failures remove newly created
 destinations. Successful deployments carry an EmberVault ownership marker so
 future removal can refuse unmarked or foreign destinations.
+The Mods page exposes the same ownership-protected undeploy action.
 
 ## Save safety
 

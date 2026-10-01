@@ -193,6 +193,7 @@ ApplicationWindow {
                 delegate: RowLayout {
                     Layout.fillWidth: true
                     Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.togglePackage(index) }
+                    Button { text: "Undeploy"; onClicked: controlCenter.undeployPackage(index) }
                     Button { text: "Remove"; onClicked: controlCenter.removePackage(index) }
                 }
             }

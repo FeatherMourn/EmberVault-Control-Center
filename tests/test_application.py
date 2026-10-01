@@ -199,6 +199,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.deployReadyPackages()
             self.assertIn("Deployed 0 package", backend.lastSaveMessage)
 
+    def test_backend_undeploy_refuses_unowned_destination(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.settings.game_path = temp
+            backend.undeployPackage(0)
+            self.assertIn("does not exist", backend.lastSaveMessage)
+
     def test_module_options_show_version_and_publisher(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

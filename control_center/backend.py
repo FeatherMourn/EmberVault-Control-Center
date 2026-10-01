@@ -840,6 +840,29 @@ class ControlCenterBackend(QObject):
         self.stateChanged.emit()
 
     @Slot(int)
+    def undeployPackage(self, index: int):
+        if not self.packages or not self.settings.game_path:
+            self._last_save_message = "Choose a game folder before undeploying packages"
+            self.stateChanged.emit()
+            return
+        available = self.packages.list()
+        if not 0 <= index < len(available):
+            return
+        package = available[index]
+        operation = self.operations.start("package-undeploy", profile_id=self._selected_profile_id,
+                                          package_id=package.id) if self.operations else None
+        try:
+            self.packages.undeploy(package.id, Path(self.settings.game_path))
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, "Package undeployed")
+            self._last_save_message = f"Undeployed {package.name}"
+        except (OSError, ValueError) as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot(int)
     def selectBackup(self, index: int):
         backups = self.save_manager.list_backups()
         self._selected_backup_id = backups[index].id if 0 <= index < len(backups) else ""
