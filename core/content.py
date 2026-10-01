@@ -5,6 +5,7 @@ import json
 import uuid
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from .storage import write_json_atomic
 
 
 @dataclass
@@ -35,7 +36,7 @@ class ContentProjectService:
         project = ContentProject(f"EV-CONTENT-{uuid.uuid4().hex[:8].upper()}", name.strip(), profile_id, description=description.strip())
         projects = self.list()
         projects.append(project)
-        self.path.write_text(json.dumps([asdict(item) for item in projects], indent=2) + "\n", encoding="utf-8")
+        write_json_atomic(self.path, [asdict(item) for item in projects])
         return project
 
     def set_status(self, project_id: str, status: str) -> ContentProject:
@@ -45,6 +46,6 @@ class ContentProjectService:
         for project in projects:
             if project.id == project_id:
                 project.status = status
-                self.path.write_text(json.dumps([asdict(item) for item in projects], indent=2) + "\n", encoding="utf-8")
+                write_json_atomic(self.path, [asdict(item) for item in projects])
                 return project
         raise KeyError(project_id)

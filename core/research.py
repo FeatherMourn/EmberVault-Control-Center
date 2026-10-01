@@ -6,6 +6,7 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from .storage import write_json_atomic
 
 
 @dataclass
@@ -42,7 +43,7 @@ class ResearchService:
         )
         records = self.list()
         records.append(record)
-        self.path.write_text(json.dumps([asdict(item) for item in records], indent=2) + "\n", encoding="utf-8")
+        write_json_atomic(self.path, [asdict(item) for item in records])
         return record
 
     def add_evidence(self, record_id: str, note: str) -> ResearchRecord:
@@ -52,7 +53,7 @@ class ResearchService:
                 if not note.strip():
                     raise ValueError("Evidence note is required")
                 record.evidence.append(note.strip())
-                self.path.write_text(json.dumps([asdict(item) for item in records], indent=2) + "\n", encoding="utf-8")
+                write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
 
@@ -65,6 +66,6 @@ class ResearchService:
                 if status == "completed" and not record.evidence:
                     raise ValueError("Add evidence before completing research")
                 record.status = status
-                self.path.write_text(json.dumps([asdict(item) for item in records], indent=2) + "\n", encoding="utf-8")
+                write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)

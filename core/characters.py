@@ -5,6 +5,7 @@ import json
 import uuid
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from .storage import write_json_atomic
 
 
 @dataclass
@@ -35,7 +36,7 @@ class CharacterService:
         record = CharacterRecord(f"EV-CHAR-{uuid.uuid4().hex[:8].upper()}", name.strip(), profile_id, notes.strip())
         records = self.list()
         records.append(record)
-        self.path.write_text(json.dumps([asdict(item) for item in records], indent=2) + "\n", encoding="utf-8")
+        write_json_atomic(self.path, [asdict(item) for item in records])
         return record
 
     def stage_level(self, record_id: str, level: int) -> CharacterRecord:
@@ -45,6 +46,6 @@ class CharacterService:
         for record in records:
             if record.id == record_id:
                 record.planned_level = level
-                self.path.write_text(json.dumps([asdict(item) for item in records], indent=2) + "\n", encoding="utf-8")
+                write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
