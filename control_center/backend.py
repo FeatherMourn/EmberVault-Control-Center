@@ -144,6 +144,15 @@ class ControlCenterBackend(QObject):
         ]
 
     @Property("QStringList", notify=stateChanged)
+    def externalPackageOptions(self):
+        if not self.packages or not self.settings.game_path:
+            return []
+        external = self.packages.inspect_external(Path(self.settings.game_path) / "mods")
+        managed = {item.id for item in self.packages.list()}
+        return [f"External · {item.name} · v{item.version} · {item.id}"
+                for item in external if item.id not in managed]
+
+    @Property("QStringList", notify=stateChanged)
     def deploymentOptions(self):
         if not self.packages or not self.settings.game_path:
             return ["Choose a game folder to inspect deployment readiness."]

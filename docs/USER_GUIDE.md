@@ -41,6 +41,9 @@ The configured game directory must already exist; deployment will not create a
 new game tree.
 Only packages with `package_type: "mod"` can deploy to the game `mods` folder;
 other package types remain isolated for their own modules.
+Mods already present in the game folder with `mod.json` are shown as external
+and can be imported deliberately; inspection itself does not copy or modify
+them.
 Troubleshooter also reports deployment conflicts and missing enabled-package
 sources for each profile.
 

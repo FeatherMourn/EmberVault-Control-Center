@@ -118,6 +118,28 @@ class PackageService:
     def list(self) -> list[PackageManifest]:
         return list(self.discover().values())
 
+    def inspect_external(self, mods_directory: Path) -> list[PackageManifest]:
+        """Read external mod manifests without importing or changing them."""
+        directory = Path(mods_directory)
+        if not directory.is_dir():
+            return []
+        found: list[PackageManifest] = []
+        for manifest_path in sorted(directory.glob("*/mod.json")):
+            try:
+                if manifest_path.parent.is_symlink() or any(item.is_symlink() for item in manifest_path.parent.rglob("*")):
+                    continue
+                raw = json.loads(manifest_path.read_text(encoding="utf-8"))
+                found.append(PackageManifest.from_data({
+                    "id": raw.get("id"), "name": raw.get("name"), "version": raw.get("version"),
+                    "author": raw.get("author", raw.get("publisher", "Unknown")),
+                    "description": raw.get("description", "External game mod"),
+                    "package_type": "mod", "required_builds": raw.get("required_builds", []),
+                    "dependencies": raw.get("dependencies", []),
+                }, manifest_path.parent))
+            except (OSError, TypeError, ValueError, json.JSONDecodeError):
+                continue
+        return found
+
     def get(self, package_id: str) -> PackageManifest | None:
         return self._packages.get(package_id)
 

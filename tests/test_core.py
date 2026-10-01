@@ -314,6 +314,21 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(package.id, "community.mod")
             self.assertTrue((root / "packages" / "community.mod" / "package.json").exists())
 
+    def test_external_mod_inspection_is_read_only(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            mods = root / "game" / "mods"
+            mods.mkdir(parents=True)
+            folder = mods / "existing"
+            folder.mkdir()
+            (folder / "mod.json").write_text(json.dumps({"id": "existing.mod", "name": "Existing", "version": "1.0"}))
+            service = PackageService(root, profiles)
+            found = service.inspect_external(mods)
+            self.assertEqual([item.id for item in found], ["existing.mod"])
+            self.assertFalse((root / "packages" / "existing.mod").exists())
+
     def test_deployment_plan_is_read_only_and_reports_conflicts(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
