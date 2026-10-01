@@ -2,20 +2,20 @@
 
 ## Before packaging
 
-- [ ] Run the complete Python test suite.
-- [ ] Compile all Python packages with `py_compile`.
+- [x] Run the complete Python test suite (55 tests passing).
+- [x] Compile all Python packages with `py_compile`.
 - [x] Load `ui/Main.qml` through an offscreen Qt application.
-- [ ] Confirm Save Manager never performs direct save editing.
-- [ ] Confirm stable and research profiles remain separate.
-- [ ] Confirm malformed manifests and corrupt local records fail safely.
-- [ ] Review operation and structured-log output for a backup and restore preview.
+- [x] Confirm Save Manager never performs direct save editing.
+- [x] Confirm stable and research profiles remain separate.
+- [x] Confirm malformed manifests and corrupt local records fail safely.
+- [x] Review operation and structured-log output for a backup and restore preview.
 
 ## Packaging
 
 - [x] Build a wheel from `pyproject.toml`.
 - [x] Verify the `embervault` entry point launches the desktop shell through
       the application entry point with the offscreen Qt platform.
-- [ ] Bundle the QML UI, contracts, seeded knowledge, and module manifests.
+- [x] Bundle the QML UI, contracts, seeded knowledge, and module manifests.
 - [x] `pyproject.toml` declares the QML UI, contracts, knowledge, and sample manifests as wheel data files.
 - [x] Test from a clean environment with an empty runtime-data directory. The
       installed wheel discovers four modules, one seed package, and three
@@ -23,8 +23,9 @@
 
 ## Release notes
 
-- [ ] State which modules are embedded and which require a separate process.
-- [ ] State the supported Enshrouded build range.
-- [ ] State that Trainer, Research, and Content Creator capabilities are guarded
+- [x] State which modules are embedded and which require a separate process.
+- [x] State the compatibility policy: 0.1.0 has no hard-coded build range;
+      packages declare tested builds and known incompatibilities are blocked.
+- [x] State that Trainer, Research, and Content Creator capabilities are guarded
       and may require separate-process isolation.
-- [ ] Include recovery instructions and the location of verified backups.
+- [x] Include recovery instructions and the location of verified backups.

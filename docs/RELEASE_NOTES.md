@@ -23,6 +23,18 @@
 - Website synchronization, forums, moderation, and hosted databases consume the
   catalog export but are not implemented in this desktop repository.
 
+## Compatibility and isolation
+
+- There is no hard-coded supported Enshrouded build range in 0.1.0. Packages
+  declare the builds they have tested; the Control Center reports unknown,
+  compatible, or incompatible status and blocks known-incompatible enablement.
+- Normal package and settings workflows are embedded. Trainer, Research, and
+  Content Creator use guarded separate-process contracts; their included
+  workers are non-mutating reference stubs.
+- Verified backups are stored under the runtime data directory in the Save
+  Manager backup area. Restore requires a current-state backup and performs
+  post-restore verification.
+
 ## Verification
 
 The release baseline includes the Python unit suite, Python compilation, an
