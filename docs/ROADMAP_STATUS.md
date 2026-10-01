@@ -25,9 +25,9 @@ deliberately non-mutating; Research includes a
 ## Guarded or incomplete
 
 - Gameplay settings are validated, profile-scoped staged values and can be
-  exported as a portable manifest; applying them to a live game is not
-  implemented. The supported boundary and observed installation evidence are
-  documented in `docs/GAME_SETTINGS_BOUNDARY.md`.
+  exported or imported as portable manifests; applying them to a live game is
+  not implemented. The supported boundary and observed installation evidence
+  are documented in `docs/GAME_SETTINGS_BOUNDARY.md`.
 - Character projects can be exported as plan-only manifests; content projects
   can be exported as design-only manifests, while direct game mutation is not
   implemented.
