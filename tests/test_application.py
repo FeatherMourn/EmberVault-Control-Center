@@ -183,6 +183,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             log_text = (Path(temp) / "logs" / "events.jsonl").read_text(encoding="utf-8")
             self.assertIn("Troubleshooter scan completed", log_text)
 
+    def test_fallback_backend_can_delete_custom_profile(self):
+        with tempfile.TemporaryDirectory() as temp:
+            backend = ControlCenterBackend(Path(temp))
+            backend.profile_service.create_custom("Scratch")
+            backend.profiles = backend.profile_service.list()
+            backend.selectProfile(2)
+            backend.deleteActiveProfile()
+            self.assertIn("Deleted profile", backend.lastSaveMessage)
+
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
