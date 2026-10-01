@@ -8,7 +8,7 @@
 - Save Manager inspection, verified backup, re-verification, restore preview,
   safe restore, and post-restore verification.
 - Profile-scoped package discovery, folder/ZIP import, enablement, compatibility
-  diagnostics, and safe removal.
+  diagnostics, dependency-aware enablement, and safe removal.
 - Staged Game Settings, Troubleshooter, Character projects, Research records
   with evidence lifecycle, Content projects, Knowledge search, and public
   catalog export.

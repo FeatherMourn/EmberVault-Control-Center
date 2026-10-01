@@ -11,7 +11,19 @@
 
 Open My Mods to import a local package folder containing `package.json`.
 Packages are disabled by default and are enabled separately for each profile.
-Disable a package in every profile before removing it.
+If a package declares `dependencies`, enable those packages first in the same
+profile. Disable a package in every profile before removing it; packages that
+other installed packages depend on must be removed last. A minimal manifest
+looks like this:
+
+```json
+{
+  "id": "embervault.example-mod",
+  "name": "Example Mod",
+  "version": "1.0.0",
+  "dependencies": []
+}
+```
 
 ## Save safety
 
