@@ -29,7 +29,7 @@
 - [x] Bundle the QML UI, contracts, seeded knowledge, and module manifests.
 - [x] `pyproject.toml` declares the QML UI, contracts, knowledge, and sample manifests as wheel data files.
 - [x] Test from a clean environment with an empty runtime-data directory. The
-      installed wheel discovers five modules, one seed package, and seven
+      installed wheel discovers five modules, one seed package, and eight
       knowledge entries without source-tree assets.
 
 ## Release notes
