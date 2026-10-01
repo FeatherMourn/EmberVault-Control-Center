@@ -520,6 +520,13 @@ class ControlCenterBackend(QObject):
             operation = self.operations.start("profile-delete", profile_id=self._selected_profile_id) if self.operations else None
             try:
                 deleted = self._selected_profile_id
+                owned_records = (
+                    [item for item in self.research.list() if item.profile_id == deleted]
+                    + [item for item in self.content.list() if item.profile_id == deleted]
+                    + [item for item in self.characters.list() if item.profile_id == deleted]
+                )
+                if owned_records:
+                    raise ValueError("Profile owns project records; remove or migrate them before deletion")
                 self.profile_service.delete_custom(deleted)
                 if operation and self.operations:
                     self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Deleted profile {deleted}")

@@ -147,6 +147,17 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIn("Research project", backend.contentOptions[0])
             self.assertIn("Research character", backend.characterOptions[0])
 
+    def test_backend_profile_deletion_protects_owned_records(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = runtime.profiles.create_custom("Scratch")
+            runtime.research.create("Owned", "Keep it", profile.id)
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.selectProfile(2)
+            backend.deleteActiveProfile()
+            self.assertIn("owns project records", backend.lastSaveMessage)
+            self.assertTrue(any(item.id == profile.id for item in backend.profile_service.list()))
+
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
