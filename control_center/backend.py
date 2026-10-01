@@ -248,10 +248,15 @@ class ControlCenterBackend(QObject):
         if not records:
             self._last_save_message = "Create a character project first"
         else:
+            operation = self.operations.start("character-level-stage", profile_id=self._selected_profile_id) if self.operations else None
             try:
                 record = self.characters.stage_level(records[-1].id, level)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Staged level {record.planned_level} for {record.id}")
                 self._last_save_message = f"Staged level {record.planned_level} for {record.name}"
             except (KeyError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
