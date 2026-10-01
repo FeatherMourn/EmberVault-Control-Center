@@ -283,6 +283,17 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             self.assertEqual(runtime.catalog.build()["contract_versions"]["tuning_adapter"], 1)
 
+    def test_eml_tuning_adapter_loads_existing_reversible_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            manifest = TuningAdapterService(root).manifest()
+            self.assertEqual(manifest["supported_setting_keys"], ["baseCritChance"])
+
     def test_catalog_sync_writes_repository_ready_snapshot(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

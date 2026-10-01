@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "embervault.eml-balancing-table",
+  "name": "EML Balancing Table Adapter",
+  "version": "0.1.0",
+  "process_mode": "separate",
+  "loader": "EML",
+  "game_build": "1076226",
+  "supported_setting_keys": ["baseCritChance"],
+  "evidence": {
+    "source": "Control_Center/research/probe_sessions/balancing_table_scalar_write_safe_20260929_evidence.json",
+    "resource": "keen::BalancingTable",
+    "field": "baseCritChance",
+    "write_ok": true,
+    "readback_ok": true,
+    "restore_ok": true,
+    "panic": false,
+    "probe_removed": true,
+    "stable_profile_restored": true
+  },
+  "backup_requirements": "Research profile, verified recovery point, and closed-game gate before any adapter write.",
+  "mutation_scope": "One declared scalar field on the EML-exposed BalancingTable during startup; no saves, client settings, KFC archives, or arbitrary files.",
+  "verification_steps": [
+    "Confirm EML API 1.3 and game build 1076226.",
+    "Confirm the research profile and verified recovery point.",
+    "Apply only baseCritChance through the owned EML adapter package.",
+    "Read back the field and record the operation result.",
+    "Restore the original value and verify the recovery point."
+  ],
+  "feature_state": "experimental"
+}

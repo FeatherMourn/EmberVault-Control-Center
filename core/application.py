@@ -23,6 +23,7 @@ from .save_workflow import SaveWorkflowService
 from .settings import SettingsService
 from .troubleshooter import TroubleshooterService
 from .trainer import TrainerPlanService
+from .tuning_adapter import TuningAdapterService
 
 
 @dataclass
@@ -47,6 +48,7 @@ class EmbervaultRuntime:
     catalog: CatalogExportService
     content: ContentProjectService
     trainer: TrainerPlanService
+    tuning_adapter: TuningAdapterService
 
     @classmethod
     def create(cls, root: Path) -> "EmbervaultRuntime":
@@ -72,6 +74,7 @@ class EmbervaultRuntime:
             catalog=None,
             content=None,
             trainer=None,
+            tuning_adapter=None,
         )
         runtime.save_workflow = SaveWorkflowService(runtime.saves, runtime.operations, runtime.logs)
         runtime.profiles.ensure_defaults()
@@ -89,6 +92,7 @@ class EmbervaultRuntime:
         runtime.catalog = CatalogExportService(root, runtime.modules, runtime.packages, runtime.knowledge, runtime.research)
         runtime.content = ContentProjectService(root)
         runtime.trainer = TrainerPlanService(root, runtime.saves)
+        runtime.tuning_adapter = TuningAdapterService(root)
         runtime.catalog.set_content(runtime.content)
         runtime.modules.discover()
         runtime.logs.info("EmberVault Core initialized")
