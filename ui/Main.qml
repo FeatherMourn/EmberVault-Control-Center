@@ -324,7 +324,7 @@ ApplicationWindow {
             spacing: 18
             Text { text: "KNOWLEDGE"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
             Text { text: "Keep the reasoning close."; color: ink; font.pixelSize: 30; font.bold: true }
-            Text { text: "A local knowledge catalog explains safety rules, profile isolation, and module boundaries directly inside the Control Center."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Text { text: "A local knowledge catalog explains safety rules, profile isolation, and module boundaries. PUBLIC entries are safe for catalog export; PRIVATE entries remain local."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Button { text: "Export website catalog"; onClicked: controlCenter.exportCatalog() }
             Button { text: "Publish catalog to repository folder"; onClicked: controlCenter.syncCatalogFolder() }
             TextField { placeholderText: "Search knowledge"; Layout.fillWidth: true; onTextChanged: controlCenter.searchKnowledge(text) }

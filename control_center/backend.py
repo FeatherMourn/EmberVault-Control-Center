@@ -284,7 +284,8 @@ class ControlCenterBackend(QObject):
     def knowledgeOptions(self):
         if not self.knowledge:
             return []
-        return [f"{entry.category} · {entry.title} — {entry.summary}" for entry in self.knowledge.search(self._knowledge_query)]
+        return [f"{entry.category} · {'PUBLIC' if entry.published else 'PRIVATE'} · {entry.title} — {entry.summary}"
+                for entry in self.knowledge.search(self._knowledge_query)]
 
     @Slot(str)
     def searchKnowledge(self, query: str):
