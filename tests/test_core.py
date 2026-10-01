@@ -644,6 +644,19 @@ class CoreServiceTests(unittest.TestCase):
             package = PackageService(root, profiles).install_from_archive(archive)
             self.assertEqual(package.id, "archive.mod")
 
+    def test_package_archive_rejects_multiple_package_roots(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            archive = root / "ambiguous.zip"
+            import zipfile
+            with zipfile.ZipFile(archive, "w") as bundle:
+                bundle.writestr("first/package.json", json.dumps({"id": "first.mod", "name": "First", "version": "1.0.0"}))
+                bundle.writestr("second/package.json", json.dumps({"id": "second.mod", "name": "Second", "version": "1.0.0"}))
+            with self.assertRaisesRegex(ValueError, "multiple package roots"):
+                PackageService(root, profiles).install_from_archive(archive)
+
     def test_package_manifest_rejects_path_like_id(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

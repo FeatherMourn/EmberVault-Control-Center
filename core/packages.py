@@ -249,10 +249,13 @@ class PackageService:
                         raise ValueError("Package archive contains an unsafe path")
                 bundle.extractall(staging)
             candidates = [staging, *[item for item in staging.iterdir() if item.is_dir()]]
-            source = next((item for item in candidates if (item / "package.json").is_file() or (item / "mod.json").is_file()), None)
-            if source is None:
+            package_roots = [item for item in candidates
+                             if (item / "package.json").is_file() or (item / "mod.json").is_file()]
+            if not package_roots:
                 raise ValueError("Package archive must contain package.json or mod.json")
-            return self.install_from_directory(source)
+            if len(package_roots) > 1:
+                raise ValueError("Package archive contains multiple package roots")
+            return self.install_from_directory(package_roots[0])
 
     def remove(self, package_id: str) -> None:
         package = self.get(package_id)
