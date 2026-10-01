@@ -187,6 +187,17 @@ class CoreServiceTests(unittest.TestCase):
             package = PackageService(root, profiles).install_from_archive(archive)
             self.assertEqual(package.id, "archive.mod")
 
+    def test_package_manifest_rejects_path_like_id(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            incoming = root / "incoming"
+            incoming.mkdir()
+            (incoming / "package.json").write_text(json.dumps({"id": "../escape", "name": "Unsafe", "version": "1.0.0"}))
+            with self.assertRaises(ValueError):
+                PackageService(root, profiles).install_from_directory(incoming)
+
 
 if __name__ == "__main__":
     unittest.main()
