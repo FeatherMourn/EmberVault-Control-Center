@@ -10,11 +10,12 @@
     "profile_name": {"type": "string", "minLength": 1},
     "settings": {
       "type": "object",
-      "required": ["enemy_damage_multiplier", "resource_yield_multiplier", "experimental_rules"],
+      "required": ["enemy_damage_multiplier", "resource_yield_multiplier", "experimental_rules", "base_crit_chance"],
       "properties": {
         "enemy_damage_multiplier": {"type": "number", "minimum": 0.25, "maximum": 4.0},
         "resource_yield_multiplier": {"type": "number", "minimum": 0.25, "maximum": 4.0},
-        "experimental_rules": {"type": "boolean"}
+        "experimental_rules": {"type": "boolean"},
+        "base_crit_chance": {"type": "number", "minimum": 0.0, "maximum": 1.0}
       },
       "additionalProperties": false
     },

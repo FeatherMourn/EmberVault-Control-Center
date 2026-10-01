@@ -249,6 +249,7 @@ class CoreServiceTests(unittest.TestCase):
                     "enemy_damage_multiplier": 1.5,
                     "resource_yield_multiplier": 2.0,
                     "experimental_rules": True,
+                    "base_crit_chance": 0.2,
                 },
             }), encoding="utf-8")
             updated = service.import_manifest(profile, manifest)
@@ -291,6 +292,7 @@ class CoreServiceTests(unittest.TestCase):
                 "enemy_damage_multiplier": 1.0,
                 "resource_yield_multiplier": 1.0,
                 "experimental_rules": False,
+                "base_crit_chance": 0.1,
             })
 
     def test_high_risk_capabilities_require_research_and_backup(self):

@@ -56,6 +56,7 @@ class ApplicationCompositionTests(unittest.TestCase):
                     "enemy_damage_multiplier": 1.25,
                     "resource_yield_multiplier": 1.0,
                     "experimental_rules": False,
+                    "base_crit_chance": 0.1,
                 },
             }), encoding="utf-8")
             backend.importGameSettings(str(manifest))

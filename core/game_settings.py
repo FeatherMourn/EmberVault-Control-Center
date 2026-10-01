@@ -19,12 +19,15 @@ class SettingDefinition:
     description: str
     default: Any
     value_type: str
+    minimum: float | None = None
+    maximum: float | None = None
 
 
 DEFINITIONS = (
-    SettingDefinition("enemy_damage_multiplier", "Enemy damage", "Research value for incoming damage.", 1.0, "number"),
-    SettingDefinition("resource_yield_multiplier", "Resource yield", "Research value for gathered resources.", 1.0, "number"),
+    SettingDefinition("enemy_damage_multiplier", "Enemy damage", "Research value for incoming damage.", 1.0, "number", 0.25, 4.0),
+    SettingDefinition("resource_yield_multiplier", "Resource yield", "Research value for gathered resources.", 1.0, "number", 0.25, 4.0),
     SettingDefinition("experimental_rules", "Experimental rules", "Marks this profile as a tuning test surface.", False, "boolean"),
+    SettingDefinition("base_crit_chance", "Base critical chance", "EML research value mapped to BalancingTable.baseCritChance.", 0.1, "number", 0.0, 1.0),
 )
 
 
@@ -44,7 +47,9 @@ class GameSettingsService:
             else:
                 valid = (
                     isinstance(value, (int, float)) and not isinstance(value, bool)
-                    and math.isfinite(value) and 0.25 <= value <= 4.0
+                    and math.isfinite(value)
+                    and (definition.minimum is None or value >= definition.minimum)
+                    and (definition.maximum is None or value <= definition.maximum)
                 )
             result[definition.key] = value if valid else definition.default
         return result
@@ -55,7 +60,9 @@ class GameSettingsService:
             raise ValueError(f"Unknown game setting: {key}")
         if definition.value_type == "number" and (
             isinstance(value, bool) or not isinstance(value, (int, float))
-            or not math.isfinite(value) or value < 0.25 or value > 4.0
+            or not math.isfinite(value)
+            or (definition.minimum is not None and value < definition.minimum)
+            or (definition.maximum is not None and value > definition.maximum)
         ):
             raise ValueError(f"Invalid value for {key}")
         if definition.value_type == "boolean" and not isinstance(value, bool):
@@ -110,7 +117,9 @@ class GameSettingsService:
             definition = definitions[key]
             if definition.value_type == "number" and (
                 isinstance(value, bool) or not isinstance(value, (int, float))
-                or not math.isfinite(value) or value < 0.25 or value > 4.0
+                or not math.isfinite(value)
+                or (definition.minimum is not None and value < definition.minimum)
+                or (definition.maximum is not None and value > definition.maximum)
             ):
                 raise ValueError(f"Invalid value for {key}")
             if definition.value_type == "boolean" and not isinstance(value, bool):

@@ -53,6 +53,7 @@ class ControlCenterBackend(QObject):
         self.catalog = runtime.catalog if runtime else None
         self.content = runtime.content if runtime else None
         self.trainer = runtime.trainer if runtime else None
+        self.tuning_adapter = runtime.tuning_adapter if runtime else None
         self.characters = runtime.characters if runtime else None
         self.risk = runtime.risk if runtime else None
         self.launcher = runtime.launcher if runtime else None
@@ -127,6 +128,16 @@ class ControlCenterBackend(QObject):
     @Property(str, notify=stateChanged)
     def lastSaveMessage(self):
         return self._last_save_message
+
+    @Property(str, notify=stateChanged)
+    def tuningAdapterStatus(self):
+        if not self.tuning_adapter:
+            return "EML adapter unavailable"
+        try:
+            manifest = self.tuning_adapter.manifest()
+            return f"EML {manifest['game_build']} · {manifest['feature_state']} · {', '.join(manifest['supported_setting_keys'])}"
+        except ValueError as exc:
+            return f"EML adapter blocked · {exc}"
 
     @Property("QStringList", notify=stateChanged)
     def profileOptions(self):
@@ -950,9 +961,10 @@ class ControlCenterBackend(QObject):
         if definition.value_type == "boolean":
             value = not current
         else:
-            value = float(current) + 0.25
-            if value > 4.0:
-                value = 0.25
+            step = 0.05 if definition.maximum is not None and definition.maximum <= 1.0 else 0.25
+            value = float(current) + step
+            if definition.maximum is not None and value > definition.maximum:
+                value = definition.minimum or 0.0
         operation = self.operations.start("game-setting-stage", profile_id=profile.id) if self.operations else None
         try:
             updated = self.game_settings.stage(profile, definition.key, value)
