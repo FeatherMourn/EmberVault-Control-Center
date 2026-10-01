@@ -160,6 +160,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(unpublished.evidence, ["Observed"])
             self.assertEqual(runtime.catalog.build()["research"], [])
 
+    def test_research_options_show_private_or_published_state(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            record = runtime.research.create("Visible", "Documented", "research")
+            runtime.research.add_evidence(record.id, "Observed")
+            runtime.research.set_status(record.id, "completed")
+            backend = ControlCenterBackend(root, runtime=runtime)
+            backend.selectProfile(1)
+            self.assertIn("PRIVATE", backend.researchOptions[0])
+            runtime.research.publish(record.id)
+            self.assertIn("PUBLISHED", backend.researchOptions[0])
+
     def test_published_research_retracts_when_evidence_changes(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

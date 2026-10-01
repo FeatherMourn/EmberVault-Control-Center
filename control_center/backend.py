@@ -233,7 +233,7 @@ class ControlCenterBackend(QObject):
     def researchOptions(self):
         if not self.research:
             return []
-        return [f"{item.status.upper()} · {item.title} · {len(item.evidence)} evidence note(s)"
+        return [f"{item.status.upper()} · {'PUBLISHED' if item.published else 'PRIVATE'} · {item.title} · {len(item.evidence)} evidence note(s)"
                 for item in self.research.list() if item.profile_id == self._selected_profile_id]
 
     @Property("QStringList", notify=stateChanged)
