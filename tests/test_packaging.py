@@ -80,6 +80,12 @@ class PackagingContractTests(unittest.TestCase):
         self.assertIn('"knowledge/entries.json"', verifier)
         self.assertIn("Packaged knowledge catalog must contain at least one entry", verifier)
 
+    def test_catalog_verifier_enforces_module_process_mode(self):
+        root = Path(__file__).resolve().parents[1]
+        verifier = (root / "tools" / "verify_catalog.py").read_text(encoding="utf-8")
+        self.assertIn("process_mode", verifier)
+        self.assertIn('"embedded", "separate"', verifier)
+
     def test_tuning_adapter_contract_declares_safety_boundaries(self):
         root = Path(__file__).resolve().parents[1]
         schema = json.loads((root / "contracts/tuning-adapter.schema.json").read_text(encoding="utf-8"))
