@@ -43,11 +43,14 @@ class ModuleManifest:
             executable_path = Path(executable)
             if executable_path.is_absolute() or ".." in executable_path.parts:
                 raise ValueError("Module executable must remain inside its package directory")
+        raw_capabilities = data.get("capabilities", [])
+        if not isinstance(raw_capabilities, list):
+            raise ValueError("Module capabilities must be an array")
         return cls(
             id=module_id, name=str(data["name"]), version=str(data["version"]),
             publisher=str(data.get("publisher", "Unknown")), executable=executable,
             minimum_core_version=str(data.get("minimum_core_version", "0.1.0")),
-            capabilities=tuple(str(x) for x in data.get("capabilities", [])),
+            capabilities=tuple(str(x) for x in raw_capabilities),
             feature_state=str(data.get("feature_state", "stable")),
             entrypoint=data.get("entrypoint"), path=path.parent,
         )

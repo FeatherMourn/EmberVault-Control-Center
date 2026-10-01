@@ -119,6 +119,17 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertNotIn("unsafe", discovered)
             self.assertIn("embervault.example", discovered)
 
+    def test_module_manifest_requires_capability_array(self):
+        with tempfile.TemporaryDirectory() as temp:
+            module = Path(temp) / "bad"
+            module.mkdir()
+            (module / "module.json").write_text(json.dumps({
+                "id": "bad.capabilities", "name": "Bad", "version": "1.0.0",
+                "publisher": "Test", "capabilities": "trainer",
+            }))
+            discovered = ModuleRegistry(Path(temp)).discover()
+            self.assertNotIn("bad.capabilities", discovered)
+
     def test_python_module_process_uses_current_interpreter(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "demo"
