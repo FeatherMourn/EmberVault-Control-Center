@@ -57,14 +57,28 @@ history.
 ## Research and tools
 
 Research records belong to a selected profile and can collect evidence notes.
+Use **Export latest research summary** for a profile-free handoff with an
+evidence count; private evidence text is never included.
 Character and Content Creator pages store project plans separately from live
-game data. Trainer, Research, and Content Creator execution remains guarded by
+game data. Content projects can classify furniture, building, recipe, or other
+designs and track project-relative asset references; absolute paths and
+traversal are rejected. Trainer, Research, and Content Creator execution remains guarded by
 profile isolation and recovery requirements. Guarded workers are read-only in
 this release and must return the versioned worker-result contract.
 
 ## Knowledge and integration
 
 Knowledge contains the local safety and architecture guidance. Search it from
-the Knowledge page or export the public catalog JSON for the Ember Vault
-website. The export excludes paths, saves, logs, profiles, and private
-research evidence.
+the Knowledge page. New entries are private until explicitly published, and
+the page labels entries PUBLIC or PRIVATE. Export or publish the public catalog
+JSON for the Ember Vault website. The export excludes paths, saves, logs,
+profiles, private knowledge, and private research evidence. **Publish catalog
+to repository folder** writes a validated local `embervault-catalog.json`
+handoff; the desktop app does not commit or push it.
+
+## Release verification
+
+Build a wheel with `python -m pip wheel . --no-deps --wheel-dir .release-check`,
+then run `python tools/verify_release.py <wheel>` to verify the packaged QML
+shell, contracts, seed data, embedded entrypoint, guarded workers, and example
+package assets.
