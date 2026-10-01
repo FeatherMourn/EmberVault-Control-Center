@@ -177,10 +177,15 @@ class ControlCenterBackend(QObject):
         except ImportError:
             selected = ""
         if selected and self.catalog:
+            operation = self.operations.start("catalog-export") if self.operations else None
             try:
                 destination = self.catalog.export(Path(selected))
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Exported catalog to {destination}")
                 self._last_save_message = f"Catalog exported to {destination}"
             except OSError as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
                 self._last_save_message = str(exc)
             self.stateChanged.emit()
 
