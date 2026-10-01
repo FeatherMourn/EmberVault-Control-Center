@@ -273,9 +273,17 @@ class ControlCenterBackend(QObject):
             value = float(current) + 0.25
             if value > 4.0:
                 value = 0.25
-        updated = self.game_settings.stage(profile, definition.key, value)
-        self.profiles = [updated if item.id == updated.id else item for item in self.profiles]
-        self._last_save_message = f"Staged {definition.name} for {updated.name}"
+        operation = self.operations.start("game-setting-stage", profile_id=profile.id) if self.operations else None
+        try:
+            updated = self.game_settings.stage(profile, definition.key, value)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Staged {definition.key}")
+            self.profiles = [updated if item.id == updated.id else item for item in self.profiles]
+            self._last_save_message = f"Staged {definition.name} for {updated.name}"
+        except ValueError as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
         self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
