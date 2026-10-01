@@ -312,10 +312,16 @@ class ControlCenterBackend(QObject):
             message = "Guarded module timed out and was terminated"
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, message)
+            if self.logs:
+                self.logs.error(message, operation_id=operation.id if operation else None,
+                                 profile_id=profile.id, details={"module_id": module_id})
             self._last_save_message = message
         except (PermissionError, KeyError, OSError, RuntimeError, ValueError) as exc:
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            if self.logs:
+                self.logs.error("Guarded module failed", operation_id=operation.id if operation else None,
+                                 profile_id=profile.id, details={"module_id": module_id, "error": str(exc)})
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
@@ -605,6 +611,9 @@ class ControlCenterBackend(QObject):
             except (OSError, ValueError) as exc:
                 if operation and self.operations:
                     self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                if self.logs:
+                    self.logs.error("Troubleshooter scan failed", operation_id=operation.id if operation else None,
+                                    profile_id=self._selected_profile_id, details={"error": str(exc)})
                 self._last_save_message = str(exc)
             self.stateChanged.emit()
 

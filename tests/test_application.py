@@ -141,6 +141,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.launchResearchWorker()
             process.kill.assert_called_once_with()
             self.assertIn("timed out and was terminated", backend.lastSaveMessage)
+            self.assertIn("Guarded module timed out", (Path(temp) / "logs" / "events.jsonl").read_text(encoding="utf-8"))
 
     def test_backend_workspace_lists_are_profile_scoped(self):
         with tempfile.TemporaryDirectory() as temp:
