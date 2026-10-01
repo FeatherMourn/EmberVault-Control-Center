@@ -57,6 +57,7 @@ class ControlCenterBackend(QObject):
         self._selected_backup_id = ""
         self._restore_preview = "No restore selected"
         self._selected_profile_id = self.profiles[0].id if self.profiles else ""
+        self._knowledge_query = ""
 
     @Property(str, notify=stateChanged)
     def gameStatus(self):
@@ -152,7 +153,12 @@ class ControlCenterBackend(QObject):
     def knowledgeOptions(self):
         if not self.knowledge:
             return []
-        return [f"{entry.category} · {entry.title} — {entry.summary}" for entry in self.knowledge.search()]
+        return [f"{entry.category} · {entry.title} — {entry.summary}" for entry in self.knowledge.search(self._knowledge_query)]
+
+    @Slot(str)
+    def searchKnowledge(self, query: str):
+        self._knowledge_query = query
+        self.stateChanged.emit()
 
     @Slot()
     def exportCatalog(self):

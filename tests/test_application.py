@@ -68,6 +68,11 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertTrue(destination.is_file())
             self.assertIn('"schema_version": 1', destination.read_text(encoding="utf-8"))
 
+    def test_knowledge_search_filters_catalog(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            self.assertEqual([item.id for item in runtime.knowledge.search("profiles")], ["profiles"])
+
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
