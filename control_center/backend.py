@@ -350,6 +350,8 @@ class ControlCenterBackend(QObject):
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created profile {profile.id}",)
             self.profiles.append(profile)
+            self._selected_profile_id = profile.id
+            self._profile_name = profile.name
             self._last_save_message = f"Created profile {profile.name}"
         except ValueError as exc:
             if operation and self.operations:
