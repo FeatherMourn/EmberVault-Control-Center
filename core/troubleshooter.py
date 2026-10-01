@@ -96,4 +96,13 @@ class TroubleshooterService:
                             f"package-profile-dependency-{profile.id}-{package.id}", package.name, "attention",
                             f"Profile {profile.name} has disabled dependencies: {', '.join(disabled)}",
                         ))
+        if settings.game_path:
+            for profile in profiles:
+                for action in self.packages.deployment_plan(profile, Path(settings.game_path)):
+                    if action.status != "ready":
+                        findings.append(Diagnostic(
+                            f"deployment-{profile.id}-{action.package_id}", "Mod deployment", "attention",
+                            f"Profile {profile.name}: {action.package_id} is {action.status}"
+                            + (f" ({action.reason})" if action.reason else ""),
+                        ))
         return findings

@@ -57,6 +57,22 @@ class ApplicationCompositionTests(unittest.TestCase):
             findings = runtime.troubleshooter.scan()
             self.assertTrue(any(item.key == "package-tested.mod" for item in findings))
 
+    def test_troubleshooter_flags_deployment_conflict(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            source = root / "incoming"
+            source.mkdir()
+            (source / "package.json").write_text(json.dumps({"id": "conflict.mod", "name": "Conflict", "version": "1.0"}))
+            package = runtime.packages.install_from_directory(source)
+            profile = runtime.profiles.list()[0]
+            runtime.packages.set_enabled(profile, package.id, True)
+            game = root / "game"
+            (game / "mods" / package.id).mkdir(parents=True)
+            runtime.settings.save(type(runtime.settings.load())(game_path=str(game)))
+            findings = runtime.troubleshooter.scan()
+            self.assertTrue(any(item.key == "deployment-default-conflict.mod" for item in findings))
+
     def test_game_detection_treats_malformed_manifest_as_unknown_build(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
