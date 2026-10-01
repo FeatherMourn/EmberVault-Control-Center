@@ -283,10 +283,10 @@ class PackageService:
             for item in plan:
                 item.destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copytree(item.source, item.destination)
+                created.append(item.destination)
                 (item.destination / DEPLOYMENT_MARKER).write_text(json.dumps({
                     "package_id": item.package_id, "managed_by": "embervault-control-center",
                 }, indent=2) + "\n", encoding="utf-8")
-                created.append(item.destination)
             return plan
         except (OSError, shutil.Error) as exc:
             for destination in reversed(created):
