@@ -39,6 +39,10 @@ class ProfileService:
                 if not isinstance(raw, dict):
                     continue
                 profile = Profile(**raw)
+                if (not isinstance(profile.id, str) or not profile.id
+                        or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_" for char in profile.id)
+                        or not isinstance(profile.name, str) or not profile.name.strip()):
+                    continue
                 if profile.id in seen_ids:
                     continue
                 if not isinstance(profile.enabled_packages, list):

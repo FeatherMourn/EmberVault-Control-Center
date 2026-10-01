@@ -66,6 +66,15 @@ class CoreServiceTests(unittest.TestCase):
             profiles = ProfileService(Path(temp)).list()
             self.assertEqual([(item.id, item.name) for item in profiles], [("same", "First")])
 
+    def test_profiles_skip_invalid_persisted_identity(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp) / "profiles"
+            directory.mkdir()
+            (directory / "empty.json").write_text(json.dumps({"id": "", "name": "Nope"}))
+            (directory / "path.json").write_text(json.dumps({"id": "../escape", "name": "Nope"}))
+            (directory / "blank-name.json").write_text(json.dumps({"id": "valid", "name": "  "}))
+            self.assertEqual(ProfileService(Path(temp)).list(), [])
+
     def test_custom_profile_creation_generates_safe_id(self):
         with tempfile.TemporaryDirectory() as temp:
             service = ProfileService(Path(temp))
