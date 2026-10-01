@@ -182,6 +182,27 @@ class CoreServiceTests(unittest.TestCase):
             packages.remove("managed.mod")
             self.assertIsNone(packages.get("managed.mod"))
 
+    def test_package_removal_protects_dependents(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            incoming = root / "incoming"
+            incoming.mkdir()
+            (incoming / "package.json").write_text(json.dumps({
+                "id": "base.mod", "name": "Base", "version": "1.0",
+            }))
+            packages = PackageService(root, profiles)
+            packages.install_from_directory(incoming)
+            dependent = root / "dependent"
+            dependent.mkdir()
+            (dependent / "package.json").write_text(json.dumps({
+                "id": "addon.mod", "name": "Addon", "version": "1.0", "dependencies": ["base.mod"],
+            }))
+            packages.install_from_directory(dependent)
+            with self.assertRaisesRegex(ValueError, "dependent"):
+                packages.remove("base.mod")
+
     def test_package_archive_import_rejects_unsafe_paths(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

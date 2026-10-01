@@ -143,6 +143,9 @@ class PackageService:
             raise ValueError(f"Unknown installed package: {package_id}")
         if any(package_id in profile.enabled_packages for profile in self.profiles.list()):
             raise ValueError("Disable the package in every profile before removing it")
+        dependents = [item.name for item in self._packages.values() if package_id in item.dependencies]
+        if dependents:
+            raise ValueError(f"Remove dependent packages first: {', '.join(dependents)}")
         managed_path = self.directory / package_id
         if not managed_path.is_dir():
             raise ValueError("Seed packages cannot be removed from the repository")
