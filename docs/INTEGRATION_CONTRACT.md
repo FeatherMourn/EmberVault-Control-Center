@@ -32,3 +32,5 @@ operation log rather than written into game or save data.
 Trainer workers may additionally return a bounded `checks` string array for a
 readiness audit. The backup identifier is passed as context only; the worker
 cannot mutate or restore it.
+Content Creator workers may also return bounded `checks` describing their
+design-workspace boundary; they must not touch live game content.

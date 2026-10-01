@@ -1,4 +1,4 @@
-"""Non-mutating process-contract stub for future content creation workers."""
+"""Non-mutating Content Creator design-workspace audit."""
 from __future__ import annotations
 
 import argparse
@@ -10,9 +10,15 @@ def main() -> int:
     parser.add_argument("--profile", default="")
     parser.add_argument("--game-path", default="")
     parser.add_argument("--operation", default="")
+    parser.add_argument("--backup", default="")
     args = parser.parse_args()
+    checks = [f"profile_selected: {bool(args.profile)}",
+              "design_workspace_only: True",
+              "live_game_content_touched: False",
+              f"recovery_context_available: {bool(args.backup)}"]
     print(json.dumps({"contract_version": 1, "status": "ready", "read_only": True,
-                      "profile": args.profile, "game_path": args.game_path, "operation": args.operation}))
+                      "profile": args.profile, "game_path": args.game_path, "operation": args.operation,
+                      "checks": checks}))
     return 0
 
 

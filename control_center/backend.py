@@ -347,6 +347,10 @@ class ControlCenterBackend(QObject):
                         (not isinstance(worker_result.get("checks"), list) or
                          any(not isinstance(item, str) or not item.strip()
                              for item in worker_result.get("checks", []))))
+                    or (module_id == "embervault.content-creator" and
+                        (not isinstance(worker_result.get("checks"), list) or
+                         any(not isinstance(item, str) or not item.strip()
+                             for item in worker_result.get("checks", []))))
                     or worker_result.get("profile") != profile.id
                     or (operation and worker_result.get("operation") != operation.id)):
                 raise RuntimeError("Worker returned an invalid or non-read-only contract")
@@ -371,6 +375,11 @@ class ControlCenterBackend(QObject):
             elif module_id == "embervault.trainer":
                 self._last_save_message = (
                     f"Completed guarded {capability} readiness audit "
+                    f"({len(worker_result.get('checks', []))} checks)"
+                )
+            elif module_id == "embervault.content-creator":
+                self._last_save_message = (
+                    f"Completed guarded {capability} design audit "
                     f"({len(worker_result.get('checks', []))} checks)"
                 )
             else:

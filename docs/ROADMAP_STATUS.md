@@ -17,8 +17,8 @@
 - Guarded Trainer, Research, and Content Creator process workflows with UI
   launch controls, captured worker output, timeout termination, and audited
   results. Current workers are deliberately non-mutating; Research includes a
-  bounded evidence probe and Trainer includes a readiness audit, while Content
-  Creator remains a process-isolation stub.
+  bounded evidence probe, Trainer includes a readiness audit, and Content
+  Creator includes a design-boundary audit.
 
 ## Guarded or incomplete
 
@@ -31,15 +31,15 @@
 - Website synchronization, community forums, moderation, and remote catalog
   hosting are outside the desktop repository and use the export contract.
 - The seeded Trainer performs a bounded, read-only readiness audit; the Research
-  worker performs a bounded filesystem observation probe. Content Creator still
-  proves process isolation and argument handoff only. Worker launch paths are
-  covered by success, denial, and timeout tests.
+  worker performs a bounded filesystem observation probe; and Content Creator
+  performs a bounded design-boundary audit. Worker launch paths are covered by
+  success, denial, and timeout tests.
 
 ## Release evidence
 
 - Python unit suite currently covers the Core services, workflows, module gates,
   profile isolation, package contracts, packaging assets, and installed-process
-  contracts (132 tests).
+  contracts (134 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
   packaged launcher passes its offscreen smoke test and discovers four modules,

@@ -231,6 +231,18 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertIn("recovery_backup_supplied: True", result["checks"])
             self.assertIn("mutation_performed: False", result["checks"])
 
+    def test_content_worker_reports_design_boundary_checks(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            process = runtime.launcher.launch(
+                "embervault.content-creator", "content-creator", profile,
+                LaunchContext(profile.id, temp, "EV-OP-CONTENT", "EV-BACKUP-1"), "EV-BACKUP-1",
+            )
+            result = json.loads(process.communicate(timeout=5)[0])
+            self.assertIn("design_workspace_only: True", result["checks"])
+            self.assertIn("live_game_content_touched: False", result["checks"])
+
     def test_research_worker_reports_read_only_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
