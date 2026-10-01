@@ -57,6 +57,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             findings = runtime.troubleshooter.scan()
             self.assertTrue(any(item.key == "package-tested.mod" for item in findings))
 
+    def test_game_detection_treats_malformed_manifest_as_unknown_build(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            steamapps = root / "steamapps"
+            steamapps.mkdir()
+            (steamapps / "appmanifest_1203620.acf").write_text('"buildid" "not-a-number"')
+            installation = EmbervaultRuntime.create(Path(temp)).game.detect(root)
+            self.assertIsNone(installation.build_id)
+
     def test_troubleshooter_flags_missing_package_dependency(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

@@ -48,8 +48,11 @@ class GameDetector:
             manifest = parent / "steamapps" / "appmanifest_1203620.acf"
             if not manifest.is_file():
                 continue
-            match = re.search(r'"buildid"\s+"(\d+)"', manifest.read_text(errors="ignore"), re.I)
-            return match.group(1) if match else None
+            try:
+                match = re.search(r'"buildid"\s+"(\d+)"', manifest.read_text(errors="ignore"), re.I)
+                return match.group(1) if match else None
+            except OSError:
+                return None
         return None
 
     def detect(self, game_dir: Path) -> GameInstallation:
