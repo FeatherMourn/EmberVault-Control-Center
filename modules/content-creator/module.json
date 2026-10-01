@@ -6,5 +6,6 @@
   "minimum_core_version": "0.1.0",
   "capabilities": ["content-creator"],
   "feature_state": "experimental",
+  "process_mode": "separate",
   "executable": "content_stub.py"
 }

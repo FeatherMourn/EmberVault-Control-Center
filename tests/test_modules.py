@@ -182,6 +182,25 @@ class ModuleRegistryTests(unittest.TestCase):
             }))
             self.assertNotIn("bad.state", ModuleRegistry(Path(temp)).discover())
 
+    def test_module_manifest_exposes_explicit_process_mode(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "embedded").mkdir()
+            (root / "embedded" / "module.json").write_text(json.dumps({
+                "id": "embedded.module", "name": "Embedded", "version": "1.0",
+                "publisher": "Test", "capabilities": ["inspect"],
+                "process_mode": "embedded", "entrypoint": "module.py",
+            }))
+            (root / "separate").mkdir()
+            (root / "separate" / "module.json").write_text(json.dumps({
+                "id": "separate.module", "name": "Separate", "version": "1.0",
+                "publisher": "Test", "capabilities": ["audit"],
+                "process_mode": "separate", "executable": "worker.py",
+            }))
+            discovered = ModuleRegistry(root).discover()
+            self.assertEqual(discovered["embedded.module"].process_mode, "embedded")
+            self.assertEqual(discovered["separate.module"].process_mode, "separate")
+
     def test_module_manifest_requires_string_identity_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "bad"

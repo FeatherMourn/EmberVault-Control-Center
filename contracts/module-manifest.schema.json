@@ -12,6 +12,7 @@
     "minimum_core_version": {"type": "string"},
     "capabilities": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
     "feature_state": {"enum": ["stable", "verified", "experimental", "research-only", "blocked"]},
-    "entrypoint": {"type": ["string", "null"]}
+    "entrypoint": {"type": ["string", "null"]},
+    "process_mode": {"enum": ["embedded", "separate"]}
   }
 }

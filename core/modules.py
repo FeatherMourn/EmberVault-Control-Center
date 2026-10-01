@@ -29,6 +29,7 @@ class ModuleManifest:
     capabilities: tuple[str, ...] = ()
     feature_state: str = "stable"
     entrypoint: str | None = None
+    process_mode: str = "embedded"
     path: Path | None = field(default=None, compare=False)
 
     @classmethod
@@ -60,13 +61,19 @@ class ModuleManifest:
         feature_state = str(data.get("feature_state", "stable")).strip()
         if feature_state not in {"stable", "verified", "experimental", "research-only", "blocked"}:
             raise ValueError("Module feature state is invalid")
+        entrypoint = data.get("entrypoint")
+        process_mode = data.get("process_mode")
+        if process_mode is None:
+            process_mode = "embedded" if entrypoint else "separate" if executable else "embedded"
+        if process_mode not in {"embedded", "separate"}:
+            raise ValueError("Module process mode is invalid")
         return cls(
             id=module_id, name=data["name"].strip(), version=data["version"].strip(),
             publisher=str(data.get("publisher", "Unknown")), executable=executable,
             minimum_core_version=str(data.get("minimum_core_version", "0.1.0")),
             capabilities=capabilities,
             feature_state=feature_state,
-            entrypoint=data.get("entrypoint"), path=path.parent,
+            entrypoint=entrypoint, process_mode=process_mode, path=path.parent,
         )
 
 

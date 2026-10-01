@@ -6,5 +6,6 @@
   "minimum_core_version": "0.1.0",
   "capabilities": ["trainer"],
   "feature_state": "experimental",
+  "process_mode": "separate",
   "executable": "trainer_stub.py"
 }
