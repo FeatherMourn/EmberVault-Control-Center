@@ -358,6 +358,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runtime.catalog.validate(payload)
 
+    def test_catalog_validation_rejects_invalid_module_process_mode(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            payload = runtime.catalog.build()
+            payload["modules"][0]["process_mode"] = "unknown"
+            with self.assertRaises(ValueError):
+                runtime.catalog.validate(payload)
+
     def test_catalog_export_orders_public_records_by_id(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
