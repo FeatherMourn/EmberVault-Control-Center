@@ -104,6 +104,13 @@ class ControlCenterBackend(QObject):
             return []
         return [f"{module.name} · {module.feature_state}" for module in self.modules.discover().values()]
 
+    @Property("QStringList", notify=stateChanged)
+    def profileDetails(self):
+        return [
+            f"{profile.name} · {profile.profile_type} · {profile.description}"
+            for profile in self.profiles
+        ]
+
     @Slot()
     def refresh(self):
         if self.settings.game_path:

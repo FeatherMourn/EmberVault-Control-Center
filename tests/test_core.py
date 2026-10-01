@@ -24,6 +24,13 @@ class CoreServiceTests(unittest.TestCase):
             profiles = ProfileService(Path(temp)).ensure_defaults()
             self.assertEqual({p.id for p in profiles}, {"default", "research"})
 
+    def test_profile_defaults_have_distinct_safety_purposes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            profiles = ProfileService(Path(temp)).ensure_defaults()
+            by_id = {profile.id: profile for profile in profiles}
+            self.assertEqual(by_id["default"].profile_type, "stable")
+            self.assertEqual(by_id["research"].profile_type, "research")
+
     def test_structured_log_contains_contract_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "logs" / "events.jsonl"

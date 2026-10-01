@@ -41,6 +41,7 @@ ApplicationWindow {
                 NavButton { label: "Content Studio"; pageIndex: 5 }
                 NavButton { label: "Research Lab"; pageIndex: 6 }
                 NavButton { label: "Knowledge"; pageIndex: 7 }
+                NavButton { label: "Profiles"; pageIndex: 8 }
                 Item { Layout.fillHeight: true }
                 Rectangle { Layout.fillWidth: true; height: 1; color: line }
                 Text { text: "●  Core services ready"; color: "#83a77b"; font.pixelSize: 11 }
@@ -75,6 +76,7 @@ ApplicationWindow {
                 PlaceholderPage { heading: "Content Studio"; body: "Content creation remains a guarded developer preview." }
                 PlaceholderPage { heading: "Research Lab"; body: "Research runs in isolated profiles and records evidence before promotion." }
                 PlaceholderPage { heading: "Knowledge"; body: "Offline documentation will be linked from every module." }
+                ProfilesPage {}
             }
         }
     }
@@ -159,6 +161,28 @@ ApplicationWindow {
                     color: panel
                     border.color: line
                     Text { anchors.left: parent.left; anchors.leftMargin: 16; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: ink; font.pixelSize: 14 }
+                }
+            }
+        }
+    }
+
+    component ProfilesPage: ScrollView {
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: "PROFILES"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: "Give every experiment a safe home."; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: "Profiles keep stable play, research, and future package choices separate. The selected profile is passed into tracked operations."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Text { text: "Available profiles"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater {
+                model: controlCenter.profileDetails
+                delegate: Rectangle {
+                    Layout.fillWidth: true
+                    height: 70
+                    radius: 7
+                    color: panel
+                    border.color: line
+                    Text { anchors.left: parent.left; anchors.leftMargin: 16; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: ink; font.pixelSize: 14; wrapMode: Text.WordWrap; width: parent.width - 32 }
                 }
             }
         }
