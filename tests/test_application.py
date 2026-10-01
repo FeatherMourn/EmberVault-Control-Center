@@ -120,6 +120,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(research[0]["evidence_count"], 1)
             self.assertNotIn("private local observation", json.dumps(research))
             self.assertNotIn("profile_id", research[0])
+            self.assertEqual(set(research[0]), {"id", "title", "hypothesis", "status", "evidence_count", "created_at"})
 
     def test_research_publish_requires_completion_and_evidence(self):
         with tempfile.TemporaryDirectory() as temp:

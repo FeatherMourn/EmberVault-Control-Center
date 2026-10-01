@@ -18,7 +18,22 @@
     "packages": {"type": "array", "items": {"type": "object"}},
     "modules": {"type": "array", "items": {"type": "object"}},
     "knowledge": {"type": "array", "items": {"type": "object"}},
-    "research": {"type": "array", "items": {"type": "object"}}
+    "research": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "hypothesis", "status", "evidence_count", "created_at"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1},
+          "hypothesis": {"type": "string", "minLength": 1},
+          "status": {"const": "completed"},
+          "evidence_count": {"type": "integer", "minimum": 1},
+          "created_at": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
   },
   "additionalProperties": false
 }
