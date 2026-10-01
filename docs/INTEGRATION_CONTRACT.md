@@ -52,6 +52,9 @@ exported as public catalog entries.
 The Control Center can also publish the validated snapshot to a chosen local
 repository folder as `embervault-catalog.json`. This is a reviewable handoff;
 the desktop application does not commit, push, or modify the website remotely.
+For a repeatable command-line handoff, run
+`python tools/sync_catalog.py <website-repository-folder>`; it writes only the
+validated catalog file and leaves Git operations to the repository workflow.
 The receiving website or repository can independently validate a snapshot with
 `python tools/verify_catalog.py embervault-catalog.json` before accepting it;
 the verifier has no dependency on the desktop runtime.

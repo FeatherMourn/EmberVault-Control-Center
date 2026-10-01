@@ -26,6 +26,7 @@ class PackagingContractTests(unittest.TestCase):
             "packages/example-mod/package.json",
             "tools/verify_release.py",
             "tools/verify_catalog.py",
+            "tools/sync_catalog.py",
         ):
             self.assertTrue((root / relative).is_file(), relative)
 

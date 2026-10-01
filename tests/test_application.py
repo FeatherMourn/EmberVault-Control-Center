@@ -283,6 +283,18 @@ class ApplicationCompositionTests(unittest.TestCase):
             rejected = subprocess.run([sys.executable, str(verifier), str(invalid)], capture_output=True, text=True)
             self.assertNotEqual(rejected.returncode, 0)
 
+    def test_sync_catalog_command_writes_validated_snapshot(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            tool = Path(__file__).resolve().parents[1] / "tools" / "sync_catalog.py"
+            destination = root / "website"
+            result = subprocess.run(
+                [sys.executable, str(tool), str(destination), "--data-root", str(root / "runtime")],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertTrue((destination / "embervault-catalog.json").is_file())
+
     def test_catalog_validation_rejects_private_research_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
