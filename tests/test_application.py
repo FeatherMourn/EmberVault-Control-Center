@@ -256,6 +256,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             record = runtime.characters.create("Ash", "default", "Prioritize fire resistance")
             self.assertEqual(record.notes, "Prioritize fire resistance")
 
+    def test_character_records_normalize_invalid_planned_level(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            runtime.characters.path.write_text(json.dumps([{
+                "id": "EV-CHAR-BAD", "name": "Ash", "profile_id": "default", "planned_level": 999,
+            }]))
+            self.assertEqual(runtime.characters.list()[0].planned_level, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -26,7 +26,13 @@ class CharacterService:
         if not self.path.exists():
             return []
         try:
-            return [CharacterRecord(**item) for item in json.loads(self.path.read_text(encoding="utf-8"))]
+            records = []
+            for item in json.loads(self.path.read_text(encoding="utf-8")):
+                record = CharacterRecord(**item)
+                if isinstance(record.planned_level, bool) or not isinstance(record.planned_level, int) or not 1 <= record.planned_level <= 50:
+                    record.planned_level = 1
+                records.append(record)
+            return records
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
 
