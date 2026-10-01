@@ -499,7 +499,11 @@ class ControlCenterBackend(QObject):
     def importPackage(self):
         try:
             from PySide6.QtWidgets import QFileDialog
-            selected, _ = QFileDialog.getOpenFileName(None, "Choose package folder or ZIP", "", "Packages (*.zip);;All files (*)")
+            selected = QFileDialog.getExistingDirectory(None, "Choose package folder")
+            if not selected:
+                selected, _ = QFileDialog.getOpenFileName(
+                    None, "Choose package ZIP", "", "Packages (*.zip)"
+                )
         except ImportError:
             selected = ""
         if selected and self.packages:
