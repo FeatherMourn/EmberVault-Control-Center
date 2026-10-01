@@ -9,6 +9,7 @@ class PackagingContractTests(unittest.TestCase):
             "ui/Main.qml",
             "contracts/module-manifest.schema.json",
             "contracts/package-manifest.schema.json",
+            "contracts/catalog.schema.json",
             "knowledge/entries.json",
             "modules/example/module.json",
             "packages/example-mod/package.json",
