@@ -160,6 +160,16 @@ class ModuleRegistryTests(unittest.TestCase):
             }))
             self.assertNotIn("bad.windows-path", ModuleRegistry(Path(temp)).discover())
 
+    def test_module_manifest_rejects_unknown_feature_state(self):
+        with tempfile.TemporaryDirectory() as temp:
+            module = Path(temp) / "bad"
+            module.mkdir()
+            (module / "module.json").write_text(json.dumps({
+                "id": "bad.state", "name": "Bad", "version": "1.0.0",
+                "publisher": "Test", "feature_state": "mystery",
+            }))
+            self.assertNotIn("bad.state", ModuleRegistry(Path(temp)).discover())
+
     def test_module_manifest_requires_string_identity_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "bad"

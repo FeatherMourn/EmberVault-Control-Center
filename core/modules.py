@@ -56,12 +56,15 @@ class ModuleManifest:
         capabilities = tuple(str(value).strip() for value in raw_capabilities)
         if any(not value for value in capabilities) or len(set(capabilities)) != len(capabilities):
             raise ValueError("Module capabilities must be non-empty and unique")
+        feature_state = str(data.get("feature_state", "stable")).strip()
+        if feature_state not in {"stable", "verified", "experimental", "research-only", "blocked"}:
+            raise ValueError("Module feature state is invalid")
         return cls(
             id=module_id, name=data["name"].strip(), version=data["version"].strip(),
             publisher=str(data.get("publisher", "Unknown")), executable=executable,
             minimum_core_version=str(data.get("minimum_core_version", "0.1.0")),
             capabilities=capabilities,
-            feature_state=str(data.get("feature_state", "stable")),
+            feature_state=feature_state,
             entrypoint=data.get("entrypoint"), path=path.parent,
         )
 
