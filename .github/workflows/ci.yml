@@ -35,3 +35,9 @@ jobs:
       - name: Verify release assets
         shell: bash
         run: python tools/verify_release.py "$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
+
+      - name: Upload verified wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: embervault-control-center-wheel
+          path: dist/*.whl
