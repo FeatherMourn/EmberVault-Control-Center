@@ -106,7 +106,7 @@ class PackagingContractTests(unittest.TestCase):
     def test_terminology_contract_freezes_public_vocabulary(self):
         root = Path(__file__).resolve().parents[1]
         terminology = (root / "docs" / "TERMINOLOGY.md").read_text(encoding="utf-8")
-        for term in ("EmberVault Control Center", "EmberVault Core", "Profile", "Package", "Module", "staged-only"):
+        for term in ("EmberVault Control Center", "EmberVault Core", "Profile", "Package", "Module", "Staged-only"):
             self.assertIn(term, terminology)
 
 
