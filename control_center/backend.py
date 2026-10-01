@@ -111,6 +111,13 @@ class ControlCenterBackend(QObject):
     def profileOptions(self):
         return [profile.name for profile in self.profiles]
 
+    @Property(int, notify=stateChanged)
+    def selectedProfileIndex(self):
+        for index, profile in enumerate(self.profiles):
+            if profile.id == self._selected_profile_id:
+                return index
+        return 0
+
     @Property("QStringList", notify=stateChanged)
     def backupOptions(self):
         return [backup.id for backup in self.save_manager.list_backups()]

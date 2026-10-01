@@ -65,7 +65,7 @@ ApplicationWindow {
                     anchors.right: parent.right
                     anchors.rightMargin: 24
                     anchors.verticalCenter: parent.verticalCenter
-                    ComboBox { model: controlCenter.profileOptions; onActivated: controlCenter.selectProfile(currentIndex) }
+                    ComboBox { model: controlCenter.profileOptions; currentIndex: controlCenter.selectedProfileIndex; onActivated: controlCenter.selectProfile(currentIndex) }
                     Text { text: "●  " + controlCenter.gameStatus; color: "#9ec18e"; font.pixelSize: 12 }
                 }
             }

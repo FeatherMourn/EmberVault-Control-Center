@@ -32,6 +32,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIn("Content · 0 projects", backend.workspaceSummary)
             self.assertIn("Trainer · 0 plans", backend.workspaceSummary)
 
+    def test_backend_exposes_selected_profile_index(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            self.assertEqual(backend.selectedProfileIndex, 0)
+            backend.selectProfile(1)
+            self.assertEqual(backend.selectedProfileIndex, 1)
+
     def test_troubleshooter_reports_unconfigured_game_without_mutation(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
