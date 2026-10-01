@@ -34,6 +34,8 @@ an `executable` use the guarded separate-process launcher instead.
 Save Manager is inspection-, backup-, verification-, and restore-only. Direct
 save editing and character mutation are outside the first release. Character
 and content handoffs use explicit `plan-only` and `design-only` contracts.
+Trainer session plans are also `plan-only`, require a checksum-valid recovery
+backup, and do not execute trainer mutations.
 
 ## Technology
 

@@ -12,8 +12,9 @@ research, evidence, and selected proven service concepts.
 The first working vertical slice is in place. The Control Center currently
 includes Home, Profiles, Save Manager safety workflows, profile-scoped package
 management with guarded deployment/undeploy, staged Game Settings, read-only
-Troubleshooter diagnostics, a safe Character Editor project layer, isolated
-Research records, and a local Knowledge catalog.
+Troubleshooter diagnostics, a safe Character Editor project layer, backup-bound
+Trainer plans, Content Creator design projects, isolated Research records, and
+a publish-controlled Knowledge catalog.
 
 Read:
 

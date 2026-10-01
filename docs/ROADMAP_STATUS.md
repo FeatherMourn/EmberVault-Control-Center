@@ -14,10 +14,11 @@
   reporting, safe removal, conflict-free deployment, and ownership-protected
   undeploy, plus read-only inspection of existing external `mod.json` mods.
 - Isolated research records/evidence, character projects, content projects, and
-  versioned public catalog export.
+  backup-bound Trainer plans, plus versioned public catalog export.
 - Guarded Trainer, Research, and Content Creator process workflows with UI
   launch controls, captured worker output, timeout termination, and audited
-  results. Current workers are deliberately non-mutating; Research includes a
+results. Trainer now has a backup-bound plan layer, while its worker remains
+deliberately non-mutating; Research includes a
   bounded evidence probe, Trainer includes a readiness audit, and Content
   Creator includes a design-boundary audit.
 
