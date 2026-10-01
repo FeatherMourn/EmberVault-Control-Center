@@ -19,7 +19,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(health["modules"], 5)
             self.assertEqual(health["backups"], 0)
             self.assertEqual(health["research"], 0)
-            self.assertEqual(health["knowledge"], 4)
+            self.assertEqual(health["knowledge"], 5)
             self.assertEqual(health["content_projects"], 0)
             self.assertEqual(health["trainer_plans"], 0)
 
@@ -28,7 +28,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             backend = ControlCenterBackend(Path(temp), runtime=runtime)
             self.assertIn("Research · 0 records", backend.workspaceSummary)
-            self.assertIn("Knowledge · 4 entries", backend.workspaceSummary)
+            self.assertIn("Knowledge · 5 entries", backend.workspaceSummary)
             self.assertIn("Content · 0 projects", backend.workspaceSummary)
             self.assertIn("Trainer · 0 plans", backend.workspaceSummary)
 

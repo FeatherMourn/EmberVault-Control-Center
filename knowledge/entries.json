@@ -26,5 +26,12 @@
     "category": "Research",
     "summary": "An offline build or registration result does not prove visible in-game behavior.",
     "content": "Treat successful validation, packaging, or runtime registration as an intermediate result only. A feature should remain experimental or research-only until the target Enshrouded build has fresh runtime evidence and, where relevant, in-game visual confirmation. Record the build context and limitations before promoting the result."
+  },
+  {
+    "id": "game-settings-adapter-boundary",
+    "title": "Gameplay settings require an adapter",
+    "category": "Research",
+    "summary": "Staged tuning is portable input, not a direct game mutation.",
+    "content": "The installation exposes client preference settings but no supported native gameplay-tuning document. EmberVault therefore exports staged profile values and keeps live application behind an explicitly identified mod or tuning adapter that declares its input contract, backup requirements, mutation scope, and verification procedure."
   }
 ]
