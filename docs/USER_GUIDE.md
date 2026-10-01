@@ -10,7 +10,9 @@
 ## Mods
 
 Open My Mods to import either a local package folder containing `package.json`
-or a ZIP archive containing that folder.
+or an external mod folder containing `mod.json`, or a ZIP archive containing
+either format. External `mod.json` metadata is adapted into EmberVault's
+managed package contract without changing the source folder.
 Packages are disabled by default and are enabled separately for each profile.
 If a package declares `dependencies`, enable those packages first in the same
 profile. Disable a package in every profile before removing it; packages that

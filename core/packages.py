@@ -32,6 +32,12 @@ class PackageManifest:
     @classmethod
     def from_file(cls, path: Path) -> "PackageManifest":
         data = json.loads(path.read_text(encoding="utf-8"))
+        return cls.from_data(data, path.parent)
+
+    @classmethod
+    def from_data(cls, data: dict, directory: Path) -> "PackageManifest":
+        if not isinstance(data, dict):
+            raise ValueError("Package manifest must be an object")
         for field_name in ("id", "name", "version"):
             if not isinstance(data.get(field_name), str) or not data[field_name].strip():
                 raise ValueError(f"Package {field_name} must be a non-empty string")
@@ -61,7 +67,7 @@ class PackageManifest:
             package_type=package_type.strip(),
             required_builds=required_builds,
             dependencies=dependencies,
-            path=path.parent,
+            path=Path(directory),
         )
 
 
@@ -141,11 +147,27 @@ class PackageService:
         """Import a package directory after validating its manifest."""
         source = Path(source)
         manifest_path = source / "package.json"
-        if not source.is_dir() or not manifest_path.is_file():
-            raise ValueError("Package folder must contain package.json")
+        external_manifest_path = source / "mod.json"
+        if not source.is_dir() or (not manifest_path.is_file() and not external_manifest_path.is_file()):
+            raise ValueError("Package folder must contain package.json or mod.json")
         if any(item.is_symlink() for item in [source, *source.rglob("*")]):
             raise ValueError("Package folder contains an unsafe symlink")
-        manifest = PackageManifest.from_file(manifest_path)
+        external = not manifest_path.is_file()
+        if external:
+            try:
+                raw = json.loads(external_manifest_path.read_text(encoding="utf-8"))
+                manifest_data = {
+                    "id": raw.get("id"), "name": raw.get("name"), "version": raw.get("version"),
+                    "author": raw.get("author", raw.get("publisher", "Unknown")),
+                    "description": raw.get("description", "Imported external Enshrouded mod"),
+                    "package_type": "mod", "required_builds": raw.get("required_builds", []),
+                    "dependencies": raw.get("dependencies", []),
+                }
+                manifest = PackageManifest.from_data(manifest_data, external_manifest_path.parent)
+            except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+                raise ValueError("External mod.json is invalid") from exc
+        else:
+            manifest = PackageManifest.from_file(manifest_path)
         if manifest.id in self._packages or any(item.id == manifest.id for item in self.list()):
             raise ValueError(f"Package already installed: {manifest.id}")
         target = self.directory / manifest.id
@@ -155,6 +177,14 @@ class PackageService:
         with tempfile.TemporaryDirectory(prefix="embervault-package-stage-", dir=self.directory.parent) as temp:
             staged = Path(temp) / manifest.id
             shutil.copytree(source, staged)
+            if external:
+                (staged / "package.json").write_text(json.dumps({
+                    "id": manifest.id, "name": manifest.name, "version": manifest.version,
+                    "author": manifest.author, "description": manifest.description,
+                    "package_type": manifest.package_type,
+                    "required_builds": list(manifest.required_builds),
+                    "dependencies": list(manifest.dependencies),
+                }, indent=2) + "\n", encoding="utf-8")
             shutil.move(str(staged), str(target))
         self._packages[manifest.id] = PackageManifest.from_file(target / "package.json")
         return self._packages[manifest.id]
@@ -187,9 +217,9 @@ class PackageService:
                         raise ValueError("Package archive contains an unsafe path")
                 bundle.extractall(staging)
             candidates = [staging, *[item for item in staging.iterdir() if item.is_dir()]]
-            source = next((item for item in candidates if (item / "package.json").is_file()), None)
+            source = next((item for item in candidates if (item / "package.json").is_file() or (item / "mod.json").is_file()), None)
             if source is None:
-                raise ValueError("Package archive must contain package.json")
+                raise ValueError("Package archive must contain package.json or mod.json")
             return self.install_from_directory(source)
 
     def remove(self, package_id: str) -> None:

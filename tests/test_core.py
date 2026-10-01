@@ -274,6 +274,24 @@ class CoreServiceTests(unittest.TestCase):
             self.assertTrue((root / "packages" / "imported.mod" / "package.json").exists())
             self.assertEqual(list(root.glob("embervault-package-stage-*")), [])
 
+    def test_external_mod_json_is_adapted_without_mutating_source(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            source = root / "external-mod"
+            source.mkdir()
+            (source / "mod.json").write_text(json.dumps({
+                "id": "external.flight", "name": "Flight", "version": "2.0",
+                "author": "Community", "entrypoint": "src/mod.lua",
+            }))
+            (source / "mod.lua").write_text("return {}")
+            service = PackageService(root, profiles)
+            package = service.install_from_directory(source)
+            self.assertEqual(package.package_type, "mod")
+            self.assertTrue((root / "packages" / "external.flight" / "package.json").exists())
+            self.assertTrue((source / "mod.json").exists())
+
     def test_clean_package_service_can_discover_seed_example(self):
         with tempfile.TemporaryDirectory() as temp:
             profiles = ProfileService(Path(temp))
