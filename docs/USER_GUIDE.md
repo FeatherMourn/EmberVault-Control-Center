@@ -1,0 +1,35 @@
+# Embervault Control Center user guide
+
+## First launch
+
+1. Open Home and choose the Enshrouded installation folder.
+2. Confirm the Troubleshooter reports a readable installation.
+3. Keep normal play in the Default profile.
+4. Use Research or a custom profile for experiments.
+
+## Mods
+
+Open My Mods to import a local package folder containing `package.json`.
+Packages are disabled by default and are enabled separately for each profile.
+Disable a package in every profile before removing it.
+
+## Save safety
+
+Save Manager can inspect a save folder, create a verified backup, re-verify a
+backup, preview a restore, and restore after preserving the current state. It
+does not edit save contents. Use Activity to review the recorded operation
+history.
+
+## Research and tools
+
+Research records belong to a selected profile and can collect evidence notes.
+Character and Content Creator pages store project plans separately from live
+game data. Trainer, Research, and Content Creator execution remains guarded by
+profile isolation and recovery requirements.
+
+## Knowledge and integration
+
+Knowledge contains the local safety and architecture guidance. Search it from
+the Knowledge page or export the public catalog JSON for the Ember Vault
+website. The export excludes paths, saves, logs, profiles, and private
+research evidence.
