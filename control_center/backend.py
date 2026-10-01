@@ -144,6 +144,30 @@ class ControlCenterBackend(QObject):
         ]
 
     @Property("QStringList", notify=stateChanged)
+    def deploymentOptions(self):
+        if not self.packages or not self.settings.game_path:
+            return ["Choose a game folder to inspect deployment readiness."]
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return []
+        plan = self.packages.deployment_plan(profile, Path(self.settings.game_path))
+        return (["No enabled packages to deploy."] if not plan else
+                [f"{item.status.upper()} · {item.package_id} · {item.reason or item.destination}"
+                 for item in plan])
+
+    @Slot()
+    def inspectDeploymentPlan(self):
+        if not self.packages or not self.settings.game_path:
+            self._last_save_message = "Choose a game folder before inspecting deployment"
+        else:
+            profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+            plan = self.packages.deployment_plan(profile, Path(self.settings.game_path)) if profile else []
+            ready = sum(1 for item in plan if item.status == "ready")
+            conflicts = sum(1 for item in plan if item.status != "ready")
+            self._last_save_message = f"Deployment plan: {ready} ready, {conflicts} requiring attention"
+        self.stateChanged.emit()
+
+    @Property("QStringList", notify=stateChanged)
     def diagnosticOptions(self):
         if not self.troubleshooter:
             return []

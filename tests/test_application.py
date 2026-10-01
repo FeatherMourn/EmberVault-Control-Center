@@ -181,6 +181,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend = ControlCenterBackend(Path(temp), runtime=runtime)
             self.assertTrue(any("mod" in item for item in backend.packageOptions))
 
+    def test_backend_exposes_read_only_deployment_plan(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.settings.game_path = temp
+            self.assertTrue(any("enabled" in item.lower() or "ready" in item.lower()
+                                for item in backend.deploymentOptions))
+            backend.inspectDeploymentPlan()
+            self.assertIn("Deployment plan", backend.lastSaveMessage)
+
     def test_module_options_show_version_and_publisher(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
