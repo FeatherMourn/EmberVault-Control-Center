@@ -66,6 +66,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             installation = EmbervaultRuntime.create(Path(temp)).game.detect(root)
             self.assertIsNone(installation.build_id)
 
+    def test_game_detection_reports_missing_build_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "Enshrouded.exe").write_bytes(b"")
+            runtime = EmbervaultRuntime.create(Path(temp))
+            installation = runtime.game.detect(root)
+            self.assertIn("build evidence", " ".join(runtime.game.validate(installation)).lower())
+
     def test_troubleshooter_flags_missing_package_dependency(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

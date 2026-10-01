@@ -68,4 +68,6 @@ class GameDetector:
             issues.append("Game directory does not exist.")
         if not installation.executable.is_file():
             issues.append("Enshrouded.exe was not found.")
+        if installation.build_id is None:
+            issues.append("Steam build evidence is unavailable.")
         return issues
