@@ -86,6 +86,16 @@ class PackagingContractTests(unittest.TestCase):
         verifier = (root / "tools" / "verify_catalog.py").read_text(encoding="utf-8")
         self.assertIn("def validate_catalog", verifier)
 
+    def test_windows_ci_smoke_tests_installed_wheel(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = (root / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        windows_section = workflow.split("  windows:", 1)[1]
+        self.assertIn("Build wheel", windows_section)
+        self.assertIn("Verify release assets", windows_section)
+        self.assertIn("Smoke-test installed wheel", windows_section)
+        self.assertIn("shell: pwsh", windows_section)
+        self.assertIn("control_center.app --smoke-test", windows_section)
+
 
 if __name__ == "__main__":
     unittest.main()
