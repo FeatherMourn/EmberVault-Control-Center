@@ -3,9 +3,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from core.application import EmbervaultRuntime
 from core.game_detection import GameDetector
 from core.profiles import ProfileService
 from core.save_manager import SaveManagerError, SaveManagerService
+from core.save_workflow import SaveWorkflowService
 from core.settings import SettingsService
 
 try:
@@ -24,15 +26,17 @@ except ImportError:  # Keep core imports and headless checks usable without Qt.
 class ControlCenterBackend(QObject):
     stateChanged = Signal() if QObject is not object else None
 
-    def __init__(self, data_root: Path, parent=None):
+    def __init__(self, data_root: Path, parent=None, runtime: EmbervaultRuntime | None = None):
         super().__init__(parent) if QObject is not object else super().__init__()
         self.data_root = Path(data_root)
         self.settings_service = SettingsService(self.data_root)
         self.settings = self.settings_service.load()
         self.profile_service = ProfileService(self.data_root)
         self.profiles = self.profile_service.ensure_defaults()
-        self.save_manager = SaveManagerService(self.data_root)
-        self.detector = GameDetector()
+        self.save_manager = runtime.saves if runtime else SaveManagerService(self.data_root)
+        self.save_workflow = runtime.save_workflow if runtime else None
+        self.operations = runtime.operations if runtime else None
+        self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
         self._profile_name = self.profiles[0].name if self.profiles else "No profile"
@@ -121,7 +125,13 @@ class ControlCenterBackend(QObject):
             self._restore_preview = "Choose a save folder and backup first"
         else:
             try:
-                plan = self.save_manager.preview_restore(self._selected_backup_id, Path(self._save_directory))
+                if self.save_workflow:
+                    result = self.save_workflow.preview_restore(
+                        self._selected_backup_id, Path(self._save_directory), self._selected_profile_id
+                    )
+                    plan = result.payload
+                else:
+                    plan = self.save_manager.preview_restore(self._selected_backup_id, Path(self._save_directory))
                 self._restore_preview = f"{len(plan['files_to_add_or_replace'])} files will be restored; current state will be backed up first"
             except SaveManagerError as exc:
                 self._restore_preview = str(exc)
@@ -133,9 +143,17 @@ class ControlCenterBackend(QObject):
             self._last_save_message = "Choose a save folder and backup first"
         else:
             try:
-                current = self.save_manager.backup(Path(self._save_directory), "automatic-before-restore")
-                self.save_manager.restore(self._selected_backup_id, Path(self._save_directory), current_backup=current)
-                self._last_save_message = f"Restored and verified {self._selected_backup_id}"
+                if self.save_workflow:
+                    result = self.save_workflow.restore(
+                        self._selected_backup_id, Path(self._save_directory), self._selected_profile_id
+                    )
+                    current = result.snapshot
+                    operation_id = result.operation.id
+                else:
+                    current = self.save_manager.backup(Path(self._save_directory), "automatic-before-restore")
+                    self.save_manager.restore(self._selected_backup_id, Path(self._save_directory), current_backup=current)
+                    operation_id = "legacy"
+                self._last_save_message = f"Restored and verified {self._selected_backup_id} ({operation_id})"
                 self._safety = f"Current state preserved as {current.id}"
             except (OSError, SaveManagerError) as exc:
                 self._last_save_message = str(exc)
@@ -159,7 +177,11 @@ class ControlCenterBackend(QObject):
             self._last_save_message = "Choose a save folder first"
         else:
             try:
-                files = self.save_manager.inspect(Path(self._save_directory))
+                if self.save_workflow:
+                    result = self.save_workflow.inspect(Path(self._save_directory), self._selected_profile_id)
+                    files = result.payload["files"]
+                else:
+                    files = self.save_manager.inspect(Path(self._save_directory))
                 self._last_save_message = f"Inspected {len(files)} file{'s' if len(files) != 1 else ''}"
             except SaveManagerError as exc:
                 self._last_save_message = str(exc)
@@ -171,7 +193,11 @@ class ControlCenterBackend(QObject):
             self._last_save_message = "Choose a save folder first"
         else:
             try:
-                snapshot = self.save_manager.backup(Path(self._save_directory), label)
+                if self.save_workflow:
+                    result = self.save_workflow.backup(Path(self._save_directory), label, self._selected_profile_id)
+                    snapshot = result.snapshot
+                else:
+                    snapshot = self.save_manager.backup(Path(self._save_directory), label)
                 self._last_save_message = f"Verified {snapshot.id}"
                 self._safety = "Backup verified"
             except (OSError, SaveManagerError) as exc:

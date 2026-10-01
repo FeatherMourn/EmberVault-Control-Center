@@ -10,6 +10,7 @@ from .modules import ModuleRegistry
 from .operations import OperationService
 from .profiles import ProfileService
 from .save_manager import SaveManagerService
+from .save_workflow import SaveWorkflowService
 from .settings import SettingsService
 
 
@@ -23,6 +24,7 @@ class EmbervaultRuntime:
     saves: SaveManagerService
     modules: ModuleRegistry
     game: GameDetector
+    save_workflow: SaveWorkflowService
 
     @classmethod
     def create(cls, root: Path) -> "EmbervaultRuntime":
@@ -36,7 +38,9 @@ class EmbervaultRuntime:
             saves=SaveManagerService(root),
             modules=ModuleRegistry(root / "modules"),
             game=GameDetector(),
+            save_workflow=None,  # wired immediately below after shared services exist
         )
+        runtime.save_workflow = SaveWorkflowService(runtime.saves, runtime.operations, runtime.logs)
         runtime.profiles.ensure_defaults()
         runtime.modules.discover()
         runtime.logs.info("Embervault Core initialized")

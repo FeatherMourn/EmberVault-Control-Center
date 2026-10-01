@@ -21,7 +21,7 @@ def main() -> int:
     app = QApplication(sys.argv)
     engine = QQmlApplicationEngine()
     runtime = EmbervaultRuntime.create(ROOT / "runtime-data")
-    backend = ControlCenterBackend(runtime.root)
+    backend = ControlCenterBackend(runtime.root, runtime=runtime)
     backend.refresh()
     engine.rootContext().setContextProperty("controlCenter", backend)
     engine.load(str(ROOT / "ui" / "Main.qml"))
