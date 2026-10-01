@@ -19,3 +19,7 @@ this export. The canonical validation document is
 versions declared in the export. A future website synchronizer can validate
 the catalog before attaching repository URLs, discussion links, and moderation
 metadata on the web side.
+
+Guarded workers must return JSON with `contract_version: 1` and
+`read_only: true`. Control Center rejects successful processes that do not
+provide that contract, preserving the first-release mutation boundary.

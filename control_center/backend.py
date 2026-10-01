@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import subprocess
 
 from core.application import EmbervaultRuntime
@@ -301,6 +302,14 @@ class ControlCenterBackend(QObject):
             if process.returncode != 0:
                 raise RuntimeError(f"Module exited with code {process.returncode}")
             result = output.strip() if output else "no worker output"
+            try:
+                worker_result = json.loads(result)
+            except (TypeError, ValueError, json.JSONDecodeError) as exc:
+                raise RuntimeError("Worker returned invalid JSON") from exc
+            if (not isinstance(worker_result, dict)
+                    or worker_result.get("contract_version") != 1
+                    or worker_result.get("read_only") is not True):
+                raise RuntimeError("Worker returned an invalid or non-read-only contract")
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Launched {module_id}: {result}")
             if self.logs:
