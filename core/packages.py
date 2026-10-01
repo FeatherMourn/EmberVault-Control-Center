@@ -138,6 +138,8 @@ class PackageService:
         manifest_path = source / "package.json"
         if not source.is_dir() or not manifest_path.is_file():
             raise ValueError("Package folder must contain package.json")
+        if any(item.is_symlink() for item in [source, *source.rglob("*")]):
+            raise ValueError("Package folder contains an unsafe symlink")
         manifest = PackageManifest.from_file(manifest_path)
         if manifest.id in self._packages or any(item.id == manifest.id for item in self.list()):
             raise ValueError(f"Package already installed: {manifest.id}")
