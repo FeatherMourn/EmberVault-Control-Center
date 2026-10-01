@@ -71,6 +71,15 @@ class PackageManifest:
         )
 
 
+@dataclass(frozen=True)
+class DeploymentAction:
+    package_id: str
+    source: Path
+    destination: Path
+    status: str
+    reason: str = ""
+
+
 class PackageService:
     """Discover packages and change only profile enablement state."""
 
@@ -238,3 +247,21 @@ class PackageService:
             raise ValueError("Refusing to remove a symlinked package directory")
         shutil.rmtree(managed_path)
         self._packages.pop(package_id, None)
+
+    def deployment_plan(self, profile: Profile, game_directory: Path) -> list[DeploymentAction]:
+        """Describe enabled package destinations without changing the game."""
+        destination_root = Path(game_directory) / "mods"
+        actions: list[DeploymentAction] = []
+        for package_id in profile.enabled_packages:
+            package = self._packages.get(package_id)
+            if not package or not package.path:
+                actions.append(DeploymentAction(package_id, Path(), destination_root / package_id,
+                                                "missing", "Package is not installed"))
+                continue
+            target = destination_root / package_id
+            if target.exists():
+                actions.append(DeploymentAction(package_id, package.path, target, "conflict",
+                                                "Destination already exists"))
+            else:
+                actions.append(DeploymentAction(package_id, package.path, target, "ready"))
+        return actions

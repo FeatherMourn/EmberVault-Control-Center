@@ -29,6 +29,10 @@ looks like this:
 }
 ```
 
+Enabled packages can also be checked with a read-only deployment plan. The
+plan reports missing packages and destination conflicts under the configured
+game `mods` directory; it does not copy or alter live game files.
+
 ## Save safety
 
 Save Manager can inspect a save folder, create a verified backup, re-verify a

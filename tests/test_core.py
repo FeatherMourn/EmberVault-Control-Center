@@ -292,6 +292,25 @@ class CoreServiceTests(unittest.TestCase):
             self.assertTrue((root / "packages" / "external.flight" / "package.json").exists())
             self.assertTrue((source / "mod.json").exists())
 
+    def test_deployment_plan_is_read_only_and_reports_conflicts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            source = root / "incoming"
+            source.mkdir()
+            (source / "package.json").write_text(json.dumps({"id": "planned.mod", "name": "Planned", "version": "1.0"}))
+            service = PackageService(root, profiles)
+            package = service.install_from_directory(source)
+            profile = profiles.list()[0]
+            profile = service.set_enabled(profile, package.id, True)
+            game = root / "game"
+            plan = service.deployment_plan(profile, game)
+            self.assertEqual(plan[0].status, "ready")
+            self.assertFalse(game.exists())
+            game.joinpath("mods", package.id).mkdir(parents=True)
+            self.assertEqual(service.deployment_plan(profile, game)[0].status, "conflict")
+
     def test_clean_package_service_can_discover_seed_example(self):
         with tempfile.TemporaryDirectory() as temp:
             profiles = ProfileService(Path(temp))
