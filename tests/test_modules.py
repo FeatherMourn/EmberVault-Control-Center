@@ -36,6 +36,11 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertFalse(decision.allowed)
             self.assertIn("Research profile", decision.reasons[0])
 
+    def test_clean_registry_discovers_seed_example_module(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = ModuleRegistry(Path(temp))
+            self.assertEqual(list(registry.discover()), ["embervault.example"])
+
 
 if __name__ == "__main__":
     unittest.main()

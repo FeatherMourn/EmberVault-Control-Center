@@ -52,13 +52,15 @@ class LaunchContext:
 class ModuleRegistry:
     def __init__(self, directory: Path):
         self.directory = Path(directory)
+        self.seed_directory = Path(__file__).resolve().parents[1] / "modules"
         self._modules: dict[str, ModuleManifest] = {}
 
     def discover(self) -> dict[str, ModuleManifest]:
         self._modules = {}
-        if not self.directory.is_dir():
+        directory = self.directory if list(self.directory.glob("*/module.json")) else self.seed_directory
+        if not directory.is_dir():
             return self._modules
-        for manifest_path in sorted(self.directory.glob("*/module.json")):
+        for manifest_path in sorted(directory.glob("*/module.json")):
             try:
                 manifest = ModuleManifest.from_file(manifest_path)
                 if manifest.id in self._modules:
