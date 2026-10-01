@@ -260,6 +260,21 @@ class ControlCenterBackend(QObject):
         self._last_save_message = f"{'Enabled' if package.id in updated.enabled_packages else 'Disabled'} {package.name} for {updated.name}"
         self.stateChanged.emit()
 
+    @Slot()
+    def importPackage(self):
+        try:
+            from PySide6.QtWidgets import QFileDialog
+            selected = QFileDialog.getExistingDirectory(None, "Choose package folder")
+        except ImportError:
+            selected = ""
+        if selected and self.packages:
+            try:
+                package = self.packages.install_from_directory(Path(selected))
+                self._last_save_message = f"Imported {package.name}"
+            except (OSError, ValueError) as exc:
+                self._last_save_message = str(exc)
+            self.stateChanged.emit()
+
     @Slot(int)
     def selectBackup(self, index: int):
         backups = self.save_manager.list_backups()

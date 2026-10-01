@@ -103,6 +103,19 @@ class CoreServiceTests(unittest.TestCase):
             self.assertFalse(gate.evaluate("trainer", research).allowed)
             self.assertTrue(gate.evaluate("trainer", research, verified_backup_id="EV-BACKUP-1").allowed)
 
+    def test_package_import_requires_manifest_and_copies_valid_package(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            source = root / "incoming"
+            source.mkdir()
+            (source / "package.json").write_text(json.dumps({"id": "imported.mod", "name": "Imported", "version": "1.0.0"}))
+            service = PackageService(root, profiles)
+            package = service.install_from_directory(source)
+            self.assertEqual(package.id, "imported.mod")
+            self.assertTrue((root / "packages" / "imported.mod" / "package.json").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -74,3 +75,18 @@ class PackageService:
         updated = Profile(**{**profile.__dict__, "enabled_packages": sorted(enabled_packages)})
         self.profiles.save(updated)
         return updated
+
+    def install_from_directory(self, source: Path) -> PackageManifest:
+        """Import a package directory after validating its manifest."""
+        source = Path(source)
+        manifest_path = source / "package.json"
+        if not source.is_dir() or not manifest_path.is_file():
+            raise ValueError("Package folder must contain package.json")
+        manifest = PackageManifest.from_file(manifest_path)
+        if manifest.id in self._packages or any(item.id == manifest.id for item in self.list()):
+            raise ValueError(f"Package already installed: {manifest.id}")
+        target = self.directory / manifest.id
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(source, target)
+        self._packages[manifest.id] = PackageManifest.from_file(target / "package.json")
+        return self._packages[manifest.id]
