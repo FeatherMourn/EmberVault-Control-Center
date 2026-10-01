@@ -83,7 +83,10 @@ class ModuleRegistry:
         manifest = self.get(module_id)
         if not manifest or not manifest.executable or not manifest.path:
             raise ValueError(f"Module '{module_id}' is not a separate-process module.")
-        executable = manifest.path / manifest.executable
+        module_root = manifest.path.resolve()
+        executable = (module_root / manifest.executable).resolve()
+        if module_root not in executable.parents:
+            raise ValueError("Module executable must remain inside its package directory.")
         if not executable.is_file():
             raise FileNotFoundError(executable)
         args = [str(executable), "--profile", context.profile_id or "", "--game-path", context.game_path or ""]

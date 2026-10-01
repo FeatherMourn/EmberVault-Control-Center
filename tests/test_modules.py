@@ -68,6 +68,21 @@ class ModuleRegistryTests(unittest.TestCase):
             process.wait(timeout=5)
             self.assertEqual(process.returncode, 0)
 
+    def test_module_launcher_rejects_executable_outside_package(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            module = root / "demo"
+            module.mkdir()
+            (module / "module.json").write_text(json.dumps({
+                "id": "demo.unsafe", "name": "Unsafe", "version": "1.0.0",
+                "publisher": "Test", "executable": "../outside.py",
+            }))
+            (root / "outside.py").write_text("print('no')")
+            registry = ModuleRegistry(root)
+            registry.discover()
+            with self.assertRaises(ValueError):
+                registry.launch("demo.unsafe", LaunchContext("default", None, None))
+
     def test_python_module_process_uses_current_interpreter(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "demo"
