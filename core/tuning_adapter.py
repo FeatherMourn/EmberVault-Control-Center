@@ -28,6 +28,7 @@ class TuningAdapterService:
             "loader", "game_build", "supported_setting_keys", "evidence",
             "backup_requirements", "mutation_scope", "verification_steps",
             "feature_state",
+            "owned_package_id",
         }
         if not isinstance(payload, dict) or set(payload) != required:
             raise ValueError("Tuning adapter manifest has an invalid shape")
@@ -48,6 +49,8 @@ class TuningAdapterService:
             raise ValueError("Adapter lacks complete reversible runtime evidence")
         if payload["feature_state"] != "experimental":
             raise ValueError("Adapter must remain experimental until behavior is verified")
+        if payload["owned_package_id"] != "embervault.eml-tuning-adapter":
+            raise ValueError("Adapter ownership is not recognized")
 
     def prepare_operation(self, profile_type: str, backup_verified: bool,
                           game_running: bool, staged_value: float,

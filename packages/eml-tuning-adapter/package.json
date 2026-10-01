@@ -1,0 +1,14 @@
+{
+  "id": "embervault.eml-tuning-adapter",
+  "name": "EmberVault EML Tuning Adapter",
+  "version": "0.1.0",
+  "author": "EmberVault",
+  "description": "Research-only EML adapter for the evidenced BalancingTable scalar boundary.",
+  "package_type": "mod",
+  "required_builds": ["1076226"],
+  "loader": "EML",
+  "required_loader_api_version": ">=1.3",
+  "adapter_id": "embervault.eml-balancing-table",
+  "feature_state": "experimental",
+  "ownership": "embervault-control-center"
+}
