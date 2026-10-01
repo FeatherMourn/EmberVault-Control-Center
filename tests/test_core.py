@@ -335,7 +335,26 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "dependencies"):
                 packages.set_enabled(profile, "addon.mod", True)
             profile = packages.set_enabled(profile, "base.mod", True)
-            packages.set_enabled(profile, "addon.mod", True)
+            profile = packages.set_enabled(profile, "addon.mod", True)
+
+    def test_package_disable_protects_enabled_dependents(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            for package_id, dependencies in (("base.mod", []), ("addon.mod", ["base.mod"])):
+                package = root / "packages" / package_id
+                package.mkdir(parents=True)
+                (package / "package.json").write_text(json.dumps({
+                    "id": package_id, "name": package_id, "version": "1.0", "dependencies": dependencies,
+                }))
+            packages = PackageService(root, profiles)
+            packages.discover()
+            profile = profiles.list()[0]
+            profile = packages.set_enabled(profile, "base.mod", True)
+            profile = packages.set_enabled(profile, "addon.mod", True)
+            with self.assertRaisesRegex(ValueError, "Disable dependent"):
+                packages.set_enabled(profile, "base.mod", False)
 
 
 if __name__ == "__main__":

@@ -101,6 +101,13 @@ class PackageService:
             ]
             if missing:
                 raise ValueError(f"Enable package dependencies first: {', '.join(missing)}")
+        else:
+            dependents = [
+                item.name for item in self._packages.values()
+                if package_id in item.dependencies and self.is_enabled(profile, item.id)
+            ]
+            if dependents:
+                raise ValueError(f"Disable dependent packages first: {', '.join(dependents)}")
         enabled_packages = set(profile.enabled_packages)
         if enabled:
             enabled_packages.add(package_id)
