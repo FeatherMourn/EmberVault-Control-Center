@@ -47,5 +47,12 @@
     "category": "Content Creator",
     "summary": "A resource registration route does not prove complete rendering behavior.",
     "content": "The recorded furniture research demonstrates an independent ItemInfo registration route for a specific build. Catalog exposure, mesh and texture rendering, multiplayer behavior, and complete visual presentation require separate evidence. Keep the work in a disposable test world while those boundaries remain research-only."
+  },
+  {
+    "id": "capability-audit-promotion-rule",
+    "title": "Capability audit and promotion rule",
+    "category": "Research",
+    "summary": "Promote capabilities only after runtime, build, and behavior evidence agree.",
+    "content": "The capability audit baseline recorded for build 1076226 separates verified, experimental, research-only, and unsupported work. A capability should move toward stable status only after its runtime boundary, current-build compatibility, and relevant in-game behavior are independently documented. Successful offline generation alone is not proof of in-game behavior."
   }
 ]
