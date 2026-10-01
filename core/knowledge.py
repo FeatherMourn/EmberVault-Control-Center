@@ -29,9 +29,25 @@ class KnowledgeService:
         if not source.exists():
             return []
         try:
-            return [KnowledgeEntry(**item) for item in json.loads(source.read_text(encoding="utf-8"))]
+            raw_entries = json.loads(source.read_text(encoding="utf-8"))
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
+        if not isinstance(raw_entries, list):
+            return []
+        entries: list[KnowledgeEntry] = []
+        seen: set[str] = set()
+        for item in raw_entries:
+            if not isinstance(item, dict):
+                continue
+            values = {key: item.get(key) for key in ("id", "title", "category", "summary", "content")}
+            if not all(isinstance(value, str) and value.strip() for value in values.values()):
+                continue
+            entry_id = values["id"].strip()
+            if entry_id in seen:
+                continue
+            seen.add(entry_id)
+            entries.append(KnowledgeEntry(**{key: value.strip() for key, value in values.items()}))
+        return entries
 
     def search(self, query: str = "") -> list[KnowledgeEntry]:
         needle = query.strip().lower()

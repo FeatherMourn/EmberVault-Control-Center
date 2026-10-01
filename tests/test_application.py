@@ -296,6 +296,20 @@ class ApplicationCompositionTests(unittest.TestCase):
             }]))
             self.assertEqual(runtime.research.list()[0].evidence, ["observed", "second"])
 
+    def test_knowledge_skips_malformed_and_duplicate_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            runtime.knowledge.path.write_text(json.dumps([
+                {"id": "valid", "title": " Valid ", "category": "Guide", "summary": "Summary", "content": "Content"},
+                {"id": "broken", "title": "Missing content", "category": "Guide"},
+                {"id": "valid", "title": "Duplicate", "category": "Guide", "summary": "Other", "content": "Other"},
+                "not-an-entry",
+            ]), encoding="utf-8")
+            entries = runtime.knowledge.entries()
+            self.assertEqual(len(entries), 1)
+            self.assertEqual(entries[0].id, "valid")
+            self.assertEqual(entries[0].title, "Valid")
+
 
 if __name__ == "__main__":
     unittest.main()
