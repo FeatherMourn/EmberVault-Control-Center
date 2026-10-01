@@ -36,6 +36,8 @@
   contract, a standalone verifier, and a repeatable repository sync command.
 - Release verification validates the contents of packaged JSON contracts,
   manifests, and the seeded knowledge catalog, not only their filenames.
+- The installed launcher smoke test asserts the shipped module and knowledge
+  inventory before it exits.
 
 ## Important limitations
 

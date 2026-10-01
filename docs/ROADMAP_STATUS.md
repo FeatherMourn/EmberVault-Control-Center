@@ -48,7 +48,7 @@ deliberately non-mutating; Research includes a
   contracts (192 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
-  packaged launcher passes its offscreen smoke test and discovers five modules,
-  one seed package, and eight knowledge entries. The package-manifest schema is
+  packaged launcher passes its offscreen smoke test, which asserts discovery of
+  five modules and eight knowledge entries. The package-manifest schema is
   present in the installed wheel data.
 - Save Manager remains inspection/backup/verification/restore-only.
