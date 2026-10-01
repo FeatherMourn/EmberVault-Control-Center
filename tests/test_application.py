@@ -1,3 +1,4 @@
+import json
 import subprocess
 import tempfile
 import unittest
@@ -55,6 +56,18 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime.settings.save(type(runtime.settings.load())(game_path=str(game.parent)))
             findings = runtime.troubleshooter.scan()
             self.assertTrue(any(item.key == "package-tested.mod" for item in findings))
+
+    def test_troubleshooter_flags_missing_package_dependency(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            package = root / "packages" / "addon.mod"
+            package.mkdir(parents=True)
+            (package / "package.json").write_text(json.dumps({
+                "id": "addon.mod", "name": "Addon", "version": "1.0", "dependencies": ["missing.mod"],
+            }))
+            findings = runtime.troubleshooter.scan()
+            self.assertTrue(any(item.key == "package-dependency-addon.mod" for item in findings))
 
     def test_catalog_export_excludes_local_paths(self):
         with tempfile.TemporaryDirectory() as temp:

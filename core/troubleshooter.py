@@ -58,4 +58,18 @@ class TroubleshooterService:
                     f"package-{package.id}", package.name, "attention",
                     "; ".join(compatibility.reasons),
                 ))
+            missing = [dependency for dependency in package.dependencies if dependency not in {item.id for item in packages}]
+            if missing:
+                findings.append(Diagnostic(
+                    f"package-dependency-{package.id}", package.name, "attention",
+                    f"Missing package dependencies: {', '.join(missing)}",
+                ))
+            for profile in profiles:
+                if package.id in profile.enabled_packages:
+                    disabled = [dependency for dependency in package.dependencies if dependency not in profile.enabled_packages]
+                    if disabled:
+                        findings.append(Diagnostic(
+                            f"package-profile-dependency-{profile.id}-{package.id}", package.name, "attention",
+                            f"Profile {profile.name} has disabled dependencies: {', '.join(disabled)}",
+                        ))
         return findings
