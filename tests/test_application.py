@@ -250,6 +250,12 @@ class ApplicationCompositionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runtime.characters.stage_level(record.id, True)
 
+    def test_character_project_preserves_planning_notes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.characters.create("Ash", "default", "Prioritize fire resistance")
+            self.assertEqual(record.notes, "Prioritize fire resistance")
+
 
 if __name__ == "__main__":
     unittest.main()

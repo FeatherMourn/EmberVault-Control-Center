@@ -337,13 +337,13 @@ class ControlCenterBackend(QObject):
     def launchContentWorker(self):
         self._launchGuardedModule("embervault.content-creator", "content-creator")
 
-    @Slot(str)
-    def createCharacter(self, name: str):
+    @Slot(str, str)
+    def createCharacter(self, name: str, notes: str = ""):
         if not self.characters:
             return
         operation = self.operations.start("character-project-create", profile_id=self._selected_profile_id) if self.operations else None
         try:
-            record = self.characters.create(name, self._selected_profile_id)
+            record = self.characters.create(name, self._selected_profile_id, notes)
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created character project {record.id}")
             self._last_save_message = f"Created character project {record.id}"

@@ -307,7 +307,8 @@ ApplicationWindow {
             Text { text: "Plan a character, protect the original."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "Character projects are stored separately from saves. This first slice records plans only; it does not write character changes into game data."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             TextField { id: characterName; placeholderText: "Character name"; Layout.fillWidth: true }
-            Button { text: "Create character project"; onClicked: controlCenter.createCharacter(characterName.text) }
+            TextField { id: characterNotes; placeholderText: "Build notes or intended progression"; Layout.fillWidth: true }
+            Button { text: "Create character project"; onClicked: controlCenter.createCharacter(characterName.text, characterNotes.text) }
             SpinBox { id: characterLevel; from: 1; to: 50; value: 1; Layout.fillWidth: true }
             Button { text: "Stage level for latest project"; onClicked: controlCenter.stageLatestCharacterLevel(characterLevel.value) }
             Text { text: controlCenter.characterOptions.length === 0 ? "No character projects yet." : "Character projects"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
