@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from core.application import EmbervaultRuntime
 from .backend import ControlCenterBackend
 
 
@@ -19,7 +20,8 @@ def main() -> int:
 
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
-    backend = ControlCenterBackend(ROOT / "runtime-data")
+    runtime = EmbervaultRuntime.create(ROOT / "runtime-data")
+    backend = ControlCenterBackend(runtime.root)
     backend.refresh()
     engine.rootContext().setContextProperty("controlCenter", backend)
     engine.load(str(ROOT / "ui" / "Main.qml"))
