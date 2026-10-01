@@ -1,0 +1,39 @@
+# Embervault Control Center Architecture
+
+## Product definition
+
+Embervault is a modular Enshrouded platform with one Control Center,
+independently packaged capability modules, a protected research environment,
+and first-class recovery services.
+
+## Terminology
+
+- **Control Center**: the Embervault launcher and module-management application.
+- **Module**: an independently packaged capability rendered inside Control Center or launched as a separate process when isolation is required.
+- **Embervault Core**: shared infrastructure and contracts used by Control Center and modules.
+- **Mod**: a modification installed into Enshrouded.
+- **Package**: a distributable module, mod, content package, or supporting component.
+- **Profile**: a named configuration describing a particular Enshrouded and package setup.
+
+## Boundaries
+
+Control Center coordinates launch, installation, updates, health, profiles,
+global settings, compatibility, and recovery actions. It does not directly
+edit saves, characters, trainer state, or content projects.
+
+Normal modules are independently packaged and initially embedded in the
+Control Center shell. Trainer, Research, and possibly Content Creator may run
+as separate processes with explicit contracts and isolated state.
+
+## First release boundary
+
+Save Manager is inspection-, backup-, verification-, and restore-only. Direct
+save editing and character mutation are outside the first release.
+
+## Technology
+
+- Python platform services.
+- PySide6 integration.
+- Qt Quick/QML main shell.
+- Windows-first packaging.
+- Existing EnshroudedModHub retained as a reference and research source.
