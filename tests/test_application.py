@@ -30,6 +30,12 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(updated.profile_id, "research")
             self.assertEqual(updated.evidence, ["Observed baseline behavior"])
 
+    def test_knowledge_catalog_searches_seeded_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            entries = runtime.knowledge.search("restore")
+            self.assertEqual([entry.id for entry in entries], ["save-safety"])
+
 
 if __name__ == "__main__":
     unittest.main()

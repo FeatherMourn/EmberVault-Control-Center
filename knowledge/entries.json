@@ -1,0 +1,23 @@
+[
+  {
+    "id": "save-safety",
+    "title": "Save safety workflow",
+    "category": "Safety",
+    "summary": "Inspect and protect saves before experiments.",
+    "content": "Save Manager is inspection, backup, verification, restore preview, and safe restore only. It does not directly edit save contents."
+  },
+  {
+    "id": "profiles",
+    "title": "Profiles and isolation",
+    "category": "Core",
+    "summary": "Use separate profiles for stable play and research.",
+    "content": "The Default profile is intended for stable play. The Research profile is an isolated surface for experimental settings and evidence."
+  },
+  {
+    "id": "modules",
+    "title": "Module boundaries",
+    "category": "Architecture",
+    "summary": "Modules use contracts and explicit capability boundaries.",
+    "content": "Normal workflows can be embedded in Control Center. Trainer, Research, and other higher-risk tools may run as separate processes with an explicit launch context."
+  }
+]

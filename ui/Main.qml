@@ -75,7 +75,7 @@ ApplicationWindow {
                 TroubleshooterPage {}
                 PlaceholderPage { heading: "Content Studio"; body: "Content creation remains a guarded developer preview." }
                 ResearchPage {}
-                PlaceholderPage { heading: "Knowledge"; body: "Offline documentation will be linked from every module." }
+                KnowledgePage {}
                 ProfilesPage {}
             }
         }
@@ -246,6 +246,27 @@ ApplicationWindow {
             Repeater {
                 model: controlCenter.researchOptions
                 delegate: Text { text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            }
+        }
+    }
+
+    component KnowledgePage: ScrollView {
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: "KNOWLEDGE"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: "Keep the reasoning close."; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: "A local knowledge catalog explains safety rules, profile isolation, and module boundaries directly inside the Control Center."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Repeater {
+                model: controlCenter.knowledgeOptions
+                delegate: Rectangle {
+                    Layout.fillWidth: true
+                    height: 76
+                    radius: 7
+                    color: panel
+                    border.color: line
+                    Text { anchors.fill: parent; anchors.margins: 16; text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap; verticalAlignment: Text.AlignVCenter }
+                }
             }
         }
     }

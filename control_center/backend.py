@@ -41,6 +41,7 @@ class ControlCenterBackend(QObject):
         self.troubleshooter = runtime.troubleshooter if runtime else None
         self.game_settings = runtime.game_settings if runtime else None
         self.research = runtime.research if runtime else None
+        self.knowledge = runtime.knowledge if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -141,6 +142,12 @@ class ControlCenterBackend(QObject):
         if not self.research:
             return []
         return [f"{item.status.upper()} · {item.title} · {len(item.evidence)} evidence note(s)" for item in self.research.list()]
+
+    @Property("QStringList", notify=stateChanged)
+    def knowledgeOptions(self):
+        if not self.knowledge:
+            return []
+        return [f"{entry.category} · {entry.title} — {entry.summary}" for entry in self.knowledge.search()]
 
     @Slot(str, str)
     def createResearchRecord(self, title: str, hypothesis: str):
