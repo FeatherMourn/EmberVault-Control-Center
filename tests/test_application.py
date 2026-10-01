@@ -267,6 +267,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "content_project"):
                 runtime.catalog.validate(payload)
 
+    def test_catalog_validation_rejects_zero_contract_versions(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            payload = runtime.catalog.build()
+            payload["contract_versions"]["research_record"] = 0
+            with self.assertRaisesRegex(ValueError, "research_record"):
+                runtime.catalog.validate(payload)
+
     def test_catalog_validation_rejects_identitiless_module_records(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

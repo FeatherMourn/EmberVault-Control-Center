@@ -57,7 +57,8 @@ class CatalogExportService:
         if not isinstance(payload["contract_versions"], dict):
             raise ValueError("Catalog contract versions must be an object")
         for key in ("module_manifest", "package_manifest", "research_record", "content_project"):
-            if not isinstance(payload["contract_versions"].get(key), int):
+            version = payload["contract_versions"].get(key)
+            if not isinstance(version, int) or isinstance(version, bool) or version < 1:
                 raise ValueError(f"Catalog contract version is missing: {key}")
         for collection in ("packages", "modules", "knowledge", "research", "content_projects"):
             if not isinstance(payload[collection], list):
