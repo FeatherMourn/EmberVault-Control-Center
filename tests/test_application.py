@@ -151,6 +151,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.launchResearchWorker()
             self.assertIn("Completed guarded research worker", backend.lastSaveMessage)
 
+    def test_backend_guarded_worker_receives_configured_game_path(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.settings.game_path = "C:/Configured/Enshrouded"
+            backend.selectProfile(1)
+            backend.launchResearchWorker()
+            self.assertIn("C:/Configured/Enshrouded", backend.lastSaveMessage)
+
     def test_backend_guarded_launch_reports_stable_profile_gate(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

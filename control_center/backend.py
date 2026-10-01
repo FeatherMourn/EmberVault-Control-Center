@@ -297,7 +297,7 @@ class ControlCenterBackend(QObject):
                 module_id, capability,
                 profile,
                 LaunchContext(
-                    profile.id, self._save_directory or None, operation.id if operation else None
+                    profile.id, self.settings.game_path or None, operation.id if operation else None
                 ),
                 backup_id,
             )
