@@ -177,6 +177,18 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.launchResearchWorker()
             self.assertIn("invalid", backend.lastSaveMessage.lower())
 
+    def test_backend_rejects_oversized_worker_output(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            process = Mock(returncode=0)
+            process.communicate.return_value = ("x" * (1024 * 1024 + 1), None)
+            backend.launcher = Mock()
+            backend.launcher.launch.return_value = process
+            backend.selectProfile(1)
+            backend.launchResearchWorker()
+            self.assertIn("too much output", backend.lastSaveMessage)
+
     def test_backend_workspace_lists_are_profile_scoped(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

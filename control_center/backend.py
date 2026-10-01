@@ -15,6 +15,8 @@ from core.operations import OperationStatus
 from core.compatibility import evaluate
 from core.modules import LaunchContext
 
+MAX_WORKER_OUTPUT = 1024 * 1024
+
 try:
     from PySide6.QtCore import QObject, Property, Signal, Slot
 except ImportError:  # Keep core imports and headless checks usable without Qt.
@@ -302,6 +304,8 @@ class ControlCenterBackend(QObject):
             if process.returncode != 0:
                 raise RuntimeError(f"Module exited with code {process.returncode}")
             result = output.strip() if output else "no worker output"
+            if len(result.encode("utf-8")) > MAX_WORKER_OUTPUT:
+                raise RuntimeError("Worker returned too much output")
             try:
                 worker_result = json.loads(result)
             except (TypeError, ValueError, json.JSONDecodeError) as exc:
