@@ -4,7 +4,7 @@
 
 - [ ] Run the complete Python test suite.
 - [ ] Compile all Python packages with `py_compile`.
-- [ ] Load `ui/Main.qml` through an offscreen Qt application.
+- [x] Load `ui/Main.qml` through an offscreen Qt application.
 - [ ] Confirm Save Manager never performs direct save editing.
 - [ ] Confirm stable and research profiles remain separate.
 - [ ] Confirm malformed manifests and corrupt local records fail safely.
@@ -13,7 +13,8 @@
 ## Packaging
 
 - [x] Build a wheel from `pyproject.toml`.
-- [ ] Verify the `embervault` entry point launches the desktop shell.
+- [x] Verify the `embervault` entry point launches the desktop shell through
+      the application entry point with the offscreen Qt platform.
 - [ ] Bundle the QML UI, contracts, seeded knowledge, and module manifests.
 - [x] `pyproject.toml` declares the QML UI, contracts, knowledge, and sample manifests as wheel data files.
 - [x] Test from a clean environment with an empty runtime-data directory. The
