@@ -22,14 +22,15 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "title", "hypothesis", "status", "evidence_count", "created_at"],
+        "required": ["id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at"],
         "properties": {
           "id": {"type": "string", "minLength": 1},
           "title": {"type": "string", "minLength": 1},
           "hypothesis": {"type": "string", "minLength": 1},
           "status": {"const": "completed"},
           "evidence_count": {"type": "integer", "minimum": 1},
-          "created_at": {"type": "string"}
+          "created_at": {"type": "string"},
+          "published_at": {"type": "string", "minLength": 1}
         },
         "additionalProperties": false
       }

@@ -11,8 +11,8 @@ state.
 - package manifests
 - module manifests
 - knowledge entries
-- explicitly published, sanitized research summaries with evidence counts
-  (never local evidence text or profile identifiers)
+- explicitly published, sanitized research summaries with evidence counts and
+  publication timestamps (never local evidence text or profile identifiers)
 
 Paths are deliberately removed from exported records. Runtime folders,
 profiles, save backups, logs, and research-local evidence are not published by

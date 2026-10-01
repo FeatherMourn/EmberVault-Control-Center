@@ -19,6 +19,7 @@ class ResearchRecord:
     evidence: list[str] = field(default_factory=list)
     created_at: str = ""
     published: bool = False
+    published_at: str = ""
 
 
 class ResearchService:
@@ -49,6 +50,8 @@ class ResearchService:
                     record.evidence = [item.strip() for item in record.evidence if isinstance(item, str) and item.strip()]
                 if not isinstance(record.published, bool):
                     record.published = False
+                if not isinstance(record.published_at, str):
+                    record.published_at = ""
                 records.append(record)
             return records
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
@@ -98,6 +101,7 @@ class ResearchService:
                 if record.status != "completed" or not record.evidence:
                     raise ValueError("Complete the research and add evidence before publishing")
                 record.published = True
+                record.published_at = datetime.now(timezone.utc).isoformat()
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)

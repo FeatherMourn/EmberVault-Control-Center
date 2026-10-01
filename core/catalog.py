@@ -33,7 +33,7 @@ class CatalogExportService:
             "knowledge": [asdict(item) for item in knowledge],
             "research": [{"id": item.id, "title": item.title, "hypothesis": item.hypothesis,
                           "status": item.status, "evidence_count": len(item.evidence),
-                          "created_at": item.created_at} for item in research],
+                          "created_at": item.created_at, "published_at": item.published_at} for item in research],
         }
 
     def export(self, destination: Path) -> Path:
