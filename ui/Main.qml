@@ -70,7 +70,7 @@ ApplicationWindow {
                 currentIndex: page
                 HomePage {}
                 PackagesPage {}
-                PlaceholderPage { heading: "Game Settings"; body: "Gameplay tuning will be added as an independently packaged module." }
+                GameSettingsPage {}
                 SaveManagerPage {}
                 TroubleshooterPage {}
                 PlaceholderPage { heading: "Content Studio"; body: "Content creation remains a guarded developer preview." }
@@ -214,6 +214,20 @@ ApplicationWindow {
             Repeater {
                 model: controlCenter.diagnosticOptions
                 delegate: Text { text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            }
+        }
+    }
+
+    component GameSettingsPage: ScrollView {
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: "GAME SETTINGS"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: "Tune a profile, safely."; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: "Values are stored with the selected profile and staged for a future tuning module. This page does not edit save data or inject changes into the game."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Repeater {
+                model: controlCenter.settingOptions
+                delegate: Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.stageSetting(index) }
             }
         }
     }

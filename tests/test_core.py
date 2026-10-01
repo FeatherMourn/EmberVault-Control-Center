@@ -8,6 +8,7 @@ from core.logging_service import StructuredLogService
 from core.operations import OperationService, OperationStatus
 from core.profiles import ProfileService
 from core.packages import PackageService
+from core.game_settings import GameSettingsService
 from core.settings import Settings, SettingsService
 
 
@@ -80,6 +81,16 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(updated.enabled_packages, ["demo.mod"])
             research = next(profile for profile in profiles.list() if profile.id == "research")
             self.assertFalse(packages.is_enabled(research, "demo.mod"))
+
+    def test_game_settings_are_stored_on_selected_profile(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            service = GameSettingsService(profiles)
+            profile = profiles.list()[0]
+            updated = service.stage(profile, "enemy_damage_multiplier", 1.5)
+            self.assertEqual(service.values(updated)["enemy_damage_multiplier"], 1.5)
 
 
 if __name__ == "__main__":

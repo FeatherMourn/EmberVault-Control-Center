@@ -39,6 +39,7 @@ class ControlCenterBackend(QObject):
         self.modules = runtime.modules if runtime else None
         self.packages = runtime.packages if runtime else None
         self.troubleshooter = runtime.troubleshooter if runtime else None
+        self.game_settings = runtime.game_settings if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -123,6 +124,38 @@ class ControlCenterBackend(QObject):
         if not self.troubleshooter:
             return []
         return [f"{item.severity.upper()} · {item.title} · {item.message}" for item in self.troubleshooter.scan()]
+
+    @Property("QStringList", notify=stateChanged)
+    def settingOptions(self):
+        if not self.game_settings:
+            return []
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return []
+        values = self.game_settings.values(profile)
+        return [f"{definition.name} · {values[definition.key]}" for definition in self.game_settings.definitions()]
+
+    @Slot(int)
+    def stageSetting(self, index: int):
+        if not self.game_settings:
+            return
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        definitions = self.game_settings.definitions()
+        if not profile or not 0 <= index < len(definitions):
+            return
+        definition = definitions[index]
+        values = self.game_settings.values(profile)
+        current = values[definition.key]
+        if definition.value_type == "boolean":
+            value = not current
+        else:
+            value = float(current) + 0.25
+            if value > 4.0:
+                value = 0.25
+        updated = self.game_settings.stage(profile, definition.key, value)
+        self.profiles = [updated if item.id == updated.id else item for item in self.profiles]
+        self._last_save_message = f"Staged {definition.name} for {updated.name}"
+        self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
     def profileDetails(self):

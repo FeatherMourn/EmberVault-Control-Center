@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .game_detection import GameDetector
+from .game_settings import GameSettingsService
 from .logging_service import StructuredLogService
 from .modules import ModuleRegistry
 from .operations import OperationService
@@ -29,6 +30,7 @@ class EmbervaultRuntime:
     save_workflow: SaveWorkflowService
     packages: PackageService
     troubleshooter: TroubleshooterService
+    game_settings: GameSettingsService
 
     @classmethod
     def create(cls, root: Path) -> "EmbervaultRuntime":
@@ -45,6 +47,7 @@ class EmbervaultRuntime:
             save_workflow=None,  # wired immediately below after shared services exist
             packages=None,  # wired immediately below after profiles exist
             troubleshooter=None,
+            game_settings=None,
         )
         runtime.save_workflow = SaveWorkflowService(runtime.saves, runtime.operations, runtime.logs)
         runtime.profiles.ensure_defaults()
@@ -53,6 +56,7 @@ class EmbervaultRuntime:
         runtime.troubleshooter = TroubleshooterService(
             root, runtime.settings, runtime.profiles, runtime.modules, runtime.packages, runtime.game
         )
+        runtime.game_settings = GameSettingsService(runtime.profiles)
         runtime.modules.discover()
         runtime.logs.info("Embervault Core initialized")
         return runtime
