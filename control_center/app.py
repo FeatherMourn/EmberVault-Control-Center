@@ -10,6 +10,13 @@ from .backend import ControlCenterBackend
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _ui_path() -> Path:
+    local = ROOT / "ui" / "Main.qml"
+    if local.is_file():
+        return local
+    return Path(sys.prefix) / "ui" / "Main.qml"
+
+
 def main() -> int:
     try:
         from PySide6.QtWidgets import QApplication
@@ -24,7 +31,7 @@ def main() -> int:
     backend = ControlCenterBackend(runtime.root, runtime=runtime)
     backend.refresh()
     engine.rootContext().setContextProperty("controlCenter", backend)
-    engine.load(str(ROOT / "ui" / "Main.qml"))
+    engine.load(str(_ui_path()))
     if not engine.rootObjects():
         return 1
     return app.exec()

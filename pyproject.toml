@@ -14,3 +14,10 @@ embervault = "control_center.app:main"
 
 [tool.setuptools.packages.find]
 include = ["core*", "control_center*"]
+
+[tool.setuptools.data-files]
+"ui" = ["ui/Main.qml"]
+"contracts" = ["contracts/module-manifest.schema.json"]
+"knowledge" = ["knowledge/entries.json"]
+"modules/example" = ["modules/example/module.json"]
+"packages/example-mod" = ["packages/example-mod/package.json"]
