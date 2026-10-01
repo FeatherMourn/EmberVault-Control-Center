@@ -33,8 +33,11 @@ class ModuleManifest:
     @classmethod
     def from_file(cls, path: Path) -> "ModuleManifest":
         data = json.loads(path.read_text(encoding="utf-8"))
+        module_id = str(data["id"])
+        if not module_id or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in module_id):
+            raise ValueError("Module id contains invalid characters")
         return cls(
-            id=str(data["id"]), name=str(data["name"]), version=str(data["version"]),
+            id=module_id, name=str(data["name"]), version=str(data["version"]),
             publisher=str(data.get("publisher", "Unknown")), executable=data.get("executable"),
             minimum_core_version=str(data.get("minimum_core_version", "0.1.0")),
             capabilities=tuple(str(x) for x in data.get("capabilities", [])),

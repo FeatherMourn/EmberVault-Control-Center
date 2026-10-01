@@ -83,6 +83,15 @@ class ModuleRegistryTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 registry.launch("demo.unsafe", LaunchContext("default", None, None))
 
+    def test_module_manifest_rejects_path_like_id(self):
+        with tempfile.TemporaryDirectory() as temp:
+            module = Path(temp) / "bad"
+            module.mkdir()
+            (module / "module.json").write_text(json.dumps({
+                "id": "../escape", "name": "Bad", "version": "1.0.0", "publisher": "Test",
+            }))
+            self.assertEqual(ModuleRegistry(Path(temp)).discover(), {})
+
     def test_python_module_process_uses_current_interpreter(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "demo"
