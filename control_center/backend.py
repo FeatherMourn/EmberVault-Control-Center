@@ -215,6 +215,21 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot(int)
+    def stageLatestCharacterLevel(self, level: int):
+        if not self.characters:
+            return
+        records = self.characters.list()
+        if not records:
+            self._last_save_message = "Create a character project first"
+        else:
+            try:
+                record = self.characters.stage_level(records[-1].id, level)
+                self._last_save_message = f"Staged level {record.planned_level} for {record.name}"
+            except (KeyError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot(str, str)
     def createResearchRecord(self, title: str, hypothesis: str):
         if not self.research:

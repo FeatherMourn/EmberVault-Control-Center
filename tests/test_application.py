@@ -82,6 +82,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             updated = runtime.research.add_evidence(record.id, "Observed result")
             self.assertEqual(updated.evidence, ["Observed result"])
 
+    def test_character_project_can_stage_valid_level(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.characters.create("Ash", "default")
+            updated = runtime.characters.stage_level(record.id, 12)
+            self.assertEqual(updated.planned_level, 12)
+
     def test_character_project_is_separate_from_save_manager(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
