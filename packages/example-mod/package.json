@@ -1,0 +1,9 @@
+{
+  "id": "embervault.example-mod",
+  "name": "Embervault Example Mod",
+  "version": "0.1.0",
+  "author": "Embervault",
+  "description": "A safe sample package used to demonstrate profile-scoped enablement.",
+  "package_type": "mod",
+  "required_builds": []
+}

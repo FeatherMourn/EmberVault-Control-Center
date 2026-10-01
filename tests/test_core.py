@@ -122,6 +122,13 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(package.id, "imported.mod")
             self.assertTrue((root / "packages" / "imported.mod" / "package.json").exists())
 
+    def test_clean_package_service_can_discover_seed_example(self):
+        with tempfile.TemporaryDirectory() as temp:
+            profiles = ProfileService(Path(temp))
+            profiles.ensure_defaults()
+            packages = PackageService(Path(temp), profiles)
+            self.assertEqual([item.id for item in packages.list()], ["embervault.example-mod"])
+
 
 if __name__ == "__main__":
     unittest.main()

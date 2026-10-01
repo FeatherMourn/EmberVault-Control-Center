@@ -38,14 +38,16 @@ class PackageService:
     def __init__(self, root: Path, profiles: ProfileService):
         self.root = Path(root)
         self.directory = self.root / "packages"
+        self.seed_directory = Path(__file__).resolve().parents[1] / "packages"
         self.profiles = profiles
         self._packages: dict[str, PackageManifest] = {}
 
     def discover(self) -> dict[str, PackageManifest]:
         self._packages = {}
-        if not self.directory.is_dir():
+        directory = self.directory if self.directory.is_dir() else self.seed_directory
+        if not directory.is_dir():
             return {}
-        for manifest_path in sorted(self.directory.glob("*/package.json")):
+        for manifest_path in sorted(directory.glob("*/package.json")):
             try:
                 manifest = PackageManifest.from_file(manifest_path)
                 if manifest.id in self._packages:
