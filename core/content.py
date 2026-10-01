@@ -86,6 +86,21 @@ class ContentProjectService:
                 return project
         raise KeyError(project_id)
 
+    def update_design(self, project_id: str, design_type: str, design_notes: str) -> ContentProject:
+        if design_type not in {"furniture", "building", "recipe", "other"}:
+            raise ValueError("Unknown content design type")
+        projects = self.list()
+        for project in projects:
+            if project.id == project_id:
+                project.design_type = design_type
+                project.design_notes = design_notes.strip()
+                if project.published:
+                    project.published = False
+                    project.published_at = ""
+                write_json_atomic(self.path, [asdict(item) for item in projects])
+                return project
+        raise KeyError(project_id)
+
     def publish(self, project_id: str) -> ContentProject:
         projects = self.list()
         for project in projects:

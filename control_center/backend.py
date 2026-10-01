@@ -373,6 +373,26 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot(str, str)
+    def updateLatestContentDesign(self, design_type: str, design_notes: str):
+        if not self.content:
+            return
+        projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
+        if not projects:
+            self._last_save_message = "Create a content project first"
+        else:
+            operation = self.operations.start("content-design-update", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                project = self.content.update_design(projects[-1].id, design_type, design_notes)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Updated content design {project.id}")
+                self._last_save_message = f"Updated design for {project.id}"
+            except (KeyError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot()
     def publishLatestContentProject(self):
         if not self.content:

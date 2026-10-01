@@ -473,6 +473,17 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime.content.unpublish(project.id)
             self.assertEqual(runtime.catalog.build()["content_projects"], [])
 
+    def test_content_design_update_retracts_publication(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            project = runtime.content.create("Furniture", "research", "A public design brief", "furniture", "Oak frame")
+            runtime.content.set_status(project.id, "ready")
+            runtime.content.publish(project.id)
+            updated = runtime.content.update_design(project.id, "building", "Stone arch variation")
+            self.assertEqual(updated.design_type, "building")
+            self.assertFalse(updated.published)
+            self.assertEqual(runtime.catalog.build()["content_projects"], [])
+
     def test_content_project_cannot_be_ready_without_brief(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
