@@ -49,7 +49,8 @@ The Control Center can also publish the validated snapshot to a chosen local
 repository folder as `embervault-catalog.json`. This is a reviewable handoff;
 the desktop application does not commit, push, or modify the website remotely.
 The receiving website or repository can independently validate a snapshot with
-`python tools/verify_catalog.py embervault-catalog.json` before accepting it.
+`python tools/verify_catalog.py embervault-catalog.json` before accepting it;
+the verifier has no dependency on the desktop runtime.
 
 Guarded workers must return JSON with `contract_version: 1` and
 `read_only: true`. Control Center rejects successful processes that do not

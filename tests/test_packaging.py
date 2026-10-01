@@ -76,7 +76,7 @@ class PackagingContractTests(unittest.TestCase):
     def test_catalog_verifier_uses_core_contract_validation(self):
         root = Path(__file__).resolve().parents[1]
         verifier = (root / "tools" / "verify_catalog.py").read_text(encoding="utf-8")
-        self.assertIn("CatalogExportService.validate", verifier)
+        self.assertIn("def validate_catalog", verifier)
 
 
 if __name__ == "__main__":
