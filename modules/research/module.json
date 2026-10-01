@@ -1,0 +1,10 @@
+{
+  "id": "embervault.research",
+  "name": "Research Lab Worker",
+  "version": "0.1.0",
+  "publisher": "Embervault",
+  "minimum_core_version": "0.1.0",
+  "capabilities": ["research"],
+  "feature_state": "experimental",
+  "executable": "research_stub.py"
+}

@@ -39,7 +39,18 @@ class ModuleRegistryTests(unittest.TestCase):
     def test_clean_registry_discovers_seed_example_module(self):
         with tempfile.TemporaryDirectory() as temp:
             registry = ModuleRegistry(Path(temp))
-            self.assertEqual(list(registry.discover()), ["embervault.example", "embervault.trainer"])
+            self.assertEqual(list(registry.discover()), ["embervault.example", "embervault.research", "embervault.trainer"])
+
+    def test_guarded_research_launch_succeeds_in_research_profile(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            process = runtime.launcher.launch(
+                "embervault.research", "research", profile,
+                LaunchContext(profile.id, None, "EV-OP-RESEARCH"),
+            )
+            process.wait(timeout=5)
+            self.assertEqual(process.returncode, 0)
 
     def test_python_module_process_uses_current_interpreter(self):
         with tempfile.TemporaryDirectory() as temp:
