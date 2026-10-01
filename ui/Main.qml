@@ -195,6 +195,8 @@ ApplicationWindow {
             Text { text: "Give every experiment a safe home."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "Profiles keep stable play, research, and future package choices separate. The selected profile is passed into tracked operations."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Text { text: "Available profiles"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            TextField { id: profileNameField; placeholderText: "New profile name"; Layout.fillWidth: true }
+            Button { text: "Create custom profile"; onClicked: controlCenter.createProfile(profileNameField.text) }
             Repeater {
                 model: controlCenter.profileDetails
                 delegate: Rectangle {

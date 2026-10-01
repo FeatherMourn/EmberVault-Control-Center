@@ -307,6 +307,16 @@ class ControlCenterBackend(QObject):
             self._profile_name = self.profiles[index].name
             self.stateChanged.emit()
 
+    @Slot(str)
+    def createProfile(self, name: str):
+        try:
+            profile = self.profile_service.create_custom(name)
+            self.profiles.append(profile)
+            self._last_save_message = f"Created profile {profile.name}"
+        except ValueError as exc:
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot(int)
     def togglePackage(self, index: int):
         if not getattr(self, "packages", None):

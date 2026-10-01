@@ -34,6 +34,14 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(by_id["default"].profile_type, "stable")
             self.assertEqual(by_id["research"].profile_type, "research")
 
+    def test_custom_profile_creation_generates_safe_id(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = ProfileService(Path(temp))
+            service.ensure_defaults()
+            profile = service.create_custom("My Test World")
+            self.assertEqual(profile.id, "my-test-world")
+            self.assertEqual(profile.profile_type, "custom")
+
     def test_structured_log_contains_contract_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "logs" / "events.jsonl"

@@ -62,3 +62,16 @@ class ProfileService:
         for profile in defaults:
             self.save(profile)
         return defaults
+
+    def create_custom(self, name: str, description: str = "") -> Profile:
+        name = name.strip()
+        if not name:
+            raise ValueError("Profile name is required")
+        profile_id = "".join(char.lower() if char.isalnum() else "-" for char in name).strip("-")
+        if not profile_id:
+            raise ValueError("Profile name must contain letters or numbers")
+        if any(profile.id == profile_id for profile in self.list()):
+            raise ValueError(f"Profile already exists: {profile_id}")
+        profile = Profile(profile_id, name, description.strip(), "custom")
+        self.save(profile)
+        return profile
