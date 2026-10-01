@@ -427,6 +427,8 @@ class ApplicationCompositionTests(unittest.TestCase):
             destination = runtime.content.export(project)
             payload = json.loads(destination.read_text(encoding="utf-8"))
             self.assertEqual(payload["application_state"], "design-only")
+            self.assertIn("published", payload["project"])
+            self.assertIn("published_at", payload["project"])
             self.assertEqual(payload["project"]["id"], project.id)
             self.assertNotIn("game", destination.parts)
 

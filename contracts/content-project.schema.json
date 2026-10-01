@@ -8,13 +8,15 @@
     "schema_version": {"const": 1},
     "project": {
       "type": "object",
-      "required": ["id", "name", "profile_id", "status", "description"],
+      "required": ["id", "name", "profile_id", "status", "description", "published", "published_at"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "name": {"type": "string", "minLength": 1},
         "profile_id": {"type": "string", "minLength": 1},
         "status": {"enum": ["draft", "ready", "blocked"]},
-        "description": {"type": "string"}
+        "description": {"type": "string"},
+        "published": {"type": "boolean"},
+        "published_at": {"type": "string"}
       },
       "additionalProperties": false
     },
