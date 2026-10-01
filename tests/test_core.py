@@ -41,6 +41,16 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(records[-1]["status"], "succeeded")
             self.assertEqual(records[-1]["backup_id"], "EV-BACKUP-1")
 
+    def test_recent_operations_returns_latest_records_first(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = OperationService(Path(temp) / "operations.jsonl")
+            first = service.start("first")
+            service.finish(first, OperationStatus.SUCCEEDED, "done")
+            second = service.start("second")
+            service.finish(second, OperationStatus.FAILED, "broken")
+            recent = service.list_recent(2)
+            self.assertEqual([item.operation_type for item in recent], ["second", "first"])
+
     def test_unknown_compatibility_is_not_compatible(self):
         result = evaluate(required_builds=["1076226"], detected_build=None)
         self.assertEqual(result.state, CompatibilityState.UNKNOWN)

@@ -108,6 +108,11 @@ ApplicationWindow {
             Text { text: "Continue"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 10 }
             Button { text: "Open Save Manager"; onClicked: page = 3 }
             Button { text: "Review modules"; onClicked: page = 1 }
+            Text { text: "Recent activity"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 10 }
+            Repeater {
+                model: controlCenter.recentOperations
+                delegate: Text { text: modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            }
         }
     }
 

@@ -52,6 +52,19 @@ class OperationService:
         self._append(operation)
         return operation
 
+    def list_recent(self, limit: int = 20) -> list[Operation]:
+        """Return the latest operation records, newest first."""
+        if not self.path.exists():
+            return []
+        records: dict[str, Operation] = {}
+        with self.path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                if line.strip():
+                    operation = Operation(**json.loads(line))
+                    records[operation.id] = operation
+        latest = list(records.values())[-max(0, limit):]
+        return list(reversed(latest))
+
     def _append(self, operation: Operation) -> None:
         with self.path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(asdict(operation), sort_keys=True) + "\n")

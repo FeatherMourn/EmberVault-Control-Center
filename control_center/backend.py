@@ -88,6 +88,15 @@ class ControlCenterBackend(QObject):
     def restorePreview(self):
         return self._restore_preview
 
+    @Property("QStringList", notify=stateChanged)
+    def recentOperations(self):
+        if not self.operations:
+            return []
+        return [
+            f"{operation.operation_type} · {operation.status} · {operation.message}"
+            for operation in self.operations.list_recent(8)
+        ]
+
     @Slot()
     def refresh(self):
         if self.settings.game_path:
