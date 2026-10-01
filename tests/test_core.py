@@ -155,6 +155,7 @@ class CoreServiceTests(unittest.TestCase):
             package = service.install_from_directory(source)
             self.assertEqual(package.id, "imported.mod")
             self.assertTrue((root / "packages" / "imported.mod" / "package.json").exists())
+            self.assertEqual(list(root.glob("embervault-package-stage-*")), [])
 
     def test_clean_package_service_can_discover_seed_example(self):
         with tempfile.TemporaryDirectory() as temp:

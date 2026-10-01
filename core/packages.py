@@ -102,7 +102,12 @@ class PackageService:
             raise ValueError(f"Package already installed: {manifest.id}")
         target = self.directory / manifest.id
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(source, target)
+        # Stage outside the managed directory so a failed copy cannot leave a
+        # package that discovery might mistake for an installed package.
+        with tempfile.TemporaryDirectory(prefix="embervault-package-stage-", dir=self.directory.parent) as temp:
+            staged = Path(temp) / manifest.id
+            shutil.copytree(source, staged)
+            shutil.move(str(staged), str(target))
         self._packages[manifest.id] = PackageManifest.from_file(target / "package.json")
         return self._packages[manifest.id]
 
