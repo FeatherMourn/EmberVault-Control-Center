@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
 
 from core.application import EmbervaultRuntime
 from core.game_detection import GameDetector
@@ -285,6 +286,13 @@ class ControlCenterBackend(QObject):
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Launched {module_id}: {result}")
             self._last_save_message = f"Completed guarded {capability} worker: {result}"
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.communicate()
+            message = "Guarded module timed out and was terminated"
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, message)
+            self._last_save_message = message
         except (PermissionError, KeyError, OSError, RuntimeError, ValueError) as exc:
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))
