@@ -455,6 +455,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             backend = ControlCenterBackend(Path(temp), runtime=runtime)
             self.assertTrue(any("v0.1.0" in item and "EmberVault" in item and "embedded" in item for item in backend.moduleOptions))
+            self.assertTrue(any("v0.1.0" in item and "EmberVault" in item and "separate" in item for item in backend.moduleOptions))
 
     def test_backend_guarded_research_launch_tracks_success(self):
         with tempfile.TemporaryDirectory() as temp:
