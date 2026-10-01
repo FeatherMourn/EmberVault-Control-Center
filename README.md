@@ -35,5 +35,6 @@ explicit profiles, operation tracking, and recovery evidence.
 ## Development checks
 
 Run the test suite with `python -m unittest discover -s tests -p "test*.py"`.
-The QML shell can be smoke-tested with an offscreen Qt application after
-installing the project dependencies.
+Install the project with `python -m pip install .`; this installs the PySide6
+runtime dependency. The QML shell can then be smoke-tested with
+`python -m control_center.app --smoke-test` using an offscreen Qt application.

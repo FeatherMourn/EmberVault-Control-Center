@@ -18,7 +18,9 @@ class PackagingContractTests(unittest.TestCase):
 
     def test_data_file_layout_matches_setuptools_wheel_convention(self):
         root = Path(__file__).resolve().parents[1]
-        self.assertIn('"ui" = ["ui/Main.qml"]', (root / "pyproject.toml").read_text(encoding="utf-8"))
+        metadata = (root / "pyproject.toml").read_text(encoding="utf-8")
+        self.assertIn('"ui" = ["ui/Main.qml"]', metadata)
+        self.assertIn('dependencies = ["PySide6>=6.8"]', metadata)
 
     def test_seed_assets_have_installed_prefix_fallbacks(self):
         root = Path(__file__).resolve().parents[1]
