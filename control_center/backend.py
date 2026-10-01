@@ -232,7 +232,7 @@ class ControlCenterBackend(QObject):
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created content project {project.id}")
             self._last_save_message = f"Created content project {project.id}"
-        except ValueError as exc:
+        except (OSError, ValueError) as exc:
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
@@ -347,7 +347,7 @@ class ControlCenterBackend(QObject):
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created character project {record.id}")
             self._last_save_message = f"Created character project {record.id}"
-        except ValueError as exc:
+        except (OSError, ValueError) as exc:
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
@@ -383,7 +383,7 @@ class ControlCenterBackend(QObject):
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created research record {record.id}")
             self._last_save_message = f"Created research record {record.id}"
-        except ValueError as exc:
+        except (OSError, ValueError) as exc:
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
@@ -584,7 +584,7 @@ class ControlCenterBackend(QObject):
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, "Package state updated")
             self.profiles = [updated if item.id == updated.id else item for item in self.profiles]
             self._last_save_message = f"{'Enabled' if enabled else 'Disabled'} {package.name} for {updated.name}"
-        except ValueError as exc:
+        except (OSError, ValueError) as exc:
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
@@ -631,7 +631,7 @@ class ControlCenterBackend(QObject):
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, "Package removed")
             self._last_save_message = f"Removed {package.name}"
-        except ValueError as exc:
+        except (OSError, ValueError) as exc:
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
