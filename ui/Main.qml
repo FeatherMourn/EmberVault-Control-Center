@@ -334,6 +334,7 @@ ApplicationWindow {
             TextField { id: contentName; placeholderText: "Content project name"; Layout.fillWidth: true }
             TextField { id: contentDescription; placeholderText: "Development brief or intended outcome"; Layout.fillWidth: true }
             Button { text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text) }
+            Button { text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
             RowLayout {
                 Button { text: "Mark ready"; onClicked: controlCenter.setLatestContentStatus("ready") }
                 Button { text: "Mark blocked"; onClicked: controlCenter.setLatestContentStatus("blocked") }

@@ -262,6 +262,27 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot()
+    def exportLatestContentProject(self):
+        if not self.content:
+            return
+        projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
+        if not projects:
+            self._last_save_message = "Create a content project first"
+        else:
+            project = projects[-1]
+            operation = self.operations.start("content-project-export", profile_id=project.profile_id) if self.operations else None
+            try:
+                destination = self.content.export(project)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Exported content project {project.id}")
+                self._last_save_message = f"Exported design manifest to {destination}"
+            except OSError as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Property("QStringList", notify=stateChanged)
     def characterOptions(self):
         if not self.characters:

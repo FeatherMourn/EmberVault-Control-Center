@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import uuid
+from datetime import datetime, timezone
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from .storage import write_json_atomic
@@ -65,3 +66,14 @@ class ContentProjectService:
                 write_json_atomic(self.path, [asdict(item) for item in projects])
                 return project
         raise KeyError(project_id)
+
+    def export(self, project: ContentProject) -> Path:
+        """Export project metadata without touching live game content."""
+        destination = self.path.parent.parent / "exports" / "content-projects" / f"{project.id}.json"
+        write_json_atomic(destination, {
+            "schema_version": 1,
+            "project": asdict(project),
+            "application_state": "design-only",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        })
+        return destination

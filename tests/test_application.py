@@ -303,6 +303,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(project.description, "A modular furniture experiment")
             self.assertEqual(runtime.saves.list_backups(), [])
 
+    def test_content_project_export_is_design_only(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            project = runtime.content.create("Ashen Furniture", "research", "A modular furniture experiment")
+            destination = runtime.content.export(project)
+            payload = json.loads(destination.read_text(encoding="utf-8"))
+            self.assertEqual(payload["application_state"], "design-only")
+            self.assertEqual(payload["project"]["id"], project.id)
+            self.assertNotIn("game", destination.parts)
+
     def test_content_project_cannot_be_ready_without_brief(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
