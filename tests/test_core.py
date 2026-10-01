@@ -42,6 +42,19 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual({profile.id for profile in restored}, {"default", "research"})
             self.assertEqual(next(item for item in restored if item.id == "default").description, "Existing")
 
+    def test_profiles_normalize_corrupt_package_and_settings_fields(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = ProfileService(Path(temp))
+            service.save(Profile("default", "Default", enabled_packages=["safe.mod"], settings={"speed": 1}))
+            path = Path(temp) / "profiles" / "default.json"
+            raw = json.loads(path.read_text())
+            raw["enabled_packages"] = ["safe.mod", 12, ""]
+            raw["settings"] = ["corrupt"]
+            path.write_text(json.dumps(raw))
+            profile = service.list()[0]
+            self.assertEqual(profile.enabled_packages, ["safe.mod"])
+            self.assertEqual(profile.settings, {})
+
     def test_custom_profile_creation_generates_safe_id(self):
         with tempfile.TemporaryDirectory() as temp:
             service = ProfileService(Path(temp))

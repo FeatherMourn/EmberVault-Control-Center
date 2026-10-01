@@ -34,7 +34,17 @@ class ProfileService:
         profiles = []
         for path in sorted(self.directory.glob("*.json")) if self.directory.is_dir() else []:
             try:
-                profiles.append(Profile(**json.loads(path.read_text(encoding="utf-8"))))
+                raw = json.loads(path.read_text(encoding="utf-8"))
+                if not isinstance(raw, dict):
+                    continue
+                profile = Profile(**raw)
+                if not isinstance(profile.enabled_packages, list):
+                    profile.enabled_packages = []
+                else:
+                    profile.enabled_packages = [item for item in profile.enabled_packages if isinstance(item, str) and item.strip()]
+                if not isinstance(profile.settings, dict):
+                    profile.settings = {}
+                profiles.append(profile)
             except (OSError, ValueError, TypeError):
                 continue
         return profiles
