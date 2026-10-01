@@ -69,6 +69,14 @@ class CoreServiceTests(unittest.TestCase):
             recent = service.list_recent(2)
             self.assertEqual([item.operation_type for item in recent], ["second", "first"])
 
+    def test_recent_operations_skips_corrupt_history_lines(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "operations.jsonl"
+            service = OperationService(path)
+            operation = service.start("valid")
+            path.write_text(path.read_text(encoding="utf-8") + "not-json\n", encoding="utf-8")
+            self.assertEqual([item.operation_type for item in service.list_recent()], ["valid"])
+
     def test_settings_preserve_game_folder_for_detection(self):
         with tempfile.TemporaryDirectory() as temp:
             service = SettingsService(Path(temp))

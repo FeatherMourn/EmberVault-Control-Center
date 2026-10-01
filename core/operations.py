@@ -60,7 +60,10 @@ class OperationService:
         with self.path.open("r", encoding="utf-8") as handle:
             for line in handle:
                 if line.strip():
-                    operation = Operation(**json.loads(line))
+                    try:
+                        operation = Operation(**json.loads(line))
+                    except (ValueError, TypeError, json.JSONDecodeError):
+                        continue
                     records[operation.id] = operation
         latest = list(records.values())[-max(0, limit):]
         return list(reversed(latest))
