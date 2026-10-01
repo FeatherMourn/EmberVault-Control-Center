@@ -197,7 +197,11 @@ class ControlCenterBackend(QObject):
     def contentOptions(self):
         if not self.content:
             return []
-        return [f"{item.status.upper()} · {item.name} · {item.profile_id}" for item in self.content.list()]
+        return [
+            f"{item.status.upper()} · {item.name} · {item.profile_id}"
+            + (f" · {item.description}" if item.description else "")
+            for item in self.content.list()
+        ]
 
     @Slot(str, str)
     def createContentProject(self, name: str, description: str = ""):
