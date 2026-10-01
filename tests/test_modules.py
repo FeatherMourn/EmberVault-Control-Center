@@ -20,6 +20,13 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertEqual(modules["embervault.demo"].name, "Demo")
             self.assertEqual([m.id for m in registry.by_capability("demo.read")], ["embervault.demo"])
 
+    def test_discovery_ignores_malformed_manifests(self):
+        with tempfile.TemporaryDirectory() as temp:
+            module = Path(temp) / "broken"
+            module.mkdir()
+            (module / "module.json").write_text("not json")
+            self.assertEqual(ModuleRegistry(Path(temp)).discover(), {})
+
 
 if __name__ == "__main__":
     unittest.main()

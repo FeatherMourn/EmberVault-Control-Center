@@ -36,6 +36,7 @@ class ControlCenterBackend(QObject):
         self.save_manager = runtime.saves if runtime else SaveManagerService(self.data_root)
         self.save_workflow = runtime.save_workflow if runtime else None
         self.operations = runtime.operations if runtime else None
+        self.modules = runtime.modules if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -96,6 +97,12 @@ class ControlCenterBackend(QObject):
             f"{operation.operation_type} · {operation.status} · {operation.message}"
             for operation in self.operations.list_recent(8)
         ]
+
+    @Property("QStringList", notify=stateChanged)
+    def moduleOptions(self):
+        if not self.modules:
+            return []
+        return [f"{module.name} · {module.feature_state}" for module in self.modules.discover().values()]
 
     @Slot()
     def refresh(self):

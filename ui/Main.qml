@@ -68,7 +68,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 currentIndex: page
                 HomePage {}
-                PlaceholderPage { heading: "My Mods"; body: "Package management will appear here after the module framework is connected." }
+                ModulesPage {}
                 PlaceholderPage { heading: "Game Settings"; body: "Gameplay tuning will be added as an independently packaged module." }
                 SaveManagerPage {}
                 PlaceholderPage { heading: "Troubleshooter"; body: "Health scans will use Core logs, operations, compatibility, and module state." }
@@ -139,6 +139,28 @@ ApplicationWindow {
             }
             Text { text: controlCenter.restorePreview; color: muted; wrapMode: Text.WordWrap }
             Text { text: controlCenter.lastSaveMessage; color: ink; wrapMode: Text.WordWrap }
+        }
+    }
+
+    component ModulesPage: ScrollView {
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: "MODULES"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: "Your tools, clearly separated."; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: "EmberVault discovers independently packaged modules through their contracts. Experimental modules are labeled before they are enabled."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Text { text: controlCenter.moduleOptions.length === 0 ? "No modules discovered yet." : "Discovered modules"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater {
+                model: controlCenter.moduleOptions
+                delegate: Rectangle {
+                    Layout.fillWidth: true
+                    height: 62
+                    radius: 7
+                    color: panel
+                    border.color: line
+                    Text { anchors.left: parent.left; anchors.leftMargin: 16; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: ink; font.pixelSize: 14 }
+                }
+            }
         }
     }
 
