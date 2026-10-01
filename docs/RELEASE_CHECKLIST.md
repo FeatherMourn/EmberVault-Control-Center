@@ -12,11 +12,13 @@
 
 ## Packaging
 
-- [ ] Build a wheel from `pyproject.toml`.
+- [x] Build a wheel from `pyproject.toml`.
 - [ ] Verify the `embervault` entry point launches the desktop shell.
 - [ ] Bundle the QML UI, contracts, seeded knowledge, and module manifests.
 - [x] `pyproject.toml` declares the QML UI, contracts, knowledge, and sample manifests as wheel data files.
-- [ ] Test from a clean environment with an empty runtime-data directory.
+- [x] Test from a clean environment with an empty runtime-data directory. The
+      installed wheel discovers four modules, one seed package, and three
+      knowledge entries without source-tree assets.
 
 ## Release notes
 
