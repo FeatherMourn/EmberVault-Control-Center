@@ -259,6 +259,22 @@ class ApplicationCompositionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runtime.catalog.validate(payload)
 
+    def test_catalog_validation_requires_all_contract_versions(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            payload = runtime.catalog.build()
+            del payload["contract_versions"]["content_project"]
+            with self.assertRaisesRegex(ValueError, "content_project"):
+                runtime.catalog.validate(payload)
+
+    def test_catalog_validation_rejects_identitiless_module_records(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            payload = runtime.catalog.build()
+            payload["modules"].append({"name": "Missing identity"})
+            with self.assertRaises(ValueError):
+                runtime.catalog.validate(payload)
+
     def test_catalog_export_orders_public_records_by_id(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

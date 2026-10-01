@@ -52,16 +52,20 @@ class CatalogExportService:
         if not isinstance(payload, dict) or payload.get("schema_version") != 1:
             raise ValueError("Catalog schema version must be 1")
         required = ("contract_versions", "packages", "modules", "knowledge", "research", "content_projects")
-        if any(key not in payload for key in required):
+        if any(key not in payload for key in required) or set(payload) != {"schema_version", *required}:
             raise ValueError("Catalog is missing a required collection")
         if not isinstance(payload["contract_versions"], dict):
             raise ValueError("Catalog contract versions must be an object")
-        for key in ("module_manifest", "package_manifest"):
+        for key in ("module_manifest", "package_manifest", "research_record", "content_project"):
             if not isinstance(payload["contract_versions"].get(key), int):
                 raise ValueError(f"Catalog contract version is missing: {key}")
         for collection in ("packages", "modules", "knowledge", "research", "content_projects"):
             if not isinstance(payload[collection], list):
                 raise ValueError(f"Catalog collection is not an array: {collection}")
+        for collection in ("packages", "modules"):
+            for item in payload[collection]:
+                if not isinstance(item, dict) or not isinstance(item.get("id"), str) or not item["id"].strip():
+                    raise ValueError(f"{collection.title()} catalog records must contain an id")
         for item in payload["knowledge"]:
             if not isinstance(item, dict) or set(item) != {"id", "title", "category", "summary", "content", "published_at"}:
                 raise ValueError("Knowledge catalog records must match the public contract")

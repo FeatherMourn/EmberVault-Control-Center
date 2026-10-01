@@ -38,7 +38,9 @@ Research handoffs use `contracts/research-summary.schema.json`; exported
 summaries contain evidence counts only and never profile identifiers or
 evidence text.
 
-The desktop exporter validates the handoff before writing it. Malformed public
+The desktop exporter validates the handoff before writing it, including all
+declared module, package, research, and content contract versions and stable
+identities for package/module records. Malformed public
 records are rejected, and research or content records containing private
 evidence, descriptions, profiles, or other local-only fields cannot be
 exported as public catalog entries.
