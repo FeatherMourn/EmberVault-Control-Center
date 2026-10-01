@@ -9,6 +9,7 @@
 - [x] Confirm stable and research profiles remain separate.
 - [x] Confirm malformed manifests and corrupt local records fail safely.
 - [x] Review operation and structured-log output for a backup and restore preview.
+- [x] Confirm staged Game Settings schema is included in the wheel data.
 
 ## Packaging
 
