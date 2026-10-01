@@ -22,4 +22,5 @@ metadata on the web side.
 
 Guarded workers must return JSON with `contract_version: 1` and
 `read_only: true`. Control Center rejects successful processes that do not
-provide that contract, preserving the first-release mutation boundary.
+provide that contract, preserving the first-release mutation boundary. The
+canonical result schema is `contracts/worker-result.schema.json`.

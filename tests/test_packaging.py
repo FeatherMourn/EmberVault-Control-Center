@@ -10,6 +10,7 @@ class PackagingContractTests(unittest.TestCase):
             "contracts/module-manifest.schema.json",
             "contracts/package-manifest.schema.json",
             "contracts/catalog.schema.json",
+            "contracts/worker-result.schema.json",
             "knowledge/entries.json",
             "modules/example/module.json",
             "packages/example-mod/package.json",
