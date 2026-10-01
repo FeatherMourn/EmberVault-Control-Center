@@ -3,9 +3,10 @@
   "$id": "https://embervault.local/contracts/catalog.schema.json",
   "title": "EmberVault Public Catalog",
   "type": "object",
-  "required": ["schema_version", "contract_versions", "packages", "modules", "knowledge", "research", "content_projects"],
+  "required": ["schema_version", "generated_at", "contract_versions", "packages", "modules", "knowledge", "research", "content_projects"],
   "properties": {
     "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "minLength": 1},
     "contract_versions": {
       "type": "object",
       "required": ["module_manifest", "package_manifest", "research_record", "content_project", "tuning_adapter"],

@@ -4,6 +4,9 @@ The Control Center is the local authoring and safety surface. The Ember Vault
 website can consume the exported catalog without importing desktop runtime
 state.
 
+Each catalog snapshot includes a UTC `generated_at` timestamp so the receiving
+site can identify stale or unexpectedly old handoffs.
+
 `CatalogExportService` writes a JSON document with:
 
 - `schema_version`

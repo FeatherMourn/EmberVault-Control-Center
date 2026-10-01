@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .knowledge import KnowledgeService
@@ -33,6 +34,7 @@ class CatalogExportService:
         content = sorted((item for item in (self.content.list() if self.content else []) if item.published), key=lambda item: item.id)
         return {
             "schema_version": 1,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "contract_versions": {"module_manifest": 1, "package_manifest": 1, "research_record": 1, "content_project": 1, "tuning_adapter": 1},
             "packages": [asdict(item) | {"path": None} for item in packages],
             "modules": [asdict(item) | {"path": None} for item in modules],
@@ -51,9 +53,11 @@ class CatalogExportService:
         """Validate the public handoff without requiring a web runtime."""
         if not isinstance(payload, dict) or payload.get("schema_version") != 1:
             raise ValueError("Catalog schema version must be 1")
-        required = ("contract_versions", "packages", "modules", "knowledge", "research", "content_projects")
+        required = ("generated_at", "contract_versions", "packages", "modules", "knowledge", "research", "content_projects")
         if any(key not in payload for key in required) or set(payload) != {"schema_version", *required}:
             raise ValueError("Catalog is missing a required collection")
+        if not isinstance(payload["generated_at"], str) or not payload["generated_at"].strip():
+            raise ValueError("Catalog generation timestamp is required")
         if not isinstance(payload["contract_versions"], dict):
             raise ValueError("Catalog contract versions must be an object")
         for key in ("module_manifest", "package_manifest", "research_record", "content_project", "tuning_adapter"):

@@ -8,11 +8,13 @@ from pathlib import Path
 
 def validate_catalog(payload: dict) -> None:
     """Validate only the public catalog contract; no desktop imports required."""
-    required = ("contract_versions", "packages", "modules", "knowledge", "research", "content_projects")
+    required = ("generated_at", "contract_versions", "packages", "modules", "knowledge", "research", "content_projects")
     if not isinstance(payload, dict) or payload.get("schema_version") != 1:
         raise ValueError("Catalog schema version must be 1")
     if any(key not in payload for key in required) or set(payload) != {"schema_version", *required}:
         raise ValueError("Catalog is missing a required collection")
+    if not isinstance(payload["generated_at"], str) or not payload["generated_at"].strip():
+        raise ValueError("Catalog generation timestamp is required")
     versions = payload["contract_versions"]
     if not isinstance(versions, dict):
         raise ValueError("Catalog contract versions must be an object")

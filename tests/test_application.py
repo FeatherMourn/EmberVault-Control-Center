@@ -243,6 +243,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             destination = runtime.catalog.export(Path(temp) / "out" / "catalog.json")
             self.assertTrue(destination.is_file())
             self.assertIn('"schema_version": 1', destination.read_text(encoding="utf-8"))
+            self.assertIn('"generated_at":', destination.read_text(encoding="utf-8"))
 
     def test_catalog_declares_tuning_adapter_contract_version(self):
         with tempfile.TemporaryDirectory() as temp:
