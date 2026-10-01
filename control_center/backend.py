@@ -39,6 +39,9 @@ class ControlCenterBackend(QObject):
         self._safety = "No backup required"
         self._save_directory = ""
         self._last_save_message = "No save selected"
+        self._selected_backup_id = ""
+        self._restore_preview = "No restore selected"
+        self._selected_profile_id = self.profiles[0].id if self.profiles else ""
 
     @Property(str, notify=stateChanged)
     def gameStatus(self):
@@ -69,6 +72,18 @@ class ControlCenterBackend(QObject):
     def lastSaveMessage(self):
         return self._last_save_message
 
+    @Property("QStringList", notify=stateChanged)
+    def profileOptions(self):
+        return [profile.name for profile in self.profiles]
+
+    @Property("QStringList", notify=stateChanged)
+    def backupOptions(self):
+        return [backup.id for backup in self.save_manager.list_backups()]
+
+    @Property(str, notify=stateChanged)
+    def restorePreview(self):
+        return self._restore_preview
+
     @Slot()
     def refresh(self):
         if self.settings.game_path:
@@ -85,6 +100,46 @@ class ControlCenterBackend(QObject):
     @Slot(result=str)
     def saveManagerSummary(self):
         return self.saveSummary
+
+    @Slot(int)
+    def selectProfile(self, index: int):
+        if 0 <= index < len(self.profiles):
+            self._selected_profile_id = self.profiles[index].id
+            self._profile_name = self.profiles[index].name
+            self.stateChanged.emit()
+
+    @Slot(int)
+    def selectBackup(self, index: int):
+        backups = self.save_manager.list_backups()
+        self._selected_backup_id = backups[index].id if 0 <= index < len(backups) else ""
+        self._restore_preview = "Backup selected" if self._selected_backup_id else "No restore selected"
+        self.stateChanged.emit()
+
+    @Slot()
+    def previewRestore(self):
+        if not self._selected_backup_id or not self._save_directory:
+            self._restore_preview = "Choose a save folder and backup first"
+        else:
+            try:
+                plan = self.save_manager.preview_restore(self._selected_backup_id, Path(self._save_directory))
+                self._restore_preview = f"{len(plan['files_to_add_or_replace'])} files will be restored; current state will be backed up first"
+            except SaveManagerError as exc:
+                self._restore_preview = str(exc)
+        self.stateChanged.emit()
+
+    @Slot()
+    def restoreSelected(self):
+        if not self._selected_backup_id or not self._save_directory:
+            self._last_save_message = "Choose a save folder and backup first"
+        else:
+            try:
+                current = self.save_manager.backup(Path(self._save_directory), "automatic-before-restore")
+                self.save_manager.restore(self._selected_backup_id, Path(self._save_directory), current_backup=current)
+                self._last_save_message = f"Restored and verified {self._selected_backup_id}"
+                self._safety = f"Current state preserved as {current.id}"
+            except (OSError, SaveManagerError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
 
     @Slot()
     def chooseSaveFolder(self):
