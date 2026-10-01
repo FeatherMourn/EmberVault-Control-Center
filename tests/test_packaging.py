@@ -73,6 +73,13 @@ class PackagingContractTests(unittest.TestCase):
         verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
         self.assertIn('"contracts/tuning-adapter.schema.json"', verifier)
 
+    def test_release_verifier_validates_packaged_json_content(self):
+        root = Path(__file__).resolve().parents[1]
+        verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
+        self.assertIn("json.loads", verifier)
+        self.assertIn('"knowledge/entries.json"', verifier)
+        self.assertIn("Packaged knowledge catalog must contain at least one entry", verifier)
+
     def test_tuning_adapter_contract_declares_safety_boundaries(self):
         root = Path(__file__).resolve().parents[1]
         schema = json.loads((root / "contracts/tuning-adapter.schema.json").read_text(encoding="utf-8"))
