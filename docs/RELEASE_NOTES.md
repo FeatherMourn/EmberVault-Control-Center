@@ -41,6 +41,8 @@
 - Module manifests explicitly declare `embedded` or `separate` process mode;
   contradictory launch declarations are rejected and the Modules workspace
   displays the boundary.
+- Catalog export validation enforces the same process-mode rule before a local
+  or public handoff is written.
 
 ## Important limitations
 
