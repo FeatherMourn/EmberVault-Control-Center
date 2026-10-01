@@ -13,7 +13,8 @@ state.
 - knowledge entries
 - explicitly published, sanitized research summaries with evidence counts and
   publication timestamps (never local evidence text or profile identifiers)
-  and can be explicitly unpublished without deleting the local record.
+  and can be explicitly unpublished without deleting the local record. Changes
+  to published evidence or status automatically retract publication.
 
 Paths are deliberately removed from exported records. Runtime folders,
 profiles, save backups, logs, and research-local evidence are not published by

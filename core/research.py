@@ -77,6 +77,9 @@ class ResearchService:
                 if not note.strip():
                     raise ValueError("Evidence note is required")
                 record.evidence.append(note.strip())
+                if record.published:
+                    record.published = False
+                    record.published_at = ""
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
@@ -90,6 +93,9 @@ class ResearchService:
                 if status == "completed" and not record.evidence:
                     raise ValueError("Add evidence before completing research")
                 record.status = status
+                if record.published:
+                    record.published = False
+                    record.published_at = ""
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)

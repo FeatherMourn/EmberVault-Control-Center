@@ -160,6 +160,18 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(unpublished.evidence, ["Observed"])
             self.assertEqual(runtime.catalog.build()["research"], [])
 
+    def test_published_research_retracts_when_evidence_changes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Mutable", "Documented", "research")
+            runtime.research.add_evidence(record.id, "Initial")
+            runtime.research.set_status(record.id, "completed")
+            runtime.research.publish(record.id)
+            updated = runtime.research.add_evidence(record.id, "Correction")
+            self.assertFalse(updated.published)
+            self.assertEqual(updated.published_at, "")
+            self.assertEqual(runtime.catalog.build()["research"], [])
+
     def test_catalog_export_writes_json_document(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
