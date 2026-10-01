@@ -1,6 +1,6 @@
-# Ember Vault catalog integration
+# EmberVault catalog integration
 
-The Control Center is the local authoring and safety surface. The Ember Vault
+The Control Center is the local authoring and safety surface. The EmberVault
 website can consume the exported catalog without importing desktop runtime
 state.
 
@@ -12,7 +12,8 @@ site can identify stale or unexpectedly old handoffs.
 - `schema_version`
 - `contract_versions` for module, package, research, content, and tuning-adapter contracts
 - package manifests
-- module manifests
+- module manifests, including the canonical `process_mode` value (`embedded`
+  or `separate`) for downstream display and filtering
 - knowledge entries
 - explicitly published, sanitized research summaries with evidence counts and
   publication timestamps (never local evidence text or profile identifiers)
