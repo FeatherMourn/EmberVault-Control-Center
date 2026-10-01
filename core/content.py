@@ -37,3 +37,14 @@ class ContentProjectService:
         projects.append(project)
         self.path.write_text(json.dumps([asdict(item) for item in projects], indent=2) + "\n", encoding="utf-8")
         return project
+
+    def set_status(self, project_id: str, status: str) -> ContentProject:
+        if status not in {"draft", "ready", "blocked"}:
+            raise ValueError("Unknown content project status")
+        projects = self.list()
+        for project in projects:
+            if project.id == project_id:
+                project.status = status
+                self.path.write_text(json.dumps([asdict(item) for item in projects], indent=2) + "\n", encoding="utf-8")
+                return project
+        raise KeyError(project_id)

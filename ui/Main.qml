@@ -331,6 +331,10 @@ ApplicationWindow {
             Text { text: "Safety gates"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             TextField { id: contentName; placeholderText: "Content project name"; Layout.fillWidth: true }
             Button { text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text) }
+            RowLayout {
+                Button { text: "Mark ready"; onClicked: controlCenter.setLatestContentStatus("ready") }
+                Button { text: "Mark blocked"; onClicked: controlCenter.setLatestContentStatus("blocked") }
+            }
             Repeater { model: controlCenter.contentOptions; delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true } }
             Repeater {
                 model: controlCenter.riskOptions

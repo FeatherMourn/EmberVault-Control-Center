@@ -211,6 +211,26 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot(str)
+    def setLatestContentStatus(self, status: str):
+        if not self.content:
+            return
+        projects = self.content.list()
+        if not projects:
+            self._last_save_message = "Create a content project first"
+        else:
+            operation = self.operations.start("content-project-status", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                project = self.content.set_status(projects[-1].id, status)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Content project status {project.status}")
+                self._last_save_message = f"Content project is {project.status}"
+            except (KeyError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Property("QStringList", notify=stateChanged)
     def characterOptions(self):
         if not self.characters:

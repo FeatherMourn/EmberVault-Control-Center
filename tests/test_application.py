@@ -115,6 +115,12 @@ class ApplicationCompositionTests(unittest.TestCase):
             updated = runtime.characters.stage_level(record.id, 12)
             self.assertEqual(updated.planned_level, 12)
 
+    def test_content_project_supports_guarded_status(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            project = runtime.content.create("Furniture", "research")
+            self.assertEqual(runtime.content.set_status(project.id, "ready").status, "ready")
+
     def test_character_project_is_separate_from_save_manager(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
