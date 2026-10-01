@@ -88,8 +88,9 @@ class ApplicationCompositionTests(unittest.TestCase):
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
-            project = runtime.content.create("Ashen Furniture", "research")
+            project = runtime.content.create("Ashen Furniture", "research", "A modular furniture experiment")
             self.assertEqual(project.profile_id, "research")
+            self.assertEqual(project.description, "A modular furniture experiment")
             self.assertEqual(runtime.saves.list_backups(), [])
 
     def test_research_evidence_can_be_appended_to_record(self):
