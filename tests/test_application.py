@@ -207,6 +207,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.inspectDeploymentPlan()
             self.assertIn("Deployment plan", backend.lastSaveMessage)
 
+    def test_backend_exposes_external_mods_from_configured_game_folder(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            mods = root / "game" / "mods" / "outside"
+            mods.mkdir(parents=True)
+            (mods / "mod.json").write_text(json.dumps({
+                "id": "outside.mod", "name": "Outside", "version": "1.0",
+            }))
+            backend = ControlCenterBackend(root, runtime=runtime)
+            backend.settings.game_path = str(root / "game")
+            self.assertTrue(any("Outside" in item for item in backend.externalPackageOptions))
+
     def test_backend_deploys_ready_packages_to_configured_game_folder(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
