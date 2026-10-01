@@ -273,6 +273,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             }]))
             self.assertEqual(runtime.characters.list()[0].planned_level, 1)
 
+    def test_character_records_skip_malformed_records(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            runtime.characters.path.write_text(json.dumps([
+                {"id": "good", "name": "Ash", "profile_id": "default"},
+                {"id": "bad", "profile_id": "default"},
+            ]), encoding="utf-8")
+            self.assertEqual([item.id for item in runtime.characters.list()], ["good"])
+
     def test_research_and_content_records_normalize_invalid_status(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
