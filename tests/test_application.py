@@ -243,6 +243,11 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertTrue(destination.is_file())
             self.assertIn('"schema_version": 1', destination.read_text(encoding="utf-8"))
 
+    def test_catalog_declares_tuning_adapter_contract_version(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            self.assertEqual(runtime.catalog.build()["contract_versions"]["tuning_adapter"], 1)
+
     def test_catalog_sync_writes_repository_ready_snapshot(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

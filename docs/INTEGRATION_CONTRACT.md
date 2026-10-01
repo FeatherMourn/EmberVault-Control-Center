@@ -7,7 +7,7 @@ state.
 `CatalogExportService` writes a JSON document with:
 
 - `schema_version`
-- `contract_versions` for module and package manifests
+- `contract_versions` for module, package, research, content, and tuning-adapter contracts
 - package manifests
 - module manifests
 - knowledge entries

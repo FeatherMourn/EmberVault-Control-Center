@@ -33,7 +33,7 @@ class CatalogExportService:
         content = sorted((item for item in (self.content.list() if self.content else []) if item.published), key=lambda item: item.id)
         return {
             "schema_version": 1,
-            "contract_versions": {"module_manifest": 1, "package_manifest": 1, "research_record": 1, "content_project": 1},
+            "contract_versions": {"module_manifest": 1, "package_manifest": 1, "research_record": 1, "content_project": 1, "tuning_adapter": 1},
             "packages": [asdict(item) | {"path": None} for item in packages],
             "modules": [asdict(item) | {"path": None} for item in modules],
             "knowledge": [{"id": item.id, "title": item.title, "category": item.category,
@@ -56,7 +56,7 @@ class CatalogExportService:
             raise ValueError("Catalog is missing a required collection")
         if not isinstance(payload["contract_versions"], dict):
             raise ValueError("Catalog contract versions must be an object")
-        for key in ("module_manifest", "package_manifest", "research_record", "content_project"):
+        for key in ("module_manifest", "package_manifest", "research_record", "content_project", "tuning_adapter"):
             version = payload["contract_versions"].get(key)
             if not isinstance(version, int) or isinstance(version, bool) or version < 1:
                 raise ValueError(f"Catalog contract version is missing: {key}")
