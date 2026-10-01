@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from core.modules import ModuleRegistry
+from core.modules import LaunchContext, ModuleRegistry
 from core.application import EmbervaultRuntime
 
 
@@ -53,6 +53,17 @@ class ModuleRegistryTests(unittest.TestCase):
             registry = ModuleRegistry(Path(temp))
             registry.discover()
             process = registry.launch("demo.process", __import__("core.modules", fromlist=["LaunchContext"]).LaunchContext("default", "", None))
+            process.wait(timeout=5)
+            self.assertEqual(process.returncode, 0)
+
+    def test_guarded_trainer_launch_succeeds_with_research_and_backup(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            process = runtime.launcher.launch(
+                "embervault.trainer", "trainer", profile,
+                LaunchContext(profile.id, None, "EV-OP-TEST"), "EV-BACKUP-TEST",
+            )
             process.wait(timeout=5)
             self.assertEqual(process.returncode, 0)
 
