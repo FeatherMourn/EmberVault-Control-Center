@@ -11,7 +11,8 @@
   Troubleshooter, Character Editor, Trainer, Content Studio, Research Lab,
   Knowledge, Modules, and Activity workspaces.
 - Profile-scoped package discovery, folder/ZIP import, enablement, compatibility
-  reporting, and safe removal.
+  reporting, safe removal, conflict-free deployment, and ownership-protected
+  undeploy.
 - Isolated research records/evidence, character projects, content projects, and
   versioned public catalog export.
 - Guarded Trainer, Research, and Content Creator process workflows with UI
