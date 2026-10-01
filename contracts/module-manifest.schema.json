@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embervault.invalid/contracts/module-manifest.schema.json",
+  "type": "object",
+  "required": ["id", "name", "version", "publisher", "capabilities"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^embervault\\.[a-z0-9-]+$"},
+    "name": {"type": "string"},
+    "version": {"type": "string"},
+    "publisher": {"type": "string"},
+    "executable": {"type": ["string", "null"]},
+    "minimum_core_version": {"type": "string"},
+    "capabilities": {"type": "array", "items": {"type": "string"}},
+    "feature_state": {"enum": ["stable", "verified", "experimental", "research-only", "blocked"]},
+    "entrypoint": {"type": ["string", "null"]}
+  }
+}

@@ -1,0 +1,87 @@
+"""Independent module manifests, registry discovery, and launch context."""
+from __future__ import annotations
+
+import json
+import subprocess
+from dataclasses import dataclass, field
+from enum import StrEnum
+from pathlib import Path
+
+
+class ModuleState(StrEnum):
+    INSTALLED = "installed"
+    DISABLED = "disabled"
+    EXPERIMENTAL = "experimental"
+    INCOMPATIBLE = "incompatible"
+    BROKEN = "broken"
+
+
+@dataclass(frozen=True)
+class ModuleManifest:
+    id: str
+    name: str
+    version: str
+    publisher: str
+    executable: str | None = None
+    minimum_core_version: str = "0.1.0"
+    capabilities: tuple[str, ...] = ()
+    feature_state: str = "stable"
+    entrypoint: str | None = None
+    path: Path | None = field(default=None, compare=False)
+
+    @classmethod
+    def from_file(cls, path: Path) -> "ModuleManifest":
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return cls(
+            id=str(data["id"]), name=str(data["name"]), version=str(data["version"]),
+            publisher=str(data.get("publisher", "Unknown")), executable=data.get("executable"),
+            minimum_core_version=str(data.get("minimum_core_version", "0.1.0")),
+            capabilities=tuple(str(x) for x in data.get("capabilities", [])),
+            feature_state=str(data.get("feature_state", "stable")),
+            entrypoint=data.get("entrypoint"), path=path.parent,
+        )
+
+
+@dataclass(frozen=True)
+class LaunchContext:
+    profile_id: str | None
+    game_path: str | None
+    operation_id: str | None
+
+
+class ModuleRegistry:
+    def __init__(self, directory: Path):
+        self.directory = Path(directory)
+        self._modules: dict[str, ModuleManifest] = {}
+
+    def discover(self) -> dict[str, ModuleManifest]:
+        self._modules = {}
+        if not self.directory.is_dir():
+            return self._modules
+        for manifest_path in sorted(self.directory.glob("*/module.json")):
+            try:
+                manifest = ModuleManifest.from_file(manifest_path)
+                if manifest.id in self._modules:
+                    raise ValueError(f"Duplicate module id: {manifest.id}")
+                self._modules[manifest.id] = manifest
+            except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
+                continue
+        return dict(self._modules)
+
+    def get(self, module_id: str) -> ModuleManifest | None:
+        return self._modules.get(module_id)
+
+    def by_capability(self, capability: str) -> list[ModuleManifest]:
+        return [m for m in self._modules.values() if capability in m.capabilities]
+
+    def launch(self, module_id: str, context: LaunchContext) -> subprocess.Popen | None:
+        manifest = self.get(module_id)
+        if not manifest or not manifest.executable or not manifest.path:
+            raise ValueError(f"Module '{module_id}' is not a separate-process module.")
+        executable = manifest.path / manifest.executable
+        if not executable.is_file():
+            raise FileNotFoundError(executable)
+        args = [str(executable), "--profile", context.profile_id or "", "--game-path", context.game_path or ""]
+        if context.operation_id:
+            args += ["--operation", context.operation_id]
+        return subprocess.Popen(args, cwd=manifest.path)
