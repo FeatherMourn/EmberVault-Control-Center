@@ -68,10 +68,12 @@ class ModuleManifest:
             process_mode = "embedded" if entrypoint else "separate" if executable else "embedded"
         if process_mode not in {"embedded", "separate"}:
             raise ValueError("Module process mode is invalid")
-        if explicit_process_mode and process_mode == "embedded" and not entrypoint:
-            raise ValueError("Embedded modules must declare an entrypoint")
-        if explicit_process_mode and process_mode == "separate" and not executable:
-            raise ValueError("Separate modules must declare an executable")
+        if explicit_process_mode and process_mode == "embedded":
+            if not entrypoint or executable:
+                raise ValueError("Embedded modules must declare only an entrypoint")
+        if explicit_process_mode and process_mode == "separate":
+            if not executable or entrypoint:
+                raise ValueError("Separate modules must declare only an executable")
         return cls(
             id=module_id, name=data["name"].strip(), version=data["version"].strip(),
             publisher=str(data.get("publisher", "Unknown")), executable=executable,
