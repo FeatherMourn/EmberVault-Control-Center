@@ -34,6 +34,14 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(by_id["default"].profile_type, "stable")
             self.assertEqual(by_id["research"].profile_type, "research")
 
+    def test_profiles_restore_missing_builtin_default(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = ProfileService(Path(temp))
+            service.save(Profile("default", "Default", "Existing", "stable"))
+            restored = service.ensure_defaults()
+            self.assertEqual({profile.id for profile in restored}, {"default", "research"})
+            self.assertEqual(next(item for item in restored if item.id == "default").description, "Existing")
+
     def test_custom_profile_creation_generates_safe_id(self):
         with tempfile.TemporaryDirectory() as temp:
             service = ProfileService(Path(temp))

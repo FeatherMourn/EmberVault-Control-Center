@@ -53,15 +53,15 @@ class ProfileService:
                 os.unlink(temp_name)
 
     def ensure_defaults(self) -> list[Profile]:
-        if self.list():
-            return self.list()
         defaults = [
             Profile("default", "Default", "Safe starting profile.", "stable"),
             Profile("research", "Research", "Isolated experimental profile.", "research"),
         ]
+        existing = {profile.id for profile in self.list()}
         for profile in defaults:
-            self.save(profile)
-        return defaults
+            if profile.id not in existing:
+                self.save(profile)
+        return self.list()
 
     def create_custom(self, name: str, description: str = "") -> Profile:
         name = name.strip()
