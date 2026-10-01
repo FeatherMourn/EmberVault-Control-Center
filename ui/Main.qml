@@ -44,6 +44,7 @@ ApplicationWindow {
                 NavButton { label: "Profiles"; pageIndex: 8 }
                 NavButton { label: "Characters"; pageIndex: 9 }
                 NavButton { label: "Trainer"; pageIndex: 10 }
+                NavButton { label: "Activity"; pageIndex: 11 }
                 Item { Layout.fillHeight: true }
                 Rectangle { Layout.fillWidth: true; height: 1; color: line }
                 Text { text: "●  Core services ready"; color: "#83a77b"; font.pixelSize: 11 }
@@ -81,6 +82,7 @@ ApplicationWindow {
                 ProfilesPage {}
                 CharacterPage {}
                 RiskToolsPage { heading: "Trainer"; capability: "trainer"; body: "Trainer capabilities require a research profile, a verified recovery backup, and a separate-process launch contract." }
+                ActivityPage {}
             }
         }
     }
@@ -323,6 +325,27 @@ ApplicationWindow {
                 delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true }
             }
             Text { text: "This capability cannot be launched from the stable profile without the required isolation and recovery conditions."; color: muted; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+        }
+    }
+
+    component ActivityPage: ScrollView {
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: "ACTIVITY"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: "See what EmberVault did."; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: "Operations are recorded with their status and context so recovery and troubleshooting have an auditable history."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Repeater {
+                model: controlCenter.recentOperations
+                delegate: Rectangle {
+                    Layout.fillWidth: true
+                    height: 60
+                    radius: 7
+                    color: panel
+                    border.color: line
+                    Text { anchors.fill: parent; anchors.margins: 14; text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap; verticalAlignment: Text.AlignVCenter }
+                }
+            }
         }
     }
 
