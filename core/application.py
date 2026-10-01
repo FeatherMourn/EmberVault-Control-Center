@@ -1,4 +1,4 @@
-"""Composition root for Embervault Core services."""
+"""Composition root for EmberVault Core services."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -91,7 +91,7 @@ class EmbervaultRuntime:
         runtime.trainer = TrainerPlanService(root, runtime.saves)
         runtime.catalog.set_content(runtime.content)
         runtime.modules.discover()
-        runtime.logs.info("Embervault Core initialized")
+        runtime.logs.info("EmberVault Core initialized")
         return runtime
 
     def health(self) -> dict:

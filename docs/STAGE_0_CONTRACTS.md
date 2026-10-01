@@ -2,7 +2,7 @@
 
 ## Core services
 
-Initial Embervault Core services:
+Initial EmberVault Core services:
 
 - Game detection and path management.
 - Settings and profiles.

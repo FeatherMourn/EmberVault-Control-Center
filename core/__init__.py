@@ -1,4 +1,4 @@
-"""Shared Embervault Core services."""
+"""Shared EmberVault Core services."""
 
 from .compatibility import Compatibility, CompatibilityState
 from .game_detection import GameInstallation, GameDetector

@@ -8,9 +8,9 @@ and first-class recovery services.
 
 ## Terminology
 
-- **Control Center**: the Embervault launcher and module-management application.
+- **Control Center**: the EmberVault launcher and module-management application.
 - **Module**: an independently packaged capability rendered inside Control Center or launched as a separate process when isolation is required.
-- **Embervault Core**: shared infrastructure and contracts used by Control Center and modules.
+- **EmberVault Core**: shared infrastructure and contracts used by Control Center and modules.
 - **Mod**: a modification installed into Enshrouded.
 - **Package**: a distributable module, mod, content package, or supporting component.
 - **Profile**: a named configuration describing a particular Enshrouded and package setup.

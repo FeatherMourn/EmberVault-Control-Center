@@ -1,1 +1,1 @@
-"""Embervault Control Center application shell."""
+"""EmberVault Control Center application shell."""

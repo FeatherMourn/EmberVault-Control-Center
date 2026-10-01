@@ -2,7 +2,7 @@
   "id": "embervault.tuning-audit",
   "name": "Game Settings Audit",
   "version": "0.1.0",
-  "publisher": "Embervault",
+  "publisher": "EmberVault",
   "minimum_core_version": "0.1.0",
   "capabilities": ["tuning-audit"],
   "feature_state": "experimental",

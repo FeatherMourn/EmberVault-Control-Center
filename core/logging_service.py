@@ -1,4 +1,4 @@
-"""Structured JSON-lines logging shared by every Embervault component."""
+"""Structured JSON-lines logging shared by every EmberVault component."""
 from __future__ import annotations
 
 import json
