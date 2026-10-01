@@ -263,6 +263,7 @@ class ControlCenterBackend(QObject):
         if not self.characters:
             return []
         return [f"{item.name} · level {item.planned_level} · {item.profile_id}"
+                + (f" · {item.notes}" if item.notes else "")
                 for item in self.characters.list() if item.profile_id == self._selected_profile_id]
 
     @Property("QStringList", notify=stateChanged)
