@@ -188,6 +188,7 @@ ApplicationWindow {
             Button { text: "Inspect deployment plan"; onClicked: controlCenter.inspectDeploymentPlan() }
             Button { text: "Deploy ready packages"; onClicked: deployDialog.open() }
             Repeater { model: controlCenter.deploymentOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
+            property int undeployIndex: -1
             Dialog {
                 id: deployDialog
                 title: "Deploy ready packages?"
@@ -201,12 +202,25 @@ ApplicationWindow {
                 }
                 onAccepted: controlCenter.deployReadyPackages()
             }
+            Dialog {
+                id: undeployDialog
+                title: "Undeploy selected package?"
+                modal: true
+                standardButtons: Dialog.Ok | Dialog.Cancel
+                contentItem: Text {
+                    text: "Only the EmberVault-owned destination will be removed. Unmarked or foreign directories will be refused."
+                    color: ink
+                    wrapMode: Text.WordWrap
+                    width: 360
+                }
+                onAccepted: if (undeployIndex >= 0) controlCenter.undeployPackage(undeployIndex)
+            }
             Repeater {
                 model: controlCenter.packageOptions
                 delegate: RowLayout {
                     Layout.fillWidth: true
                     Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.togglePackage(index) }
-                    Button { text: "Undeploy"; onClicked: controlCenter.undeployPackage(index) }
+                    Button { text: "Undeploy"; onClicked: { undeployIndex = index; undeployDialog.open() } }
                     Button { text: "Remove"; onClicked: controlCenter.removePackage(index) }
                 }
             }
