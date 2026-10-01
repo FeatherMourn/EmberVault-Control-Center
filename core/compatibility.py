@@ -29,6 +29,7 @@ def evaluate(*, required_builds: list[str] | None, detected_build: str | None,
         return Compatibility(CompatibilityState.UNKNOWN, ("Build evidence is incomplete.",))
     if detected not in builds:
         return Compatibility(CompatibilityState.INCOMPATIBLE, (f"Build {detected} is not in the tested set.",))
-    if warnings:
-        return Compatibility(CompatibilityState.WARNINGS, tuple(warnings))
+    normalized_warnings = tuple(item.strip() for item in (warnings or []) if isinstance(item, str) and item.strip())
+    if normalized_warnings:
+        return Compatibility(CompatibilityState.WARNINGS, normalized_warnings)
     return Compatibility(CompatibilityState.COMPATIBLE)

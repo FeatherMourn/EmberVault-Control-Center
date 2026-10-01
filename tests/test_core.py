@@ -170,6 +170,10 @@ class CoreServiceTests(unittest.TestCase):
         result = evaluate(required_builds=["", "  "], detected_build="  ")
         self.assertEqual(result.state, CompatibilityState.UNKNOWN)
 
+    def test_compatibility_normalizes_warning_messages(self):
+        result = evaluate(required_builds=["123"], detected_build="123", warnings=["  caution  ", 12, ""])
+        self.assertEqual(result.reasons, ("caution",))
+
     def test_package_enablement_is_profile_scoped(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
