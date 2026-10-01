@@ -282,6 +282,8 @@ class CoreServiceTests(unittest.TestCase):
             self.assertFalse(gate.evaluate("trainer", research).allowed)
             self.assertFalse(gate.evaluate("trainer", research, verified_backup_id="EV-BACKUP-FAKE").allowed)
             self.assertTrue(gate.evaluate("trainer", research, verified_backup_id=backup.id).allowed)
+            (Path(temp) / "backups" / backup.id / "save" / "world.dat").write_text("tampered", encoding="utf-8")
+            self.assertFalse(gate.evaluate("trainer", research, verified_backup_id=backup.id).allowed)
 
     def test_package_import_requires_manifest_and_copies_valid_package(self):
         with tempfile.TemporaryDirectory() as temp:
