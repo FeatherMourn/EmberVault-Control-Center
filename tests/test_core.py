@@ -55,6 +55,17 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(profile.enabled_packages, ["safe.mod"])
             self.assertEqual(profile.settings, {})
 
+    def test_profiles_ignore_duplicate_ids_deterministically(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp) / "profiles"
+            directory.mkdir()
+            first = {"id": "same", "name": "First", "profile_type": "custom"}
+            second = {"id": "same", "name": "Second", "profile_type": "custom"}
+            (directory / "a.json").write_text(json.dumps(first))
+            (directory / "b.json").write_text(json.dumps(second))
+            profiles = ProfileService(Path(temp)).list()
+            self.assertEqual([(item.id, item.name) for item in profiles], [("same", "First")])
+
     def test_custom_profile_creation_generates_safe_id(self):
         with tempfile.TemporaryDirectory() as temp:
             service = ProfileService(Path(temp))

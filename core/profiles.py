@@ -32,18 +32,22 @@ class ProfileService:
 
     def list(self) -> list[Profile]:
         profiles = []
+        seen_ids: set[str] = set()
         for path in sorted(self.directory.glob("*.json")) if self.directory.is_dir() else []:
             try:
                 raw = json.loads(path.read_text(encoding="utf-8"))
                 if not isinstance(raw, dict):
                     continue
                 profile = Profile(**raw)
+                if profile.id in seen_ids:
+                    continue
                 if not isinstance(profile.enabled_packages, list):
                     profile.enabled_packages = []
                 else:
                     profile.enabled_packages = [item for item in profile.enabled_packages if isinstance(item, str) and item.strip()]
                 if not isinstance(profile.settings, dict):
                     profile.settings = {}
+                seen_ids.add(profile.id)
                 profiles.append(profile)
             except (OSError, ValueError, TypeError):
                 continue
