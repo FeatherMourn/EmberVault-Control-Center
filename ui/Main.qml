@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 
 ApplicationWindow {
     visible: true
@@ -332,7 +333,14 @@ ApplicationWindow {
             Text { text: "Values are stored with the selected profile. You can export them and run a read-only audit; this page does not edit save data or inject changes into the game."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Button { text: "Reset profile settings"; onClicked: controlCenter.resetGameSettings() }
             Button { text: "Export staged tuning manifest"; onClicked: controlCenter.exportGameSettings() }
+            Button { text: "Import staged tuning manifest"; onClicked: settingsFileDialog.open() }
             Button { text: "Audit staged settings safely"; onClicked: controlCenter.launchTuningAudit() }
+            FileDialog {
+                id: settingsFileDialog
+                title: "Import staged settings manifest"
+                nameFilters: ["JSON files (*.json)"]
+                onAccepted: controlCenter.importGameSettings(selectedFile.toString().replace("file:///", ""))
+            }
             Repeater {
                 model: controlCenter.settingOptions
                 delegate: Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.stageSetting(index) }

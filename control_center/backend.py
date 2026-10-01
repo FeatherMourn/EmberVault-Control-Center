@@ -1000,6 +1000,26 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot(str)
+    def importGameSettings(self, source: str):
+        if not self.game_settings:
+            return
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile or not source:
+            return
+        operation = self.operations.start("game-settings-import", profile_id=profile.id) if self.operations else None
+        try:
+            updated = self.game_settings.import_manifest(profile, Path(source))
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Imported settings for {updated.name}")
+            self.profiles = [updated if item.id == updated.id else item for item in self.profiles]
+            self._last_save_message = f"Imported staged settings for {updated.name}"
+        except ValueError as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Property("QStringList", notify=stateChanged)
     def profileDetails(self):
         return [
