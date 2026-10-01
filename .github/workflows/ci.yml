@@ -79,3 +79,12 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: python -m control_center.app --smoke-test
+
+      - name: Build wheel
+        run: python -m pip wheel . --no-deps --no-cache-dir --wheel-dir dist
+
+      - name: Verify release assets
+        shell: pwsh
+        run: |
+          $wheel = Get-ChildItem dist -Filter *.whl | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          python tools/verify_release.py $wheel.FullName
