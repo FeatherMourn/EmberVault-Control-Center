@@ -315,6 +315,8 @@ class ControlCenterBackend(QObject):
                     or worker_result.get("contract_version") != 1
                     or worker_result.get("read_only") is not True
                     or worker_result.get("status") != "ready"
+                    or not isinstance(worker_result.get("game_path"), str)
+                    or not isinstance(worker_result.get("operation"), str)
                     or worker_result.get("profile") != profile.id
                     or (operation and worker_result.get("operation") != operation.id)):
                 raise RuntimeError("Worker returned an invalid or non-read-only contract")
