@@ -266,6 +266,19 @@ class CoreServiceTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     PackageService(root, profiles).install_from_directory(incoming)
 
+    def test_package_manifest_requires_array_fields(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            incoming = root / "incoming"
+            incoming.mkdir()
+            (incoming / "package.json").write_text(json.dumps({
+                "id": "bad-shape.mod", "name": "Bad", "version": "1.0", "dependencies": "base.mod",
+            }))
+            with self.assertRaises(ValueError):
+                PackageService(root, profiles).install_from_directory(incoming)
+
     def test_package_enablement_blocks_known_incompatible_build(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
