@@ -325,6 +325,7 @@ class CoreServiceTests(unittest.TestCase):
             package = service.install_from_directory(source)
             profile = service.set_enabled(profiles.list()[0], package.id, True)
             game = root / "game"
+            game.mkdir()
             deployed = service.deploy_ready(profile, game)
             self.assertEqual(deployed[0].status, "ready")
             self.assertTrue((game / "mods" / package.id / "mod.lua").exists())
@@ -351,6 +352,15 @@ class CoreServiceTests(unittest.TestCase):
             shutil.rmtree(root / "packages" / package.id)
             service._packages[package.id] = package
             self.assertEqual(service.deployment_plan(profile, root / "game")[0].status, "missing")
+
+    def test_deploy_ready_rejects_missing_game_directory(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            service = PackageService(root, profiles)
+            with self.assertRaises(ValueError):
+                service.deploy_ready(profiles.list()[0], root / "not-a-game")
 
     def test_deployment_plan_blocks_symlinked_package_source(self):
         with tempfile.TemporaryDirectory() as temp:

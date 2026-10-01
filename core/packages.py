@@ -273,6 +273,8 @@ class PackageService:
 
     def deploy_ready(self, profile: Profile, game_directory: Path) -> list[DeploymentAction]:
         """Install enabled packages only when the complete plan is conflict-free."""
+        if not Path(game_directory).is_dir():
+            raise ValueError("Configured game directory does not exist")
         plan = self.deployment_plan(profile, game_directory)
         if any(item.status != "ready" for item in plan):
             raise ValueError("Resolve deployment conflicts before installing packages")
