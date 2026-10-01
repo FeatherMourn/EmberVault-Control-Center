@@ -219,6 +219,7 @@ ApplicationWindow {
             Text { text: "TROUBLESHOOTER"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
             Text { text: "Find the loose thread."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "Run a read-only health scan across the game connection, profiles, modules, and packages. Nothing is changed by this scan."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Button { text: "Run health scan"; onClicked: controlCenter.runDiagnostics() }
             Text { text: controlCenter.diagnosticOptions.length === 0 ? "No diagnostics available." : "Latest scan"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
                 model: controlCenter.diagnosticOptions

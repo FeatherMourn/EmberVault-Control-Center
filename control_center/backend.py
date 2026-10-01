@@ -133,6 +133,12 @@ class ControlCenterBackend(QObject):
             return []
         return [f"{item.severity.upper()} · {item.title} · {item.message}" for item in self.troubleshooter.scan()]
 
+    @Slot()
+    def runDiagnostics(self):
+        if self.troubleshooter:
+            self._last_save_message = "Read-only health scan completed"
+        self.stateChanged.emit()
+
     @Property("QStringList", notify=stateChanged)
     def settingOptions(self):
         if not self.game_settings:

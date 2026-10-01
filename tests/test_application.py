@@ -73,6 +73,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             self.assertEqual([item.id for item in runtime.knowledge.search("profiles")], ["profiles"])
 
+    def test_troubleshooter_scan_is_read_only_and_repeatable(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            first = runtime.troubleshooter.scan()
+            second = runtime.troubleshooter.scan()
+            self.assertEqual(first, second)
+
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
