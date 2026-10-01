@@ -28,3 +28,16 @@ its `staged-only` state, and reports the inspection without applying it.
 
 This preserves the first-release Save Manager boundary and prevents treating
 client display settings as gameplay controls.
+
+## Evidence required before live application
+
+A tuning adapter may move beyond `experimental` only when its review packet
+contains all of the following:
+
+- The target Enshrouded build and the exact supported setting keys.
+- A reproducible mapping from each staged key to the adapter-owned input.
+- A verified backup procedure and a narrowly described mutation scope.
+- A readback or runtime observation proving the intended value was applied.
+- A rollback procedure tested on a disposable profile or world.
+- Evidence that the adapter does not write save contents, client preferences,
+  or unrelated mod/configuration files.
