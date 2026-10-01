@@ -13,6 +13,17 @@ not the new UI foundation.
 - Probe designs and evidence indexes.
 - Build-specific limitations.
 
+### Current transfer status
+
+The current EmberVault research snapshot has been reviewed and transferred:
+
+- `capability-audit-20260927.md` → `capability-audit-promotion-rule`
+- `furniture-clone-registration.md` → `furniture-registration-boundary`
+- `reading-status-labels.md` → `capability-status-labels`
+
+These records remain evidence and guidance only; they do not promote
+experimental behavior into live mutation capabilities.
+
 ## Review before migrating as implementation
 
 - Game and build detection.
