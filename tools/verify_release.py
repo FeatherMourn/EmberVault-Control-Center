@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import zipfile
 
@@ -41,6 +42,21 @@ def main() -> int:
         print("Missing release assets:")
         print("\n".join(missing))
         return 1
+    with zipfile.ZipFile(args.wheel) as archive:
+        def packaged_path(relative: str) -> str:
+            return next(name for name in archive.namelist() if name.endswith(".data/data/" + relative))
+
+        for relative in REQUIRED:
+            if relative.endswith(".json"):
+                try:
+                    json.loads(archive.read(packaged_path(relative)).decode("utf-8"))
+                except (UnicodeError, json.JSONDecodeError, KeyError) as exc:
+                    print(f"Invalid packaged JSON asset: {relative} ({exc})")
+                    return 1
+        knowledge = json.loads(archive.read(packaged_path("knowledge/entries.json")).decode("utf-8"))
+        if not isinstance(knowledge, list) or not knowledge:
+            print("Packaged knowledge catalog must contain at least one entry")
+            return 1
     print(f"Release asset verification passed: {len(REQUIRED)} assets")
     return 0
 
