@@ -1,4 +1,5 @@
 import unittest
+import json
 from pathlib import Path
 
 
@@ -36,6 +37,12 @@ class PackagingContractTests(unittest.TestCase):
         self.assertIn('"uniqueItems": true', module_schema)
         self.assertIn('"minLength": 1', module_schema)
         self.assertIn('"minLength": 1', package_schema)
+
+    def test_contract_documents_are_valid_json(self):
+        root = Path(__file__).resolve().parents[1]
+        for path in (root / "contracts").glob("*.json"):
+            with self.subTest(path=path.name):
+                self.assertIsInstance(json.loads(path.read_text(encoding="utf-8")), dict)
 
 
 if __name__ == "__main__":
