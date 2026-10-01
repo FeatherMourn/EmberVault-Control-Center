@@ -27,16 +27,27 @@ The EML session log repeatedly records:
 - EML applying the patch set and attaching its runtime loader.
 
 This proves that EML can execute a Lua mod and that the installed Mod Hub can
-reach and mutate a BalancingTable resource in this build. It does not yet
-prove that every individual field is accepted, that the change is visible in
-gameplay, or that rollback has been verified.
+reach and mutate a BalancingTable resource in this build. The broader
+workspace contains a controlled write/readback/restore session for
+`BalancingTable.baseCritChance` that completed without a panic, removed the
+probe, and restored the stable profile.
+
+Evidence file:
+`Control_Center/research/probe_sessions/balancing_table_scalar_write_safe_20260929_evidence.json`
+
+That session proves reversible runtime mutation for one scalar field. It does
+not prove that every individual field is accepted or that every mutation
+changes gameplay behavior.
 
 ## Adapter implication
 
-The first EML adapter candidate should use the existing Mod Hub's declared
-progression boundary as a research target, with one field changed at a time.
-`player_level_cap` remains the proposed first candidate because it has a clear
-input mapping and an observable in-game result.
+The first EML adapter can use the existing Mod Hub's declared progression
+boundary, with one field changed at a time. The initial scalar write has
+already been evidenced on the pinned build using `baseCritChance`; the next
+adapter work is integration and evidence ingestion, not repeating that probe.
+
+`player_level_cap` remains a useful future behavior candidate because it has a
+clear input mapping and an observable in-game result.
 
 The adapter must still provide its own ownership marker, verified backup,
 closed-game gate, exact before/after record, post-launch observation, and
@@ -47,5 +58,9 @@ review packet.
 
 `experimental`: runtime registration and resource access evidenced.
 
-Not yet verified: controlled single-field change, in-game behavior, clean
-rollback, multiplayer scope, and compatibility after a fresh build change.
+Verified experimentally: controlled single-field change, in-process readback,
+clean restoration, probe removal, and stable-profile restoration.
+
+Still not verified: broad field compatibility, authoritative gameplay effect
+for every setting, multiplayer scope, and compatibility after a fresh build
+change.
