@@ -48,6 +48,12 @@ class SaveManagerService:
         self.backups_root.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
+    def _reject_symlink_path(path: Path, label: str) -> None:
+        absolute = Path(path).absolute()
+        if any(part.is_symlink() for part in (absolute, *absolute.parents)):
+            raise SaveManagerError(f"{label} symlink paths are not supported.")
+
+    @staticmethod
     def _hash(path: Path) -> str:
         digest = hashlib.sha256()
         with path.open("rb") as handle:
@@ -58,8 +64,7 @@ class SaveManagerService:
     @classmethod
     def inspect(cls, save_dir: Path) -> tuple[SaveFile, ...]:
         requested = Path(save_dir)
-        if requested.is_symlink():
-            raise SaveManagerError("Save directory symlinks are not supported.")
+        cls._reject_symlink_path(requested, "Save directory")
         root = requested.resolve()
         if not root.is_dir():
             raise SaveManagerError(f"Save directory does not exist: {root}")
@@ -80,6 +85,7 @@ class SaveManagerService:
 
     def backup(self, save_dir: Path, label: str = "") -> SaveSnapshot:
         source_path = Path(save_dir)
+        self._reject_symlink_path(source_path, "Save directory")
         files = self.inspect(source_path)
         source = source_path.resolve()
         snapshot_id = f"EV-BACKUP-{uuid.uuid4().hex[:8].upper()}"
@@ -124,8 +130,7 @@ class SaveManagerService:
         if not snapshot:
             raise SaveManagerError(f"Unknown backup: {snapshot_id}")
         destination_path = Path(destination)
-        if destination_path.is_symlink():
-            raise SaveManagerError("Restore destination symlinks are not supported.")
+        self._reject_symlink_path(destination_path, "Restore destination")
         target = destination_path.resolve()
         current = self.inspect(target) if target.is_dir() else ()
         source_paths = {item.relative_path for item in snapshot.files}
@@ -140,8 +145,7 @@ class SaveManagerService:
 
     def restore(self, snapshot_id: str, destination: Path, *, current_backup: SaveSnapshot | None = None) -> SaveSnapshot | None:
         destination_path = Path(destination)
-        if destination_path.is_symlink():
-            raise SaveManagerError("Restore destination symlinks are not supported.")
+        self._reject_symlink_path(destination_path, "Restore destination")
         if current_backup is None and destination_path.exists():
             raise SaveManagerError("Restore requires a verified backup of the current destination.")
         snapshot = next((item for item in self.list_backups() if item.id == snapshot_id), None)
