@@ -10,7 +10,7 @@
   safe restore, and post-restore verification.
 - Contract-discovered embedded/separate module framework.
 - PySide6/Qt Quick shell with Home, Profiles, Mods, Game Settings,
-  Troubleshooter, Character Editor, Trainer, Content Studio, Research Lab,
+  Troubleshooter, Character Editor, Trainer, Content Creator, Research Lab,
   Knowledge, Modules, and Activity workspaces.
 - Profile-scoped package discovery, folder/ZIP import, enablement, compatibility
   reporting, safe removal, conflict-free deployment, and ownership-protected
