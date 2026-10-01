@@ -263,6 +263,10 @@ class PackageService:
                 actions.append(DeploymentAction(package_id, package.path, destination_root / package_id,
                                                 "unsafe", "Package source contains a symlink"))
                 continue
+            if package.package_type != "mod":
+                actions.append(DeploymentAction(package_id, package.path, destination_root / package_id,
+                                                "unsupported", "Only package_type 'mod' can deploy to game mods"))
+                continue
             target = destination_root / package_id
             if target.exists():
                 actions.append(DeploymentAction(package_id, package.path, target, "conflict",

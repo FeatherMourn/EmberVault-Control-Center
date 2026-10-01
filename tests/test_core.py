@@ -378,6 +378,26 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 service.deploy_ready(profiles.list()[0], root / "not-a-game")
 
+    def test_deployment_plan_keeps_non_mod_packages_out_of_game_mods(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            source = root / "incoming"
+            source.mkdir()
+            (source / "package.json").write_text(json.dumps({
+                "id": "tuning.test", "name": "Tuning", "version": "1.0", "package_type": "tuning",
+            }))
+            service = PackageService(root, profiles)
+            package = service.install_from_directory(source)
+            profile = service.set_enabled(profiles.list()[0], package.id, True)
+            game = root / "game"
+            game.mkdir()
+            plan = service.deployment_plan(profile, game)
+            self.assertEqual(plan[0].status, "unsupported")
+            with self.assertRaises(ValueError):
+                service.deploy_ready(profile, game)
+
     def test_deployment_plan_blocks_symlinked_package_source(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
