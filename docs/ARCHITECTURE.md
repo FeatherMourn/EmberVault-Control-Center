@@ -25,6 +25,10 @@ Normal modules are independently packaged and initially embedded in the
 Control Center shell. Trainer, Research, and possibly Content Creator may run
 as separate processes with explicit contracts and isolated state.
 
+Manifests with an `entrypoint` are loaded through the Core embedded-module
+loader, which constrains the entrypoint to its package directory. Manifests with
+an `executable` use the guarded separate-process launcher instead.
+
 ## First release boundary
 
 Save Manager is inspection-, backup-, verification-, and restore-only. Direct

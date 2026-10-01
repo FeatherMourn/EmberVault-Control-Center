@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import importlib.util
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -110,6 +111,27 @@ class ModuleRegistry:
 
     def by_capability(self, capability: str) -> list[ModuleManifest]:
         return [m for m in self._modules.values() if capability in m.capabilities]
+
+    def embedded(self) -> list[ModuleManifest]:
+        """Return manifests that declare an in-process entrypoint."""
+        return sorted((item for item in self._modules.values() if item.entrypoint), key=lambda item: item.id)
+
+    def load_embedded(self, module_id: str):
+        """Load a trusted embedded entrypoint constrained to its module folder."""
+        manifest = self.get(module_id)
+        if not manifest or not manifest.entrypoint or not manifest.path:
+            raise ValueError(f"Module '{module_id}' is not an embedded module.")
+        root = manifest.path.resolve()
+        entrypoint = (root / manifest.entrypoint).resolve()
+        if root not in entrypoint.parents or not entrypoint.is_file():
+            raise ValueError("Embedded module entrypoint must remain inside its package directory.")
+        name = "embervault_embedded_" + module_id.replace(".", "_").replace("-", "_")
+        spec = importlib.util.spec_from_file_location(name, entrypoint)
+        if not spec or not spec.loader:
+            raise ImportError(f"Unable to load embedded module: {module_id}")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
 
     def launch(self, module_id: str, context: LaunchContext) -> subprocess.Popen | None:
         manifest = self.get(module_id)

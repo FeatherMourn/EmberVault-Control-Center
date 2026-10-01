@@ -43,6 +43,14 @@ class ModuleRegistryTests(unittest.TestCase):
             registry = ModuleRegistry(Path(temp))
             self.assertEqual(list(registry.discover()), ["embervault.content-creator", "embervault.example", "embervault.research", "embervault.trainer", "embervault.tuning-audit"])
 
+    def test_embedded_module_loads_inside_package_boundary(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = ModuleRegistry(Path(temp))
+            registry.discover()
+            self.assertEqual([item.id for item in registry.embedded()], ["embervault.example"])
+            module = registry.load_embedded("embervault.example")
+            self.assertEqual(module.describe()["execution"], "embedded")
+
     def test_registry_merges_seed_and_runtime_modules(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

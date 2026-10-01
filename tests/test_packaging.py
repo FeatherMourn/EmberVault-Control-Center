@@ -17,6 +17,7 @@ class PackagingContractTests(unittest.TestCase):
             "contracts/content-project.schema.json",
             "knowledge/entries.json",
             "modules/example/module.json",
+            "modules/example/module.py",
             "modules/tuning-audit/module.json",
             "packages/example-mod/package.json",
         ):
