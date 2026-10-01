@@ -20,6 +20,7 @@ class CatalogExportService:
     def build(self) -> dict:
         return {
             "schema_version": 1,
+            "contract_versions": {"module_manifest": 1, "package_manifest": 1},
             "packages": [asdict(item) | {"path": None} for item in self.packages.list()],
             "modules": [asdict(item) | {"path": None} for item in self.modules.discover().values()],
             "knowledge": [asdict(item) for item in self.knowledge.entries()],
