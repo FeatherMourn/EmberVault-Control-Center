@@ -124,6 +124,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(project.description, "A modular furniture experiment")
             self.assertEqual(runtime.saves.list_backups(), [])
 
+    def test_content_project_cannot_be_ready_without_brief(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            project = runtime.content.create("Unspecified", "research")
+            with self.assertRaises(ValueError):
+                runtime.content.set_status(project.id, "ready")
+
     def test_research_evidence_can_be_appended_to_record(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
@@ -150,7 +157,7 @@ class ApplicationCompositionTests(unittest.TestCase):
     def test_content_project_supports_guarded_status(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
-            project = runtime.content.create("Furniture", "research")
+            project = runtime.content.create("Furniture", "research", "Test furniture brief")
             self.assertEqual(runtime.content.set_status(project.id, "ready").status, "ready")
 
     def test_character_project_is_separate_from_save_manager(self):

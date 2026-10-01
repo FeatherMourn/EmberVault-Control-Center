@@ -45,6 +45,8 @@ class ContentProjectService:
         projects = self.list()
         for project in projects:
             if project.id == project_id:
+                if status == "ready" and not project.description.strip():
+                    raise ValueError("Add a development brief before marking content ready")
                 project.status = status
                 write_json_atomic(self.path, [asdict(item) for item in projects])
                 return project
