@@ -19,6 +19,9 @@
 - [x] Confirm gameplay tuning adapter schema is included in the wheel data.
 - [x] Confirm character-plan and content-project schemas are included in the wheel data.
 - [x] Confirm trainer-plan schema is included in the wheel data.
+- [x] Review the frozen vocabulary in `docs/TERMINOLOGY.md`.
+- [x] Review embedded and separate-process boundaries in
+      `docs/MODULE_BOUNDARIES.md`.
 
 ## Packaging
 
