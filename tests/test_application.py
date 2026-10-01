@@ -116,6 +116,24 @@ class ApplicationCompositionTests(unittest.TestCase):
             process.kill.assert_called_once_with()
             self.assertIn("timed out and was terminated", backend.lastSaveMessage)
 
+    def test_backend_workspace_lists_are_profile_scoped(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            runtime.research.create("Stable note", "Stable hypothesis", "default")
+            runtime.research.create("Research note", "Research hypothesis", "research")
+            runtime.content.create("Stable project", "default", "Stable brief")
+            runtime.content.create("Research project", "research", "Research brief")
+            runtime.characters.create("Stable character", "default")
+            runtime.characters.create("Research character", "research")
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            self.assertEqual(len(backend.researchOptions), 1)
+            self.assertEqual(len(backend.contentOptions), 1)
+            self.assertEqual(len(backend.characterOptions), 1)
+            backend.selectProfile(1)
+            self.assertIn("Research note", backend.researchOptions[0])
+            self.assertIn("Research project", backend.contentOptions[0])
+            self.assertIn("Research character", backend.characterOptions[0])
+
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

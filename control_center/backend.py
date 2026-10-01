@@ -163,7 +163,8 @@ class ControlCenterBackend(QObject):
     def researchOptions(self):
         if not self.research:
             return []
-        return [f"{item.status.upper()} · {item.title} · {len(item.evidence)} evidence note(s)" for item in self.research.list()]
+        return [f"{item.status.upper()} · {item.title} · {len(item.evidence)} evidence note(s)"
+                for item in self.research.list() if item.profile_id == self._selected_profile_id]
 
     @Property("QStringList", notify=stateChanged)
     def knowledgeOptions(self):
@@ -203,7 +204,7 @@ class ControlCenterBackend(QObject):
         return [
             f"{item.status.upper()} · {item.name} · {item.profile_id}"
             + (f" · {item.description}" if item.description else "")
-            for item in self.content.list()
+            for item in self.content.list() if item.profile_id == self._selected_profile_id
         ]
 
     @Slot(str, str)
@@ -226,7 +227,7 @@ class ControlCenterBackend(QObject):
     def setLatestContentStatus(self, status: str):
         if not self.content:
             return
-        projects = self.content.list()
+        projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
         if not projects:
             self._last_save_message = "Create a content project first"
         else:
@@ -246,7 +247,8 @@ class ControlCenterBackend(QObject):
     def characterOptions(self):
         if not self.characters:
             return []
-        return [f"{item.name} · level {item.planned_level} · {item.profile_id}" for item in self.characters.list()]
+        return [f"{item.name} · level {item.planned_level} · {item.profile_id}"
+                for item in self.characters.list() if item.profile_id == self._selected_profile_id]
 
     @Property("QStringList", notify=stateChanged)
     def riskOptions(self):
@@ -331,7 +333,7 @@ class ControlCenterBackend(QObject):
     def stageLatestCharacterLevel(self, level: int):
         if not self.characters:
             return
-        records = self.characters.list()
+        records = [item for item in self.characters.list() if item.profile_id == self._selected_profile_id]
         if not records:
             self._last_save_message = "Create a character project first"
         else:
@@ -367,7 +369,7 @@ class ControlCenterBackend(QObject):
     def addResearchEvidence(self, note: str):
         if not self.research:
             return
-        records = self.research.list()
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
         if not records:
             self._last_save_message = "Create a research record first"
         else:
@@ -387,7 +389,7 @@ class ControlCenterBackend(QObject):
     def setLatestResearchStatus(self, status: str):
         if not self.research:
             return
-        records = self.research.list()
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
         if not records:
             self._last_save_message = "Create a research record first"
         else:
