@@ -167,6 +167,18 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_archive(archive)
 
+    def test_package_archive_imports_nested_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            archive = root / "package.zip"
+            import zipfile
+            with zipfile.ZipFile(archive, "w") as bundle:
+                bundle.writestr("demo/package.json", json.dumps({"id": "archive.mod", "name": "Archive", "version": "1.0.0"}))
+            package = PackageService(root, profiles).install_from_archive(archive)
+            self.assertEqual(package.id, "archive.mod")
+
 
 if __name__ == "__main__":
     unittest.main()
