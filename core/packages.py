@@ -34,6 +34,10 @@ class PackageManifest:
         dependencies = tuple(str(value) for value in data.get("dependencies", []))
         if any(not dependency or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in dependency) for dependency in dependencies):
             raise ValueError("Package dependency contains invalid characters")
+        if len(set(dependencies)) != len(dependencies):
+            raise ValueError("Package dependencies must be unique")
+        if package_id in dependencies:
+            raise ValueError("Package cannot depend on itself")
         return cls(
             id=package_id, name=str(data["name"]), version=str(data["version"]),
             author=str(data.get("author", "Unknown")), description=str(data.get("description", "")),

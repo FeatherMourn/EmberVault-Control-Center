@@ -251,6 +251,21 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_directory(incoming)
 
+    def test_package_manifest_rejects_duplicate_or_self_dependency(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            for dependencies in (["base.mod", "base.mod"], ["self.mod"]):
+                incoming = root / ("incoming-" + str(len(dependencies)))
+                incoming.mkdir()
+                package_id = "self.mod" if dependencies == ["self.mod"] else "duplicate.mod"
+                (incoming / "package.json").write_text(json.dumps({
+                    "id": package_id, "name": "Invalid", "version": "1.0", "dependencies": dependencies,
+                }))
+                with self.assertRaises(ValueError):
+                    PackageService(root, profiles).install_from_directory(incoming)
+
     def test_package_enablement_blocks_known_incompatible_build(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
