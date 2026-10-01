@@ -681,6 +681,26 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot(str)
+    def updateLatestCharacterNotes(self, notes: str):
+        if not self.characters:
+            return
+        records = [item for item in self.characters.list() if item.profile_id == self._selected_profile_id]
+        if not records:
+            self._last_save_message = "Create a character project first"
+        else:
+            operation = self.operations.start("character-notes-update", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                record = self.characters.update_notes(records[-1].id, notes)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Updated character plan {record.id}")
+                self._last_save_message = f"Updated character plan {record.id}"
+            except (KeyError, OSError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot()
     def exportLatestCharacterPlan(self):
         if not self.characters:

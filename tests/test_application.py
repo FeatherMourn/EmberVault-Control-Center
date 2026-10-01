@@ -576,6 +576,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             record = runtime.characters.create("Ash", "default", "Prioritize fire resistance")
             self.assertEqual(record.notes, "Prioritize fire resistance")
 
+    def test_character_plan_notes_can_be_revised_without_save_mutation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.characters.create("Ash", "default", "Initial plan")
+            updated = runtime.characters.update_notes(record.id, "Revised progression plan")
+            self.assertEqual(updated.notes, "Revised progression plan")
+            self.assertEqual(runtime.saves.list_backups(), [])
+
     def test_character_records_normalize_invalid_planned_level(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

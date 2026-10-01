@@ -361,6 +361,7 @@ ApplicationWindow {
             TextField { id: characterName; placeholderText: "Character name"; Layout.fillWidth: true }
             TextField { id: characterNotes; placeholderText: "Build notes or intended progression"; Layout.fillWidth: true }
             Button { text: "Create character project"; onClicked: controlCenter.createCharacter(characterName.text, characterNotes.text) }
+            Button { text: "Update latest plan notes"; onClicked: controlCenter.updateLatestCharacterNotes(characterNotes.text) }
             SpinBox { id: characterLevel; from: 1; to: 50; value: 1; Layout.fillWidth: true }
             Button { text: "Stage level for latest project"; onClicked: controlCenter.stageLatestCharacterLevel(characterLevel.value) }
             Button { text: "Export latest character plan"; onClicked: controlCenter.exportLatestCharacterPlan() }

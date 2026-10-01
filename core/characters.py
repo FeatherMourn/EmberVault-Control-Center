@@ -65,6 +65,15 @@ class CharacterService:
                 return record
         raise KeyError(record_id)
 
+    def update_notes(self, record_id: str, notes: str) -> CharacterRecord:
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                record.notes = notes.strip()
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return record
+        raise KeyError(record_id)
+
     def export(self, record: CharacterRecord) -> Path:
         """Export a character plan without modifying save data."""
         destination = self.path.parent.parent / "exports" / "character-plans" / f"{record.id}.json"

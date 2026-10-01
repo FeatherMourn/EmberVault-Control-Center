@@ -39,7 +39,8 @@
   the seeded safety catalog.
 - The isolated tuning-audit worker can review staged settings and confirm the
   live game was not changed; it does not apply tuning.
-- Character projects remain planning metadata, not live mutations. Content
+- Character projects remain planning metadata, not live mutations, and their
+  planning notes can be revised safely. Content
   projects remain design-only locally; a ready project may be explicitly
   published as a sanitized catalog summary, but no design brief or live game
   content is exposed or mutated.
