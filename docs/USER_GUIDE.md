@@ -22,6 +22,7 @@ looks like this:
   "id": "embervault.example-mod",
   "name": "Example Mod",
   "version": "1.0.0",
+  "package_type": "mod",
   "dependencies": []
 }
 ```
@@ -38,7 +39,8 @@ history.
 Research records belong to a selected profile and can collect evidence notes.
 Character and Content Creator pages store project plans separately from live
 game data. Trainer, Research, and Content Creator execution remains guarded by
-profile isolation and recovery requirements.
+profile isolation and recovery requirements. Guarded workers are read-only in
+this release and must return the versioned worker-result contract.
 
 ## Knowledge and integration
 
