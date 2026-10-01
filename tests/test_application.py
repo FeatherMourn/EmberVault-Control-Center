@@ -608,11 +608,15 @@ class ApplicationCompositionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
             profile = next(item for item in runtime.profiles.list() if item.id == "research")
-            plan = runtime.trainer.create(profile, "damage multiplier", "Read-only rehearsal", "EV-BACKUP-TEST")
+            save_dir = Path(temp) / "save-source"
+            save_dir.mkdir()
+            (save_dir / "world.dat").write_text("safe", encoding="utf-8")
+            backup = runtime.saves.backup(save_dir)
+            plan = runtime.trainer.create(profile, "damage multiplier", "Read-only rehearsal", backup.id)
             destination = runtime.trainer.export(plan)
             payload = json.loads(destination.read_text(encoding="utf-8"))
             self.assertEqual(payload["application_state"], "trainer-plan-only")
-            self.assertEqual(payload["plan"]["backup_id"], "EV-BACKUP-TEST")
+            self.assertEqual(payload["plan"]["backup_id"], backup.id)
 
     def test_character_records_normalize_invalid_planned_level(self):
         with tempfile.TemporaryDirectory() as temp:

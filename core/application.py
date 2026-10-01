@@ -88,7 +88,7 @@ class EmbervaultRuntime:
         runtime.launcher = ModuleLaunchService(runtime.modules, runtime.risk)
         runtime.catalog = CatalogExportService(root, runtime.modules, runtime.packages, runtime.knowledge, runtime.research)
         runtime.content = ContentProjectService(root)
-        runtime.trainer = TrainerPlanService(root)
+        runtime.trainer = TrainerPlanService(root, runtime.saves)
         runtime.catalog.set_content(runtime.content)
         runtime.modules.discover()
         runtime.logs.info("Embervault Core initialized")
