@@ -22,6 +22,7 @@ class PackagingContractTests(unittest.TestCase):
             "contracts/research-summary.schema.json",
             "modules/tuning-audit/module.json",
             "packages/example-mod/package.json",
+            "tools/verify_release.py",
         ):
             self.assertTrue((root / relative).is_file(), relative)
 

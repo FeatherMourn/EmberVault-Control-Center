@@ -15,6 +15,7 @@
 ## Packaging
 
 - [x] Build a wheel from `pyproject.toml`.
+- [x] Run `python tools/verify_release.py <wheel>` against the built wheel.
 - [x] Verify the `embervault` entry point launches the desktop shell through
       the application entry point with the offscreen Qt platform.
 - [x] Bundle the QML UI, contracts, seeded knowledge, and module manifests.
