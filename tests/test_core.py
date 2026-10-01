@@ -105,6 +105,16 @@ class CoreServiceTests(unittest.TestCase):
             path.write_text(path.read_text(encoding="utf-8") + "not-json\n", encoding="utf-8")
             self.assertEqual([item.operation_type for item in service.list_recent()], ["valid"])
 
+    def test_recent_operations_skips_invalid_operation_contracts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "operations.jsonl"
+            path.write_text("\n".join([
+                json.dumps({"id": "", "operation_type": "backup", "started_at": "now"}),
+                json.dumps({"id": "EV-OP-BAD", "operation_type": "backup", "started_at": "now", "status": "unknown"}),
+                json.dumps({"id": "EV-OP-GOOD", "operation_type": "backup", "started_at": "now", "status": "succeeded"}),
+            ]))
+            self.assertEqual([item.id for item in OperationService(path).list_recent()], ["EV-OP-GOOD"])
+
     def test_settings_preserve_game_folder_for_detection(self):
         with tempfile.TemporaryDirectory() as temp:
             service = SettingsService(Path(temp))

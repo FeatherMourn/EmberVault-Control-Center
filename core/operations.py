@@ -64,6 +64,10 @@ class OperationService:
                         operation = Operation(**json.loads(line))
                     except (ValueError, TypeError, json.JSONDecodeError):
                         continue
+                    if (not isinstance(operation.id, str) or not operation.id.strip()
+                            or not isinstance(operation.operation_type, str) or not operation.operation_type.strip()
+                            or operation.status not in {item.value for item in OperationStatus}):
+                        continue
                     records[operation.id] = operation
         latest = list(records.values())[-max(0, limit):]
         return list(reversed(latest))
