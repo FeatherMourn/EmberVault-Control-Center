@@ -23,6 +23,7 @@ Read:
 - [User Guide](docs/USER_GUIDE.md)
 - [Release Checklist](docs/RELEASE_CHECKLIST.md)
 - [Roadmap Status](docs/ROADMAP_STATUS.md)
+- [Release Notes](docs/RELEASE_NOTES.md)
 
 ## Safety boundaries
 
