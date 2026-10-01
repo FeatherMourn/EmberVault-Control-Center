@@ -38,6 +38,9 @@
   manifests, and the seeded knowledge catalog, not only their filenames.
 - The installed launcher smoke test asserts the shipped module and knowledge
   inventory before it exits.
+- Module manifests explicitly declare `embedded` or `separate` process mode;
+  contradictory launch declarations are rejected and the Modules workspace
+  displays the boundary.
 
 ## Important limitations
 
