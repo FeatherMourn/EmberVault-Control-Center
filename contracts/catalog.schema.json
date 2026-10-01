@@ -3,7 +3,7 @@
   "$id": "https://embervault.local/contracts/catalog.schema.json",
   "title": "EmberVault Public Catalog",
   "type": "object",
-  "required": ["schema_version", "contract_versions", "packages", "modules", "knowledge"],
+  "required": ["schema_version", "contract_versions", "packages", "modules", "knowledge", "research"],
   "properties": {
     "schema_version": {"const": 1},
     "contract_versions": {
@@ -11,12 +11,14 @@
       "required": ["module_manifest", "package_manifest"],
       "properties": {
         "module_manifest": {"type": "integer", "minimum": 1},
-        "package_manifest": {"type": "integer", "minimum": 1}
+        "package_manifest": {"type": "integer", "minimum": 1},
+        "research_record": {"type": "integer", "minimum": 1}
       }
     },
     "packages": {"type": "array", "items": {"type": "object"}},
     "modules": {"type": "array", "items": {"type": "object"}},
-    "knowledge": {"type": "array", "items": {"type": "object"}}
+    "knowledge": {"type": "array", "items": {"type": "object"}},
+    "research": {"type": "array", "items": {"type": "object"}}
   },
   "additionalProperties": false
 }

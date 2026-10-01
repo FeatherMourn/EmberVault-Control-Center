@@ -108,6 +108,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIn("knowledge", export)
             self.assertTrue(all(item["path"] is None for item in export["modules"]))
 
+    def test_catalog_export_includes_sanitized_research_summary(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Yield study", "Observe yield", "research")
+            runtime.research.add_evidence(record.id, "private local observation")
+            research = runtime.catalog.build()["research"]
+            self.assertEqual(research[0]["evidence_count"], 1)
+            self.assertNotIn("private local observation", json.dumps(research))
+            self.assertNotIn("profile_id", research[0])
+
     def test_catalog_export_writes_json_document(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
