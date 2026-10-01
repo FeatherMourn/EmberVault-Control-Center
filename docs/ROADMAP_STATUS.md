@@ -16,7 +16,8 @@
   versioned public catalog export.
 - Guarded Trainer, Research, and Content Creator process workflows with UI
   launch controls, captured worker output, timeout termination, and audited
-  results. Current workers are deliberately non-mutating stubs.
+  results. Current workers are deliberately non-mutating; Research includes a
+  bounded evidence probe while Trainer and Content Creator remain stubs.
 
 ## Guarded or incomplete
 
