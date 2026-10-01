@@ -31,6 +31,11 @@ def main() -> int:
     runtime = EmbervaultRuntime.create(ROOT / "runtime-data")
     backend = ControlCenterBackend(runtime.root, runtime=runtime)
     backend.refresh()
+    if "--smoke-test" in sys.argv:
+        health = runtime.health()
+        if health.get("modules", 0) < 5 or health.get("knowledge", 0) < 8:
+            print(f"Packaged seed inventory is incomplete: {health}", file=sys.stderr)
+            return 1
     engine.rootContext().setContextProperty("controlCenter", backend)
     engine.load(str(_ui_path()))
     if not engine.rootObjects():
