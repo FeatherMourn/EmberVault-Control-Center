@@ -70,17 +70,22 @@ class ModuleRegistry:
 
     def discover(self) -> dict[str, ModuleManifest]:
         self._modules = {}
-        directory = self.directory if list(self.directory.glob("*/module.json")) else self.seed_directory
-        if not directory.is_dir():
-            return self._modules
-        for manifest_path in sorted(directory.glob("*/module.json")):
-            try:
-                manifest = ModuleManifest.from_file(manifest_path)
-                if manifest.id in self._modules:
-                    raise ValueError(f"Duplicate module id: {manifest.id}")
-                self._modules[manifest.id] = manifest
-            except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
+        directories = [self.seed_directory]
+        if self.directory.is_dir():
+            directories.append(self.directory)
+        for directory in directories:
+            if not directory.is_dir():
                 continue
+            for manifest_path in sorted(directory.glob("*/module.json")):
+                try:
+                    manifest = ModuleManifest.from_file(manifest_path)
+                    if manifest.id in self._modules:
+                        if directory == self.directory:
+                            self._modules[manifest.id] = manifest
+                        continue
+                    self._modules[manifest.id] = manifest
+                except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
+                    continue
         return dict(self._modules)
 
     def get(self, module_id: str) -> ModuleManifest | None:

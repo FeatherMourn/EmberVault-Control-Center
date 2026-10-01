@@ -26,7 +26,9 @@ class ModuleRegistryTests(unittest.TestCase):
             module = Path(temp) / "broken"
             module.mkdir()
             (module / "module.json").write_text("not json")
-            self.assertEqual(ModuleRegistry(Path(temp)).discover(), {})
+            discovered = ModuleRegistry(Path(temp)).discover()
+            self.assertNotIn("broken", discovered)
+            self.assertIn("embervault.example", discovered)
 
     def test_high_risk_launch_is_denied_before_process_start(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -40,6 +42,17 @@ class ModuleRegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             registry = ModuleRegistry(Path(temp))
             self.assertEqual(list(registry.discover()), ["embervault.content-creator", "embervault.example", "embervault.research", "embervault.trainer"])
+
+    def test_registry_merges_seed_and_runtime_modules(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "local").mkdir()
+            (root / "local" / "module.json").write_text(json.dumps({
+                "id": "local.module", "name": "Local", "version": "1.0.0", "publisher": "Test",
+            }))
+            discovered = ModuleRegistry(root).discover()
+            self.assertIn("local.module", discovered)
+            self.assertIn("embervault.example", discovered)
 
     def test_guarded_content_launch_requires_recovery_token(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -90,7 +103,9 @@ class ModuleRegistryTests(unittest.TestCase):
             (module / "module.json").write_text(json.dumps({
                 "id": "../escape", "name": "Bad", "version": "1.0.0", "publisher": "Test",
             }))
-            self.assertEqual(ModuleRegistry(Path(temp)).discover(), {})
+            discovered = ModuleRegistry(Path(temp)).discover()
+            self.assertNotIn("../escape", discovered)
+            self.assertIn("embervault.example", discovered)
 
     def test_module_manifest_rejects_unsafe_executable_declaration(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -100,7 +115,9 @@ class ModuleRegistryTests(unittest.TestCase):
                 "id": "unsafe", "name": "Unsafe", "version": "1.0.0",
                 "publisher": "Test", "executable": "../outside.py",
             }))
-            self.assertEqual(ModuleRegistry(Path(temp)).discover(), {})
+            discovered = ModuleRegistry(Path(temp)).discover()
+            self.assertNotIn("unsafe", discovered)
+            self.assertIn("embervault.example", discovered)
 
     def test_python_module_process_uses_current_interpreter(self):
         with tempfile.TemporaryDirectory() as temp:
