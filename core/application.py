@@ -104,4 +104,8 @@ class EmbervaultRuntime:
             "modules": len(self.modules.discover()),
             "backups": len(self.saves.list_backups()),
             "packages": len(self.packages.list()),
+            "research": len(self.research.list()),
+            "knowledge": len(self.knowledge.entries()),
+            "content_projects": len(self.content.list()),
+            "trainer_plans": len(self.trainer.list()),
         }

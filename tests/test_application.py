@@ -18,6 +18,10 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(health["profiles"], 2)
             self.assertEqual(health["modules"], 5)
             self.assertEqual(health["backups"], 0)
+            self.assertEqual(health["research"], 0)
+            self.assertEqual(health["knowledge"], 4)
+            self.assertEqual(health["content_projects"], 0)
+            self.assertEqual(health["trainer_plans"], 0)
 
     def test_troubleshooter_reports_unconfigured_game_without_mutation(self):
         with tempfile.TemporaryDirectory() as temp:
