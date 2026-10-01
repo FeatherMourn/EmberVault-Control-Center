@@ -22,6 +22,7 @@ Read:
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Terminology contract](docs/TERMINOLOGY.md)
+- [Module boundaries](docs/MODULE_BOUNDARIES.md)
 - [Stage 0 Contracts](docs/STAGE_0_CONTRACTS.md)
 - [Legacy Migration Inventory](docs/MIGRATION_INVENTORY.md)
 - [User Guide](docs/USER_GUIDE.md)
