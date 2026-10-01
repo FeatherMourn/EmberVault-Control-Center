@@ -12,7 +12,7 @@
   Knowledge, Modules, and Activity workspaces.
 - Profile-scoped package discovery, folder/ZIP import, enablement, compatibility
   reporting, safe removal, conflict-free deployment, and ownership-protected
-  undeploy.
+  undeploy, plus read-only inspection of existing external `mod.json` mods.
 - Isolated research records/evidence, character projects, content projects, and
   versioned public catalog export.
 - Guarded Trainer, Research, and Content Creator process workflows with UI
