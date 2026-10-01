@@ -157,6 +157,10 @@ class CoreServiceTests(unittest.TestCase):
         result = evaluate(required_builds=["1076226"], detected_build=None)
         self.assertEqual(result.state, CompatibilityState.UNKNOWN)
 
+    def test_compatibility_ignores_blank_build_evidence(self):
+        result = evaluate(required_builds=["", "  "], detected_build="  ")
+        self.assertEqual(result.state, CompatibilityState.UNKNOWN)
+
     def test_package_enablement_is_profile_scoped(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
