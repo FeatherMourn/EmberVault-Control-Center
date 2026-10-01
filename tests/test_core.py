@@ -296,6 +296,27 @@ class CoreServiceTests(unittest.TestCase):
             packages.remove("managed.mod")
             self.assertIsNone(packages.get("managed.mod"))
 
+    def test_package_removal_rejects_symlinked_managed_directory(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            source = root / "incoming"
+            source.mkdir()
+            (source / "package.json").write_text(json.dumps({"id": "linked.mod", "name": "Linked", "version": "1.0"}))
+            packages = PackageService(root, profiles)
+            packages.install_from_directory(source)
+            target = root / "packages" / "linked.mod"
+            backup = root / "linked-target"
+            target.rename(backup)
+            try:
+                target.symlink_to(backup, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlinks unavailable")
+            packages.discover()
+            with self.assertRaisesRegex(ValueError, "symlink"):
+                packages.remove("linked.mod")
+
     def test_package_removal_protects_dependents(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

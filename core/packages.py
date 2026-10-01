@@ -197,5 +197,7 @@ class PackageService:
         managed_path = self.directory / package_id
         if not managed_path.is_dir():
             raise ValueError("Seed packages cannot be removed from the repository")
+        if managed_path.is_symlink():
+            raise ValueError("Refusing to remove a symlinked package directory")
         shutil.rmtree(managed_path)
         self._packages.pop(package_id, None)
