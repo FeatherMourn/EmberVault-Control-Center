@@ -17,7 +17,7 @@ ApplicationWindow {
     property color line: "#2b2739"
     property color ember: "#ef8b4d"
     property int page: 0
-    property var pageTitles: ["Home", "My Mods", "Game Settings", "Save Manager", "Troubleshooter", "Content Studio", "Research Lab", "Knowledge", "Profiles", "Characters", "Trainer", "Activity", "Modules"]
+    property var pageTitles: ["Home", "My Mods", "Game Settings", "Save Manager", "Troubleshooter", "Content Creator", "Research Lab", "Knowledge", "Profiles", "Characters", "Trainer", "Activity", "Modules"]
 
     RowLayout {
         anchors.fill: parent
@@ -44,7 +44,7 @@ ApplicationWindow {
                     NavButton { label: "Save Manager"; pageIndex: 3 }
                     NavButton { label: "Troubleshooter"; pageIndex: 4 }
                     Text { text: "TOOLS"; color: muted; font.pixelSize: 10; font.letterSpacing: 1.3; Layout.topMargin: 18 }
-                    NavButton { label: "Content Studio"; pageIndex: 5 }
+                    NavButton { label: "Content Creator"; pageIndex: 5 }
                     NavButton { label: "Research Lab"; pageIndex: 6 }
                     NavButton { label: "Knowledge"; pageIndex: 7 }
                     NavButton { label: "Profiles"; pageIndex: 8 }
@@ -83,7 +83,7 @@ ApplicationWindow {
                 GameSettingsPage {}
                 SaveManagerPage {}
                 TroubleshooterPage {}
-                RiskToolsPage { heading: "Content Studio"; capability: "content-creator"; body: "Content creation remains a guarded developer preview." }
+                RiskToolsPage { heading: "Content Creator"; capability: "content-creator"; body: "Content creation remains a guarded developer preview." }
                 ResearchPage {}
                 KnowledgePage {}
                 ProfilesPage {}
