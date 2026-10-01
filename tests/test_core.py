@@ -234,6 +234,32 @@ class CoreServiceTests(unittest.TestCase):
         self.assertEqual(schema["properties"]["application_state"]["const"], "staged-only")
         self.assertIn("settings", schema["required"])
 
+    def test_game_settings_import_requires_matching_staged_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            profiles = ProfileService(Path(temp))
+            profiles.ensure_defaults()
+            service = GameSettingsService(profiles)
+            profile = profiles.list()[0]
+            manifest = Path(temp) / "settings.json"
+            manifest.write_text(json.dumps({
+                "schema_version": 1,
+                "profile_id": profile.id,
+                "application_state": "staged-only",
+                "settings": {
+                    "enemy_damage_multiplier": 1.5,
+                    "resource_yield_multiplier": 2.0,
+                    "experimental_rules": True,
+                },
+            }), encoding="utf-8")
+            updated = service.import_manifest(profile, manifest)
+            self.assertEqual(service.values(updated)["resource_yield_multiplier"], 2.0)
+            self.assertTrue(service.values(updated)["experimental_rules"])
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+            payload["profile_id"] = "other-profile"
+            manifest.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                service.import_manifest(updated, manifest)
+
     def test_project_export_contracts_declare_safe_application_states(self):
         root = Path(__file__).parents[1] / "contracts"
         character = json.loads((root / "character-plan.schema.json").read_text(encoding="utf-8"))

@@ -84,3 +84,38 @@ class GameSettingsService:
         }
         write_json_atomic(destination, payload)
         return destination
+
+    def import_manifest(self, profile: Profile, source: Path) -> Profile:
+        """Import a previously exported staged manifest for the same profile."""
+        try:
+            payload = json.loads(source.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise ValueError("Unable to read game settings manifest") from exc
+        if not isinstance(payload, dict):
+            raise ValueError("Game settings manifest must be an object")
+        if payload.get("schema_version") != 1:
+            raise ValueError("Unsupported game settings manifest version")
+        if payload.get("profile_id") != profile.id:
+            raise ValueError("Game settings manifest belongs to another profile")
+        if payload.get("application_state") != "staged-only":
+            raise ValueError("Only staged-only manifests can be imported")
+        settings = payload.get("settings")
+        if not isinstance(settings, dict):
+            raise ValueError("Game settings manifest has invalid settings")
+        definitions = {item.key: item for item in DEFINITIONS}
+        if set(settings) != set(definitions):
+            raise ValueError("Game settings manifest does not match the current setting definitions")
+        validated: dict[str, Any] = {}
+        for key, value in settings.items():
+            definition = definitions[key]
+            if definition.value_type == "number" and (
+                isinstance(value, bool) or not isinstance(value, (int, float))
+                or not math.isfinite(value) or value < 0.25 or value > 4.0
+            ):
+                raise ValueError(f"Invalid value for {key}")
+            if definition.value_type == "boolean" and not isinstance(value, bool):
+                raise ValueError(f"Invalid value for {key}")
+            validated[key] = value
+        updated = Profile(**{**profile.__dict__, "settings": validated})
+        self.profiles.save(updated)
+        return updated
