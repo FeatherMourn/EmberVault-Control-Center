@@ -75,6 +75,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(project.profile_id, "research")
             self.assertEqual(runtime.saves.list_backups(), [])
 
+    def test_research_evidence_can_be_appended_to_record(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Test", "Observe", "research")
+            updated = runtime.research.add_evidence(record.id, "Observed result")
+            self.assertEqual(updated.evidence, ["Observed result"])
+
     def test_character_project_is_separate_from_save_manager(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

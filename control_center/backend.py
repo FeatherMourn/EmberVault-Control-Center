@@ -226,6 +226,21 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot(str)
+    def addResearchEvidence(self, note: str):
+        if not self.research:
+            return
+        records = self.research.list()
+        if not records:
+            self._last_save_message = "Create a research record first"
+        else:
+            try:
+                record = self.research.add_evidence(records[-1].id, note)
+                self._last_save_message = f"Added evidence to {record.id}"
+            except (KeyError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot(int)
     def stageSetting(self, index: int):
         if not self.game_settings:
