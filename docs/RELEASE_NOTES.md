@@ -14,6 +14,18 @@
   catalog export.
 - Guarded separate-process contracts for Trainer, Research, and Content Creator.
 
+## Hardening included in the current build
+
+- Guarded worker results use a versioned, read-only JSON contract and are
+  rejected when their profile, operation, required fields, or output size do
+  not match the launch context.
+- Package and module discovery validates manifest identity, capabilities,
+  lifecycle state, compatibility metadata, and portable executable paths.
+- Package folder and ZIP imports reject symlinks, traversal, duplicate paths,
+  oversized archives, and excessive entry counts.
+- Catalog exports are deterministic and exclude local runtime paths and
+  private research state.
+
 ## Important limitations
 
 - Save Manager does not edit save contents.
