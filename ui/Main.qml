@@ -141,6 +141,7 @@ ApplicationWindow {
             RowLayout {
                 Button { text: "Inspect"; onClicked: controlCenter.inspectSaves() }
                 Button { text: "Backup now"; enabled: controlCenter.canBackup; onClicked: controlCenter.createBackup("manual") }
+                Button { text: "Verify selected"; enabled: controlCenter.backupOptions.length > 0; onClicked: controlCenter.verifySelected() }
                 Button { text: "Preview restore"; enabled: controlCenter.backupOptions.length > 0; onClicked: controlCenter.previewRestore() }
                 Button { text: "Restore selected"; enabled: controlCenter.backupOptions.length > 0; onClicked: controlCenter.restoreSelected() }
             }

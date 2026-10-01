@@ -388,6 +388,21 @@ class ControlCenterBackend(QObject):
         self.stateChanged.emit()
 
     @Slot()
+    def verifySelected(self):
+        if not self._selected_backup_id:
+            self._last_save_message = "Choose a backup first"
+        else:
+            try:
+                if self.save_workflow:
+                    self.save_workflow.verify(self._selected_backup_id, self._selected_profile_id)
+                elif not self.save_manager.verify_backup(self._selected_backup_id):
+                    raise SaveManagerError("Backup verification failed")
+                self._last_save_message = f"Verified {self._selected_backup_id}"
+            except (OSError, SaveManagerError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot()
     def restoreSelected(self):
         if not self._selected_backup_id or not self._save_directory:
             self._last_save_message = "Choose a save folder and backup first"

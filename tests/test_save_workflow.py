@@ -30,6 +30,22 @@ class SaveWorkflowTests(unittest.TestCase):
             self.assertEqual(records[-1]["status"], "succeeded")
             self.assertTrue(restored.operation.id.startswith("EV-OP-"))
 
+    def test_verify_records_successful_reverification(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            live = root / "live"
+            live.mkdir()
+            (live / "world.dat").write_text("safe")
+            workflow = SaveWorkflowService(
+                SaveManagerService(root / "state"),
+                OperationService(root / "state" / "operations.jsonl"),
+                StructuredLogService(root / "state" / "logs.jsonl"),
+            )
+            backup = workflow.backup(live, "manual", "default")
+            verified = workflow.verify(backup.snapshot.id, "default")
+            self.assertTrue(verified.payload["verified"])
+            self.assertEqual(verified.operation.operation_type, "save-verification")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -58,6 +58,19 @@ class SaveWorkflowService:
             self.logs.error("Restore preview failed", operation_id=operation.id, profile_id=profile_id, details={"error": str(exc)})
             raise
 
+    def verify(self, backup_id: str, profile_id: str | None = None) -> WorkflowResult:
+        operation = self.operations.start("save-verification", profile_id=profile_id)
+        try:
+            if not self.saves.verify_backup(backup_id):
+                raise ValueError("Backup verification failed")
+            operation = self.operations.finish(operation, OperationStatus.SUCCEEDED, "Backup verified", backup_id)
+            self.logs.info("Save backup re-verified", operation_id=operation.id, profile_id=profile_id, details={"backup_id": backup_id})
+            return WorkflowResult(operation, payload={"verified": True, "backup_id": backup_id})
+        except Exception as exc:
+            operation = self.operations.finish(operation, OperationStatus.FAILED, str(exc), backup_id)
+            self.logs.error("Save backup verification failed", operation_id=operation.id, profile_id=profile_id, details={"error": str(exc)})
+            raise
+
     def restore(self, backup_id: str, destination: Path, profile_id: str | None = None) -> WorkflowResult:
         operation = self.operations.start("save-restore", profile_id=profile_id)
         try:
