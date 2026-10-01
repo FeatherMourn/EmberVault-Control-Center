@@ -548,6 +548,26 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot()
+    def unpublishLatestResearch(self):
+        if not self.research:
+            return
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
+        if not records:
+            self._last_save_message = "Create a research record first"
+        else:
+            operation = self.operations.start("research-unpublish", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                record = self.research.unpublish(records[-1].id)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Unpublished research {record.id}")
+                self._last_save_message = f"Unpublished research record {record.id}"
+            except KeyError as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot(int)
     def stageSetting(self, index: int):
         if not self.game_settings:

@@ -130,6 +130,20 @@ class ApplicationCompositionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runtime.research.publish(record.id)
 
+    def test_research_can_be_unpublished_without_losing_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Public", "Documented", "research")
+            runtime.research.add_evidence(record.id, "Observed")
+            runtime.research.set_status(record.id, "completed")
+            published = runtime.research.publish(record.id)
+            unpublished = runtime.research.unpublish(record.id)
+            self.assertTrue(published.published)
+            self.assertFalse(unpublished.published)
+            self.assertEqual(unpublished.published_at, "")
+            self.assertEqual(unpublished.evidence, ["Observed"])
+            self.assertEqual(runtime.catalog.build()["research"], [])
+
     def test_catalog_export_writes_json_document(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

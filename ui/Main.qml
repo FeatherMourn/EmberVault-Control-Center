@@ -270,6 +270,7 @@ ApplicationWindow {
                 Button { text: "Mark completed"; onClicked: controlCenter.setLatestResearchStatus("completed") }
             }
             Button { text: "Publish latest completed research"; onClicked: controlCenter.publishLatestResearch() }
+            Button { text: "Unpublish latest research"; onClicked: controlCenter.unpublishLatestResearch() }
             Text { text: controlCenter.researchOptions.length === 0 ? "No research records yet." : "Research records"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
                 model: controlCenter.researchOptions

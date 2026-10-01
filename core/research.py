@@ -105,3 +105,13 @@ class ResearchService:
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
+
+    def unpublish(self, record_id: str) -> ResearchRecord:
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                record.published = False
+                record.published_at = ""
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return record
+        raise KeyError(record_id)
