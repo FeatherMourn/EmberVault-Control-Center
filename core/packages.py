@@ -155,7 +155,12 @@ class PackageService:
         with tempfile.TemporaryDirectory(prefix="embervault-package-") as temp:
             staging = Path(temp)
             with zipfile.ZipFile(archive) as bundle:
+                member_names: set[str] = set()
                 for member in bundle.infolist():
+                    normalized_name = member.filename.replace("\\", "/")
+                    if normalized_name in member_names:
+                        raise ValueError("Package archive contains duplicate paths")
+                    member_names.add(normalized_name)
                     unix_mode = (member.external_attr >> 16) & 0o170000
                     if unix_mode == 0o120000:
                         raise ValueError("Package archive contains an unsafe symlink")

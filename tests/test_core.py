@@ -355,6 +355,19 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_archive(archive)
 
+    def test_package_archive_rejects_duplicate_paths(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            archive = root / "duplicate.zip"
+            import zipfile
+            with zipfile.ZipFile(archive, "w") as bundle:
+                bundle.writestr("package/package.json", "{}")
+                bundle.writestr("package/package.json", "{\"id\": \"different.mod\"}")
+            with self.assertRaises(ValueError):
+                PackageService(root, profiles).install_from_archive(archive)
+
     def test_package_archive_imports_nested_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
