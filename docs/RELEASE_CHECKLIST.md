@@ -2,7 +2,7 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (191 tests passing).
+- [x] Run the complete Python test suite (192 tests passing).
 - [x] Run the same test, QML smoke, wheel, and asset-verification gates in
       GitHub Actions (`.github/workflows/ci.yml`).
 - [x] Upload the verified wheel as a CI artifact for review.

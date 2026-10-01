@@ -109,6 +109,13 @@ class PackagingContractTests(unittest.TestCase):
         for term in ("EmberVault Control Center", "EmberVault Core", "Profile", "Package", "Module", "Staged-only"):
             self.assertIn(term, terminology)
 
+    def test_module_boundary_contract_declares_guarded_capabilities(self):
+        root = Path(__file__).resolve().parents[1]
+        boundaries = (root / "docs" / "MODULE_BOUNDARIES.md").read_text(encoding="utf-8")
+        for capability in ("`research`", "`trainer`", "`content-creator`", "`tuning-audit`"):
+            self.assertIn(capability, boundaries)
+        self.assertIn("Promotion rule", boundaries)
+
 
 if __name__ == "__main__":
     unittest.main()
