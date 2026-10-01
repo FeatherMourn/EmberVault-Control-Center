@@ -48,6 +48,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(len(runtime.knowledge.entries()), seeded_count + 1)
             self.assertEqual(runtime.knowledge.search("safe probe")[0].id, entry.id)
 
+    def test_local_knowledge_requires_explicit_publication(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            entry = runtime.knowledge.create("Private Finding", "Research", "Private summary", "Private observation")
+            self.assertNotIn(entry.id, [item["id"] for item in runtime.catalog.build()["knowledge"]])
+            runtime.knowledge.publish(entry.id)
+            self.assertIn(entry.id, [item["id"] for item in runtime.catalog.build()["knowledge"]])
+            runtime.knowledge.unpublish(entry.id)
+            self.assertNotIn(entry.id, [item["id"] for item in runtime.catalog.build()["knowledge"]])
+
     def test_troubleshooter_flags_package_with_unsupported_build(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

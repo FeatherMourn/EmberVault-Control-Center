@@ -19,6 +19,9 @@ state.
   ready (never local descriptions, profiles, or design-workspace details). A
   project can be unpublished without deleting its local design record, and any
   status change automatically retracts publication.
+- seeded knowledge is public by default, while locally authored knowledge
+  remains private until explicitly published; unpublished local entries are
+  excluded from the catalog.
 
 Paths are deliberately removed from exported records. Runtime folders,
 profiles, save backups, logs, and research-local evidence are not published by

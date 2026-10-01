@@ -28,7 +28,7 @@ class CatalogExportService:
     def build(self) -> dict:
         packages = sorted(self.packages.list(), key=lambda item: item.id)
         modules = sorted(self.modules.discover().values(), key=lambda item: item.id)
-        knowledge = sorted(self.knowledge.entries(), key=lambda item: item.id)
+        knowledge = sorted((item for item in self.knowledge.entries() if item.published), key=lambda item: item.id)
         research = sorted((item for item in self.research.list() if item.published), key=lambda item: item.id)
         content = sorted((item for item in (self.content.list() if self.content else []) if item.published), key=lambda item: item.id)
         return {
@@ -36,7 +36,9 @@ class CatalogExportService:
             "contract_versions": {"module_manifest": 1, "package_manifest": 1, "research_record": 1, "content_project": 1},
             "packages": [asdict(item) | {"path": None} for item in packages],
             "modules": [asdict(item) | {"path": None} for item in modules],
-            "knowledge": [asdict(item) for item in knowledge],
+            "knowledge": [{"id": item.id, "title": item.title, "category": item.category,
+                           "summary": item.summary, "content": item.content,
+                           "published_at": item.published_at} for item in knowledge],
             "research": [{"id": item.id, "title": item.title, "hypothesis": item.hypothesis,
                           "status": item.status, "evidence_count": len(item.evidence),
                           "created_at": item.created_at, "published_at": item.published_at} for item in research],

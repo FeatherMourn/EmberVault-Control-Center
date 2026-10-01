@@ -6,6 +6,7 @@ import sys
 import uuid
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from datetime import datetime, timezone
 
 from .storage import write_json_atomic
 
@@ -17,6 +18,8 @@ class KnowledgeEntry:
     category: str
     summary: str
     content: str
+    published: bool = True
+    published_at: str = ""
 
 
 class KnowledgeService:
@@ -50,6 +53,9 @@ class KnowledgeService:
                 continue
             seen.add(entry_id)
             entries.append(KnowledgeEntry(**{key: value.strip() for key, value in values.items()}))
+            entries[-1] = KnowledgeEntry(**{**asdict(entries[-1]),
+                                             "published": item.get("published", True) if isinstance(item.get("published", True), bool) else True,
+                                             "published_at": item.get("published_at", "") if isinstance(item.get("published_at", ""), str) else ""})
         return entries
 
     def search(self, query: str = "") -> list[KnowledgeEntry]:
@@ -66,8 +72,26 @@ class KnowledgeService:
             id=f"EV-KNOW-{uuid.uuid4().hex[:8].upper()}",
             title=title.strip(), category=category.strip(),
             summary=summary.strip(), content=content.strip(),
+            published=False,
         )
         records = self.entries()
         records.append(entry)
         write_json_atomic(self.path, [asdict(item) for item in records])
         return entry
+
+    def publish(self, entry_id: str) -> KnowledgeEntry:
+        return self._set_publication(entry_id, True)
+
+    def unpublish(self, entry_id: str) -> KnowledgeEntry:
+        return self._set_publication(entry_id, False)
+
+    def _set_publication(self, entry_id: str, published: bool) -> KnowledgeEntry:
+        records = self.entries()
+        for index, entry in enumerate(records):
+            if entry.id == entry_id:
+                records[index] = KnowledgeEntry(**{**asdict(entry),
+                    "published": published,
+                    "published_at": datetime.now(timezone.utc).isoformat() if published else ""})
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return records[index]
+        raise KeyError(entry_id)

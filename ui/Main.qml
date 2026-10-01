@@ -333,6 +333,10 @@ ApplicationWindow {
             TextField { id: knowledgeSummary; placeholderText: "Short summary"; Layout.fillWidth: true }
             TextField { id: knowledgeContent; placeholderText: "Knowledge content or research note"; Layout.fillWidth: true }
             Button { text: "Save local knowledge entry"; onClicked: controlCenter.createKnowledgeEntry(knowledgeTitle.text, knowledgeCategory.text, knowledgeSummary.text, knowledgeContent.text) }
+            RowLayout {
+                Button { text: "Publish latest knowledge"; onClicked: controlCenter.publishLatestKnowledge() }
+                Button { text: "Unpublish latest knowledge"; onClicked: controlCenter.unpublishLatestKnowledge() }
+            }
             Repeater {
                 model: controlCenter.knowledgeOptions
                 delegate: Rectangle {

@@ -307,6 +307,35 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    def _setLatestKnowledgePublication(self, published: bool):
+        if not self.knowledge:
+            return
+        entries = self.knowledge.entries()
+        if not entries:
+            self._last_save_message = "Create a knowledge entry first"
+        else:
+            operation_type = "knowledge-entry-publish" if published else "knowledge-entry-unpublish"
+            operation = self.operations.start(operation_type) if self.operations else None
+            try:
+                entry = (self.knowledge.publish if published else self.knowledge.unpublish)(entries[-1].id)
+                message = f"{'Published' if published else 'Unpublished'} knowledge entry {entry.id}"
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, message)
+                self._last_save_message = message
+            except (KeyError, OSError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot()
+    def publishLatestKnowledge(self):
+        self._setLatestKnowledgePublication(True)
+
+    @Slot()
+    def unpublishLatestKnowledge(self):
+        self._setLatestKnowledgePublication(False)
+
     @Slot()
     def exportCatalog(self):
         try:
