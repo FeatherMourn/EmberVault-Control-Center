@@ -205,6 +205,20 @@ class ModuleRegistryTests(unittest.TestCase):
             process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)
 
+    def test_guarded_worker_reports_read_only_contract(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            process = runtime.launcher.launch(
+                "embervault.research", "research", profile,
+                LaunchContext(profile.id, "C:/Game", "EV-OP-CONTRACT"),
+            )
+            output, _ = process.communicate(timeout=5)
+            result = json.loads(output)
+            self.assertEqual(result["contract_version"], 1)
+            self.assertTrue(result["read_only"])
+            self.assertEqual(result["game_path"], "C:/Game")
+
     def test_launch_rejects_capability_not_declared_by_module(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

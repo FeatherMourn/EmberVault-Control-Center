@@ -11,7 +11,8 @@ def main() -> int:
     parser.add_argument("--game-path", default="")
     parser.add_argument("--operation", default="")
     args = parser.parse_args()
-    print(json.dumps({"status": "stub-ready", "profile": args.profile, "operation": args.operation}))
+    print(json.dumps({"contract_version": 1, "status": "ready", "read_only": True,
+                      "profile": args.profile, "game_path": args.game_path, "operation": args.operation}))
     return 0
 
 
