@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,7 +19,9 @@ class KnowledgeEntry:
 class KnowledgeService:
     def __init__(self, root: Path):
         self.path = Path(root) / "knowledge" / "entries.json"
-        self.seed_path = Path(__file__).resolve().parents[1] / "knowledge" / "entries.json"
+        source_root = Path(__file__).resolve().parents[1] / "knowledge" / "entries.json"
+        installed_root = Path(sys.prefix) / "knowledge" / "entries.json"
+        self.seed_path = source_root if source_root.exists() else installed_root
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
     def entries(self) -> list[KnowledgeEntry]:

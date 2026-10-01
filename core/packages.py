@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -38,7 +39,9 @@ class PackageService:
     def __init__(self, root: Path, profiles: ProfileService):
         self.root = Path(root)
         self.directory = self.root / "packages"
-        self.seed_directory = Path(__file__).resolve().parents[1] / "packages"
+        source_directory = Path(__file__).resolve().parents[1] / "packages"
+        installed_directory = Path(sys.prefix) / "packages"
+        self.seed_directory = source_directory if source_directory.is_dir() else installed_directory
         self.profiles = profiles
         self._packages: dict[str, PackageManifest] = {}
 

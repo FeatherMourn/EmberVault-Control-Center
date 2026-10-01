@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
@@ -52,7 +53,9 @@ class LaunchContext:
 class ModuleRegistry:
     def __init__(self, directory: Path):
         self.directory = Path(directory)
-        self.seed_directory = Path(__file__).resolve().parents[1] / "modules"
+        source_directory = Path(__file__).resolve().parents[1] / "modules"
+        installed_directory = Path(sys.prefix) / "modules"
+        self.seed_directory = source_directory if source_directory.is_dir() else installed_directory
         self._modules: dict[str, ModuleManifest] = {}
 
     def discover(self) -> dict[str, ModuleManifest]:
