@@ -133,6 +133,16 @@ class CoreServiceTests(unittest.TestCase):
             reset = service.reset(changed)
             self.assertEqual(service.values(reset)["enemy_damage_multiplier"], 1.0)
 
+    def test_game_settings_reject_out_of_range_or_non_finite_numbers(self):
+        with tempfile.TemporaryDirectory() as temp:
+            profiles = ProfileService(Path(temp))
+            profiles.ensure_defaults()
+            service = GameSettingsService(profiles)
+            profile = profiles.list()[0]
+            for value in (0, 4.1, float("nan"), float("inf"), True):
+                with self.assertRaises(ValueError):
+                    service.stage(profile, "enemy_damage_multiplier", value)
+
     def test_high_risk_capabilities_require_research_and_backup(self):
         with tempfile.TemporaryDirectory() as temp:
             profiles = ProfileService(Path(temp))

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 from typing import Any
 
 from .profiles import Profile, ProfileService
@@ -37,7 +38,10 @@ class GameSettingsService:
         definition = next((item for item in DEFINITIONS if item.key == key), None)
         if not definition:
             raise ValueError(f"Unknown game setting: {key}")
-        if definition.value_type == "number" and (not isinstance(value, (int, float)) or value < 0):
+        if definition.value_type == "number" and (
+            isinstance(value, bool) or not isinstance(value, (int, float))
+            or not math.isfinite(value) or value < 0.25 or value > 4.0
+        ):
             raise ValueError(f"Invalid value for {key}")
         if definition.value_type == "boolean" and not isinstance(value, bool):
             raise ValueError(f"Invalid value for {key}")
