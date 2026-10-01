@@ -232,6 +232,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             self.assertTrue(any("trainer" in item for item in runtime.modules.discover()["embervault.trainer"].capabilities))
 
+    def test_backend_inspects_embedded_modules_with_operation_tracking(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.inspectEmbeddedModules()
+            self.assertIn("Inspected 1 embedded module", backend.lastSaveMessage)
+            self.assertTrue(any(item.operation_type == "embedded-module-inspection"
+                                and item.status == "succeeded"
+                                for item in backend.operations.list_recent()))
+
     def test_package_options_show_package_type(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

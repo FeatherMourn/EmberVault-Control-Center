@@ -128,6 +128,41 @@ class ControlCenterBackend(QObject):
         ]
 
     @Property("QStringList", notify=stateChanged)
+    def embeddedModuleOptions(self):
+        if not self.modules:
+            return []
+        return [
+            f"{module.name} · embedded · {module.entrypoint}"
+            for module in self.modules.embedded()
+        ]
+
+    @Slot()
+    def inspectEmbeddedModules(self):
+        if not self.modules:
+            return
+        operation = self.operations.start("embedded-module-inspection") if self.operations else None
+        try:
+            descriptions = []
+            for manifest in self.modules.embedded():
+                loaded = self.modules.load_embedded(manifest.id)
+                describe = getattr(loaded, "describe", None)
+                if not callable(describe):
+                    raise ValueError(f"Embedded module has no describe contract: {manifest.id}")
+                result = describe()
+                if not isinstance(result, dict) or result.get("id") != manifest.id:
+                    raise ValueError(f"Embedded module returned an invalid description: {manifest.id}")
+                descriptions.append(manifest.id)
+            message = f"Inspected {len(descriptions)} embedded module(s)"
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, message)
+            self._last_save_message = message
+        except (ImportError, OSError, ValueError) as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Property("QStringList", notify=stateChanged)
     def packageOptions(self):
         if not getattr(self, "packages", None):
             return []
