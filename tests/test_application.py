@@ -192,6 +192,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertTrue(destination.is_file())
             self.assertIn('"schema_version": 1', destination.read_text(encoding="utf-8"))
 
+    def test_catalog_validation_rejects_private_research_fields(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            payload = runtime.catalog.build()
+            payload["research"].append({"id": "private", "evidence": ["secret"]})
+            with self.assertRaises(ValueError):
+                runtime.catalog.validate(payload)
+
     def test_catalog_export_orders_public_records_by_id(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

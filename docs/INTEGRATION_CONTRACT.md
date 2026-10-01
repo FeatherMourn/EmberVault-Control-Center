@@ -28,6 +28,11 @@ versions declared in the export. A future website synchronizer can validate
 the catalog before attaching repository URLs, discussion links, and moderation
 metadata on the web side.
 
+The desktop exporter validates the handoff before writing it. Malformed public
+records are rejected, and research or content records containing private
+evidence, descriptions, profiles, or other local-only fields cannot be
+exported as public catalog entries.
+
 Guarded workers must return JSON with `contract_version: 1` and
 `read_only: true`. Control Center rejects successful processes that do not
 provide that contract, preserving the first-release mutation boundary. The
