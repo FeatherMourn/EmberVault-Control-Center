@@ -23,4 +23,7 @@ metadata on the web side.
 Guarded workers must return JSON with `contract_version: 1` and
 `read_only: true`. Control Center rejects successful processes that do not
 provide that contract, preserving the first-release mutation boundary. The
-canonical result schema is `contracts/worker-result.schema.json`.
+canonical result schema is `contracts/worker-result.schema.json`. Research
+workers may additionally return a bounded `evidence` string array containing
+observations; these observations must be read-only and are captured in the
+operation log rather than written into game or save data.

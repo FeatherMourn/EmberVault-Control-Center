@@ -10,7 +10,8 @@
     "read_only": {"const": true},
     "profile": {"type": "string"},
     "game_path": {"type": "string"},
-    "operation": {"type": "string"}
+    "operation": {"type": "string"},
+    "evidence": {"type": "array", "items": {"type": "string"}, "maxItems": 64}
   },
   "additionalProperties": false
 }

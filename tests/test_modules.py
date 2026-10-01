@@ -219,6 +219,20 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertTrue(result["read_only"])
             self.assertEqual(result["game_path"], "C:/Game")
 
+    def test_research_worker_reports_read_only_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            process = runtime.launcher.launch(
+                "embervault.research", "research", profile,
+                LaunchContext(profile.id, temp, "EV-OP-EVIDENCE"),
+            )
+            output, _ = process.communicate(timeout=5)
+            result = json.loads(output)
+            self.assertTrue(result["read_only"])
+            self.assertGreaterEqual(len(result["evidence"]), 3)
+            self.assertIn("game_path_exists: True", result["evidence"])
+
     def test_launch_rejects_capability_not_declared_by_module(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

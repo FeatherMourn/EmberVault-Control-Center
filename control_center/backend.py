@@ -317,6 +317,10 @@ class ControlCenterBackend(QObject):
                     or worker_result.get("status") != "ready"
                     or not isinstance(worker_result.get("game_path"), str)
                     or not isinstance(worker_result.get("operation"), str)
+                    or (module_id == "embervault.research" and
+                        (not isinstance(worker_result.get("evidence"), list) or
+                         any(not isinstance(item, str) or not item.strip()
+                             for item in worker_result.get("evidence", []))))
                     or worker_result.get("profile") != profile.id
                     or (operation and worker_result.get("operation") != operation.id)):
                 raise RuntimeError("Worker returned an invalid or non-read-only contract")
@@ -325,7 +329,14 @@ class ControlCenterBackend(QObject):
             if self.logs:
                 self.logs.info("Guarded module completed", operation_id=operation.id if operation else None,
                                 profile_id=profile.id, details={"module_id": module_id, "output": result})
-            self._last_save_message = f"Completed guarded {capability} worker: {result}"
+            if module_id == "embervault.research":
+                evidence_count = len(worker_result.get("evidence", []))
+                self._last_save_message = (
+                    f"Completed guarded {capability} worker: research evidence probe "
+                    f"({evidence_count} observations) · {worker_result.get('game_path', '')}"
+                )
+            else:
+                self._last_save_message = f"Completed guarded {capability} worker: {result}"
         except subprocess.TimeoutExpired:
             process.kill()
             process.communicate()

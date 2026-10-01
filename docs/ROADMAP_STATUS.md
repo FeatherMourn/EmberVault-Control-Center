@@ -26,15 +26,17 @@
   implemented.
 - Website synchronization, community forums, moderation, and remote catalog
   hosting are outside the desktop repository and use the export contract.
-- The seeded module workers prove process isolation and argument handoff, not
-  production Trainer, Research, or Content Creator behavior; their UI launch
-  path is nevertheless covered by success, denial, and timeout tests.
+- The seeded Trainer and Content Creator workers prove process isolation and
+  argument handoff. The Research worker additionally performs a bounded,
+  read-only filesystem observation probe; production Trainer and Content Creator
+  behavior is not implemented. Worker launch paths are covered by success,
+  denial, and timeout tests.
 
 ## Release evidence
 
 - Python unit suite currently covers the Core services, workflows, module gates,
   profile isolation, package contracts, packaging assets, and installed-process
-  contracts (126 tests).
+  contracts (127 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
   packaged launcher passes its offscreen smoke test and discovers four modules,
