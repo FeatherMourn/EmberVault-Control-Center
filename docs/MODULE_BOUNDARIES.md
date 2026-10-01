@@ -1,6 +1,8 @@
 # EmberVault module-boundary contract
 
-Modules are independently packaged and discovered through a manifest. The
+Modules are independently packaged and discovered through a manifest. Each
+manifest declares `process_mode` as `embedded` or `separate`; older metadata-only
+manifests remain discoverable for compatibility but cannot be launched. The
 Control Center renders normal, low-risk workflows in-process; higher-risk or
 highly independent capabilities use a guarded worker process with an explicit
 launch context and versioned result contract.
