@@ -415,15 +415,17 @@ class ApplicationCompositionTests(unittest.TestCase):
     def test_content_project_is_stored_outside_game_and_save_state(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
-            project = runtime.content.create("Ashen Furniture", "research", "A modular furniture experiment")
+            project = runtime.content.create("Ashen Furniture", "research", "A modular furniture experiment", "furniture", "Oak frame; modular corner joint")
             self.assertEqual(project.profile_id, "research")
             self.assertEqual(project.description, "A modular furniture experiment")
+            self.assertEqual(project.design_type, "furniture")
+            self.assertIn("Oak frame", project.design_notes)
             self.assertEqual(runtime.saves.list_backups(), [])
 
     def test_content_project_export_is_design_only(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
-            project = runtime.content.create("Ashen Furniture", "research", "A modular furniture experiment")
+            project = runtime.content.create("Ashen Furniture", "research", "A modular furniture experiment", "furniture", "Oak frame")
             destination = runtime.content.export(project)
             payload = json.loads(destination.read_text(encoding="utf-8"))
             self.assertEqual(payload["application_state"], "design-only")

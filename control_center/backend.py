@@ -281,18 +281,18 @@ class ControlCenterBackend(QObject):
         if not self.content:
             return []
         return [
-            f"{item.status.upper()} · {item.name} · {item.profile_id}"
+            f"{item.status.upper()} · {item.design_type} · {item.name} · {item.profile_id}"
             + (f" · {item.description}" if item.description else "")
             for item in self.content.list() if item.profile_id == self._selected_profile_id
         ]
 
-    @Slot(str, str)
-    def createContentProject(self, name: str, description: str = ""):
+    @Slot(str, str, str, str)
+    def createContentProject(self, name: str, description: str = "", design_type: str = "furniture", design_notes: str = ""):
         if not self.content:
             return
         operation = self.operations.start("content-project-create", profile_id=self._selected_profile_id) if self.operations else None
         try:
-            project = self.content.create(name, self._selected_profile_id, description)
+            project = self.content.create(name, self._selected_profile_id, description, design_type, design_notes)
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created content project {project.id}")
             self._last_save_message = f"Created content project {project.id}"

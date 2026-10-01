@@ -16,6 +16,8 @@ class ContentProject:
     profile_id: str
     status: str = "draft"
     description: str = ""
+    design_type: str = "furniture"
+    design_notes: str = ""
     published: bool = False
     published_at: str = ""
 
@@ -42,6 +44,10 @@ class ContentProjectService:
                     continue
                 if project.status not in {"draft", "ready", "blocked"}:
                     project.status = "draft"
+                if project.design_type not in {"furniture", "building", "recipe", "other"}:
+                    project.design_type = "furniture"
+                if not isinstance(project.design_notes, str):
+                    project.design_notes = ""
                 if not isinstance(project.published, bool):
                     project.published = False
                 if not isinstance(project.published_at, str):
@@ -51,10 +57,14 @@ class ContentProjectService:
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
 
-    def create(self, name: str, profile_id: str, description: str = "") -> ContentProject:
+    def create(self, name: str, profile_id: str, description: str = "", design_type: str = "furniture", design_notes: str = "") -> ContentProject:
         if not name.strip() or not profile_id.strip():
             raise ValueError("Content project name and profile are required")
-        project = ContentProject(f"EV-CONTENT-{uuid.uuid4().hex[:8].upper()}", name.strip(), profile_id, description=description.strip())
+        if design_type not in {"furniture", "building", "recipe", "other"}:
+            raise ValueError("Unknown content design type")
+        project = ContentProject(f"EV-CONTENT-{uuid.uuid4().hex[:8].upper()}", name.strip(), profile_id,
+                                 description=description.strip(), design_type=design_type,
+                                 design_notes=design_notes.strip())
         projects = self.list()
         projects.append(project)
         write_json_atomic(self.path, [asdict(item) for item in projects])

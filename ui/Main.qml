@@ -370,7 +370,9 @@ ApplicationWindow {
             Text { text: "Safety gates"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             TextField { id: contentName; placeholderText: "Content project name"; Layout.fillWidth: true }
             TextField { id: contentDescription; placeholderText: "Development brief or intended outcome"; Layout.fillWidth: true }
-            Button { text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text) }
+            TextField { id: contentDesignNotes; placeholderText: "Design notes, dimensions, materials, or recipe details"; Layout.fillWidth: true }
+            ComboBox { id: contentDesignType; model: ["furniture", "building", "recipe", "other"]; Layout.fillWidth: true }
+            Button { text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text) }
             Button { text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
             RowLayout {
                 Button { text: "Publish latest"; onClicked: controlCenter.publishLatestContentProject() }
