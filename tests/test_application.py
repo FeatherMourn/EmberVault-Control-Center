@@ -159,6 +159,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             backend.launchResearchWorker()
             self.assertIn("Completed guarded research worker", backend.lastSaveMessage)
 
+    def test_backend_research_probe_persists_evidence_on_latest_record(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Probe", "Observe environment", "research")
+            backend = ControlCenterBackend(Path(temp), runtime=runtime)
+            backend.selectProfile(1)
+            backend.launchResearchWorker()
+            updated = next(item for item in runtime.research.list() if item.id == record.id)
+            self.assertTrue(any(item.startswith("worker observation:") for item in updated.evidence))
+
     def test_backend_guarded_worker_receives_configured_game_path(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

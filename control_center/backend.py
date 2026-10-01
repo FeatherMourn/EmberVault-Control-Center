@@ -324,6 +324,13 @@ class ControlCenterBackend(QObject):
                     or worker_result.get("profile") != profile.id
                     or (operation and worker_result.get("operation") != operation.id)):
                 raise RuntimeError("Worker returned an invalid or non-read-only contract")
+            if module_id == "embervault.research" and self.research:
+                records = [item for item in self.research.list()
+                           if item.profile_id == profile.id]
+                if records:
+                    record = records[-1]
+                    for observation in worker_result["evidence"]:
+                        self.research.add_evidence(record.id, f"worker observation: {observation}")
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Launched {module_id}: {result}")
             if self.logs:
