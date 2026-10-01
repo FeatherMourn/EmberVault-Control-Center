@@ -18,6 +18,7 @@ class ResearchRecord:
     status: str = "planned"
     evidence: list[str] = field(default_factory=list)
     created_at: str = ""
+    published: bool = False
 
 
 class ResearchService:
@@ -46,6 +47,8 @@ class ResearchService:
                     record.evidence = []
                 else:
                     record.evidence = [item.strip() for item in record.evidence if isinstance(item, str) and item.strip()]
+                if not isinstance(record.published, bool):
+                    record.published = False
                 records.append(record)
             return records
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
@@ -84,6 +87,17 @@ class ResearchService:
                 if status == "completed" and not record.evidence:
                     raise ValueError("Add evidence before completing research")
                 record.status = status
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return record
+        raise KeyError(record_id)
+
+    def publish(self, record_id: str) -> ResearchRecord:
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                if record.status != "completed" or not record.evidence:
+                    raise ValueError("Complete the research and add evidence before publishing")
+                record.published = True
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)

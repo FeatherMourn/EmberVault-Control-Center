@@ -113,10 +113,20 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             record = runtime.research.create("Yield study", "Observe yield", "research")
             runtime.research.add_evidence(record.id, "private local observation")
+            self.assertEqual(runtime.catalog.build()["research"], [])
+            runtime.research.set_status(record.id, "completed")
+            runtime.research.publish(record.id)
             research = runtime.catalog.build()["research"]
             self.assertEqual(research[0]["evidence_count"], 1)
             self.assertNotIn("private local observation", json.dumps(research))
             self.assertNotIn("profile_id", research[0])
+
+    def test_research_publish_requires_completion_and_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Private", "Do not publish yet", "research")
+            with self.assertRaises(ValueError):
+                runtime.research.publish(record.id)
 
     def test_catalog_export_writes_json_document(self):
         with tempfile.TemporaryDirectory() as temp:

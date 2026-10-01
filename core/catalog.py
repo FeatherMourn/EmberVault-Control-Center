@@ -24,7 +24,7 @@ class CatalogExportService:
         packages = sorted(self.packages.list(), key=lambda item: item.id)
         modules = sorted(self.modules.discover().values(), key=lambda item: item.id)
         knowledge = sorted(self.knowledge.entries(), key=lambda item: item.id)
-        research = sorted(self.research.list(), key=lambda item: item.id)
+        research = sorted((item for item in self.research.list() if item.published), key=lambda item: item.id)
         return {
             "schema_version": 1,
             "contract_versions": {"module_manifest": 1, "package_manifest": 1, "research_record": 1},
