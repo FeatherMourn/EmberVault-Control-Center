@@ -156,6 +156,9 @@ class PackageService:
             staging = Path(temp)
             with zipfile.ZipFile(archive) as bundle:
                 for member in bundle.infolist():
+                    unix_mode = (member.external_attr >> 16) & 0o170000
+                    if unix_mode == 0o120000:
+                        raise ValueError("Package archive contains an unsafe symlink")
                     target = (staging / member.filename).resolve()
                     windows_member = PureWindowsPath(member.filename)
                     if (windows_member.is_absolute() or ".." in windows_member.parts

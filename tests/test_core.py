@@ -341,6 +341,20 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_archive(archive)
 
+    def test_package_archive_rejects_symlink_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            archive = root / "symlink.zip"
+            import zipfile
+            info = zipfile.ZipInfo("package/link")
+            info.external_attr = (0o120777 << 16) | 0xA000
+            with zipfile.ZipFile(archive, "w") as bundle:
+                bundle.writestr(info, "../../outside")
+            with self.assertRaises(ValueError):
+                PackageService(root, profiles).install_from_archive(archive)
+
     def test_package_archive_imports_nested_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
