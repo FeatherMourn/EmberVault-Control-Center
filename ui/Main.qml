@@ -217,6 +217,7 @@ ApplicationWindow {
             Button { text: "Deploy ready packages"; onClicked: deployDialog.open() }
             Repeater { model: controlCenter.deploymentOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
             property int undeployIndex: -1
+            property int removeIndex: -1
             Dialog {
                 id: deployDialog
                 title: "Deploy ready packages?"
@@ -243,13 +244,26 @@ ApplicationWindow {
                 }
                 onAccepted: if (undeployIndex >= 0) controlCenter.undeployPackage(undeployIndex)
             }
+            Dialog {
+                id: removeDialog
+                title: "Remove package?"
+                modal: true
+                standardButtons: Dialog.Ok | Dialog.Cancel
+                contentItem: Text {
+                    text: "This removes the managed package from EmberVault. It does not edit save data, but the package must be disabled in every profile first."
+                    color: ink
+                    wrapMode: Text.WordWrap
+                    width: 360
+                }
+                onAccepted: if (removeIndex >= 0) controlCenter.removePackage(removeIndex)
+            }
             Repeater {
                 model: controlCenter.packageOptions
                 delegate: RowLayout {
                     Layout.fillWidth: true
                     Button { text: modelData; Layout.fillWidth: true; onClicked: controlCenter.togglePackage(index) }
                     Button { text: "Undeploy"; onClicked: { undeployIndex = index; undeployDialog.open() } }
-                    Button { text: "Remove"; onClicked: controlCenter.removePackage(index) }
+                    Button { text: "Remove"; onClicked: { removeIndex = index; removeDialog.open() } }
                 }
             }
         }
