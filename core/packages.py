@@ -44,6 +44,9 @@ class PackageManifest:
             raise ValueError("Package required_builds and dependencies must be arrays")
         if any(not isinstance(value, str) for value in [*raw_required_builds, *raw_dependencies]):
             raise ValueError("Package build and dependency entries must be strings")
+        package_type = data.get("package_type", "mod")
+        if not isinstance(package_type, str) or not package_type.strip():
+            raise ValueError("Package type must be a non-empty string")
         required_builds = tuple(str(value).strip() for value in raw_required_builds if str(value).strip())
         dependencies = tuple(str(value) for value in raw_dependencies)
         if any(not dependency or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in dependency) for dependency in dependencies):
@@ -55,7 +58,7 @@ class PackageManifest:
         return cls(
             id=package_id, name=data["name"].strip(), version=data["version"].strip(),
             author=str(data.get("author", "Unknown")), description=str(data.get("description", "")),
-            package_type=str(data.get("package_type", "mod")),
+            package_type=package_type.strip(),
             required_builds=required_builds,
             dependencies=dependencies,
             path=path.parent,
