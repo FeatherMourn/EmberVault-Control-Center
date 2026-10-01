@@ -53,6 +53,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             findings = runtime.troubleshooter.scan()
             self.assertTrue(any(item.key == "package-tested.mod" for item in findings))
 
+    def test_catalog_export_excludes_local_paths(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            export = runtime.catalog.build()
+            self.assertEqual(export["schema_version"], 1)
+            self.assertIn("knowledge", export)
+            self.assertTrue(all(item["path"] is None for item in export["modules"]))
+
     def test_character_project_is_separate_from_save_manager(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

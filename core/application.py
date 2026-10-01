@@ -7,6 +7,7 @@ from pathlib import Path
 from .game_detection import GameDetector
 from .game_settings import GameSettingsService
 from .characters import CharacterService
+from .catalog import CatalogExportService
 from .knowledge import KnowledgeService
 from .launch import ModuleLaunchService
 from .logging_service import StructuredLogService
@@ -41,6 +42,7 @@ class EmbervaultRuntime:
     characters: CharacterService
     risk: RiskGateService
     launcher: ModuleLaunchService
+    catalog: CatalogExportService
 
     @classmethod
     def create(cls, root: Path) -> "EmbervaultRuntime":
@@ -63,6 +65,7 @@ class EmbervaultRuntime:
             characters=None,
             risk=None,
             launcher=None,
+            catalog=None,
         )
         runtime.save_workflow = SaveWorkflowService(runtime.saves, runtime.operations, runtime.logs)
         runtime.profiles.ensure_defaults()
@@ -77,6 +80,7 @@ class EmbervaultRuntime:
         runtime.characters = CharacterService(root)
         runtime.risk = RiskGateService()
         runtime.launcher = ModuleLaunchService(runtime.modules, runtime.risk)
+        runtime.catalog = CatalogExportService(root, runtime.modules, runtime.packages, runtime.knowledge)
         runtime.modules.discover()
         runtime.logs.info("Embervault Core initialized")
         return runtime
