@@ -38,6 +38,7 @@ class ControlCenterBackend(QObject):
         self.operations = runtime.operations if runtime else None
         self.modules = runtime.modules if runtime else None
         self.packages = runtime.packages if runtime else None
+        self.troubleshooter = runtime.troubleshooter if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -116,6 +117,12 @@ class ControlCenterBackend(QObject):
             f"{'Enabled' if self.packages.is_enabled(profile, package.id) else 'Disabled'} · {package.name} · {package.version}"
             for package in self.packages.list()
         ]
+
+    @Property("QStringList", notify=stateChanged)
+    def diagnosticOptions(self):
+        if not self.troubleshooter:
+            return []
+        return [f"{item.severity.upper()} · {item.title} · {item.message}" for item in self.troubleshooter.scan()]
 
     @Property("QStringList", notify=stateChanged)
     def profileDetails(self):

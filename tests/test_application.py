@@ -15,6 +15,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(health["modules"], 0)
             self.assertEqual(health["backups"], 0)
 
+    def test_troubleshooter_reports_unconfigured_game_without_mutation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            findings = runtime.troubleshooter.scan()
+            self.assertEqual(findings[0].key, "game-path")
+            self.assertEqual(findings[0].severity, "attention")
+
 
 if __name__ == "__main__":
     unittest.main()

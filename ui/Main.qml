@@ -72,7 +72,7 @@ ApplicationWindow {
                 PackagesPage {}
                 PlaceholderPage { heading: "Game Settings"; body: "Gameplay tuning will be added as an independently packaged module." }
                 SaveManagerPage {}
-                PlaceholderPage { heading: "Troubleshooter"; body: "Health scans will use Core logs, operations, compatibility, and module state." }
+                TroubleshooterPage {}
                 PlaceholderPage { heading: "Content Studio"; body: "Content creation remains a guarded developer preview." }
                 PlaceholderPage { heading: "Research Lab"; body: "Research runs in isolated profiles and records evidence before promotion." }
                 PlaceholderPage { heading: "Knowledge"; body: "Offline documentation will be linked from every module." }
@@ -199,6 +199,21 @@ ApplicationWindow {
                     border.color: line
                     Text { anchors.left: parent.left; anchors.leftMargin: 16; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: ink; font.pixelSize: 14; wrapMode: Text.WordWrap; width: parent.width - 32 }
                 }
+            }
+        }
+    }
+
+    component TroubleshooterPage: ScrollView {
+        ColumnLayout {
+            anchors.margins: 34
+            spacing: 18
+            Text { text: "TROUBLESHOOTER"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
+            Text { text: "Find the loose thread."; color: ink; font.pixelSize: 30; font.bold: true }
+            Text { text: "Run a read-only health scan across the game connection, profiles, modules, and packages. Nothing is changed by this scan."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Text { text: controlCenter.diagnosticOptions.length === 0 ? "No diagnostics available." : "Latest scan"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater {
+                model: controlCenter.diagnosticOptions
+                delegate: Text { text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             }
         }
     }
