@@ -68,6 +68,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertTrue(destination.is_file())
             self.assertIn('"schema_version": 1', destination.read_text(encoding="utf-8"))
 
+    def test_content_project_is_stored_outside_game_and_save_state(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            project = runtime.content.create("Ashen Furniture", "research")
+            self.assertEqual(project.profile_id, "research")
+            self.assertEqual(runtime.saves.list_backups(), [])
+
     def test_character_project_is_separate_from_save_manager(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

@@ -44,6 +44,7 @@ class ControlCenterBackend(QObject):
         self.research = runtime.research if runtime else None
         self.knowledge = runtime.knowledge if runtime else None
         self.catalog = runtime.catalog if runtime else None
+        self.content = runtime.content if runtime else None
         self.characters = runtime.characters if runtime else None
         self.risk = runtime.risk if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
@@ -167,6 +168,23 @@ class ControlCenterBackend(QObject):
             except OSError as exc:
                 self._last_save_message = str(exc)
             self.stateChanged.emit()
+
+    @Property("QStringList", notify=stateChanged)
+    def contentOptions(self):
+        if not self.content:
+            return []
+        return [f"{item.status.upper()} · {item.name} · {item.profile_id}" for item in self.content.list()]
+
+    @Slot(str)
+    def createContentProject(self, name: str):
+        if not self.content:
+            return
+        try:
+            project = self.content.create(name, self._selected_profile_id)
+            self._last_save_message = f"Created content project {project.id}"
+        except ValueError as exc:
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
     def characterOptions(self):
