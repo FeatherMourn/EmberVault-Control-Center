@@ -332,11 +332,16 @@ class ControlCenterBackend(QObject):
 
     @Slot(str)
     def createProfile(self, name: str):
+        operation = self.operations.start("profile-create") if self.operations else None
         try:
             profile = self.profile_service.create_custom(name)
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created profile {profile.id}",)
             self.profiles.append(profile)
             self._last_save_message = f"Created profile {profile.name}"
         except ValueError as exc:
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
