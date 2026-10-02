@@ -10,6 +10,9 @@ and the EmberVault website/community repository.
 - Conflict comparison that refuses automatic overwrite and marks divergent
   catalog sections for review.
 - Control Center action for staging the handoff.
+- Versioned research, content, and knowledge submission envelopes that require
+  local publication before staging.
+- Record-level conflict comparison with discussion-link metadata support.
 
 ## Authority and safety
 
@@ -20,6 +23,5 @@ Conflicts are reviewable and never silently merged or overwritten.
 
 ## Remaining Stage 24 work
 
-Research submissions, content-project publishing handoffs, knowledge sync,
-discussion links, and per-record version/conflict metadata still need to be
-expanded on this foundation.
+The website still owns remote authentication, moderation, final publication,
+and discussion hosting; the desktop only prepares reviewable handoffs.

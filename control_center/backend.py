@@ -926,6 +926,64 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot()
+    def stageLatestResearchSubmission(self):
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id] if self.research else []
+        if not records:
+            self._last_save_message = "Create a research record first"
+        else:
+            record = records[-1]
+            try:
+                if not record.published:
+                    raise ValueError("Publish research locally before staging a website submission")
+                payload = {"id": record.id, "title": record.title, "hypothesis": record.hypothesis,
+                           "status": record.status, "evidence_count": len(record.evidence),
+                           "game_build": record.game_build, "reproducibility": self.research.reproducibility_score(record.id)}
+                destination = self.community_sync.stage_record("research", record.id, 1, payload)
+                self._last_save_message = f"Staged research submission at {destination}"
+            except (OSError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot()
+    def stageLatestKnowledgeSubmission(self):
+        entries = self.knowledge.entries() if self.knowledge else []
+        if not entries:
+            self._last_save_message = "Create a knowledge entry first"
+        else:
+            entry = entries[-1]
+            try:
+                if not entry.published:
+                    raise ValueError("Publish knowledge locally before staging a website submission")
+                payload = {"id": entry.id, "title": entry.title, "category": entry.category,
+                           "summary": entry.summary, "content": entry.content, "version": entry.version,
+                           "tags": list(entry.tags), "related_ids": list(entry.related_ids),
+                           "evidence_refs": list(entry.evidence_refs)}
+                destination = self.community_sync.stage_record("knowledge", entry.id, entry.version, payload)
+                self._last_save_message = f"Staged knowledge submission at {destination}"
+            except (OSError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot()
+    def stageLatestContentSubmission(self):
+        projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id] if self.content else []
+        if not projects:
+            self._last_save_message = "Create a content project first"
+        else:
+            project = projects[-1]
+            try:
+                if not project.published:
+                    raise ValueError("Publish content locally before staging a website submission")
+                payload = next((item for item in self.catalog.build()["content_projects"] if item["id"] == project.id), None)
+                if not payload:
+                    raise ValueError("Content project is not present in the public catalog")
+                destination = self.community_sync.stage_record("content", project.id, 1, payload)
+                self._last_save_message = f"Staged content submission at {destination}"
+            except (OSError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Property("QStringList", notify=stateChanged)
     def contentOptions(self):
         if not self.content:

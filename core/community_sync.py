@@ -46,3 +46,30 @@ class CommunitySyncService:
         result["review_required"] = result["status"] == "conflict"
         result["authority"] = "website"
         return result
+
+    def stage_record(self, record_type: str, record_id: str, version: int, payload: dict,
+                     discussion_url: str = "") -> Path:
+        """Stage one sanitized website submission without claiming remote authority."""
+        if record_type not in {"research", "content", "knowledge"} or not record_id.strip():
+            raise ValueError("Unsupported community record type")
+        if not isinstance(version, int) or version < 1 or not isinstance(payload, dict):
+            raise ValueError("Community records require a versioned object payload")
+        if any(token in json.dumps(payload).lower() for token in ("game_path", "profile_id", "private_path")):
+            raise ValueError("Community payload contains private data")
+        envelope = {"schema_version": 1, "record_type": record_type, "record_id": record_id,
+                    "record_version": version, "authority": "website",
+                    "discussion_url": discussion_url.strip(), "payload": payload,
+                    "application_state": "website-review-required",
+                    "generated_at": datetime.now(timezone.utc).isoformat()}
+        destination = self.root / "community" / "submissions" / f"{record_type}-{record_id}.json"
+        write_json_atomic(destination, envelope)
+        return destination
+
+    def compare_record(self, local: dict, remote: dict) -> dict:
+        if local.get("record_id") != remote.get("record_id") or local.get("record_type") != remote.get("record_type"):
+            raise ValueError("Community records do not identify the same object")
+        local_version, remote_version = local.get("record_version"), remote.get("record_version")
+        conflict = local_version != remote_version and local.get("payload") != remote.get("payload")
+        return {"status": "conflict" if conflict else "compatible", "record_id": local.get("record_id"),
+                "local_version": local_version, "remote_version": remote_version,
+                "review_required": conflict, "automatic_overwrite": False}

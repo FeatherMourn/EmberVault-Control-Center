@@ -452,6 +452,7 @@ ApplicationWindow {
             Button { text: "Unpublish latest research"; onClicked: controlCenter.unpublishLatestResearch() }
             Button { text: "Export latest research summary"; onClicked: controlCenter.exportLatestResearchSummary() }
             Button { text: "Export reproducibility report"; onClicked: controlCenter.exportLatestResearchReport() }
+            Button { text: "Stage latest research submission"; onClicked: controlCenter.stageLatestResearchSubmission() }
             Button { text: "Promote latest research to private knowledge draft"; onClicked: controlCenter.promoteLatestResearchToKnowledge() }
             TextField { id: discussionNoteField; placeholderText: "Discussion note for latest experiment"; Layout.fillWidth: true }
             Button { text: "Add discussion note"; onClicked: controlCenter.addLatestResearchDiscussion(discussionNoteField.text) }
@@ -484,6 +485,7 @@ ApplicationWindow {
             Text { text: "A local knowledge catalog explains safety rules, profile isolation, and module boundaries. PUBLIC entries are safe for catalog export; PRIVATE entries remain local."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Button { text: "Export website catalog"; onClicked: controlCenter.exportCatalog() }
             Button { text: "Publish catalog to repository folder"; onClicked: controlCenter.syncCatalogFolder() }
+            Button { text: "Stage latest knowledge submission"; onClicked: controlCenter.stageLatestKnowledgeSubmission() }
             Button { text: "Stage conflict-safe website handoff"; onClicked: controlCenter.stageCommunityHandoff() }
             TextField { placeholderText: "Search knowledge"; Layout.fillWidth: true; onTextChanged: controlCenter.searchKnowledge(text) }
             TextField { id: knowledgeTitle; placeholderText: "Knowledge title"; Layout.fillWidth: true }
@@ -587,6 +589,7 @@ ApplicationWindow {
             Button { visible: capability === "content-creator"; text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
             Button { visible: capability === "content-creator"; text: "Update latest design"; onClicked: controlCenter.updateLatestContentDesign(contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
             Button { visible: capability === "content-creator"; text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
+            Button { visible: capability === "content-creator"; text: "Stage latest content submission"; onClicked: controlCenter.stageLatestContentSubmission() }
             Button { visible: capability === "content-creator"; text: "Refresh design preview"; onClicked: controlCenter.previewLatestContentProject() }
             Button { visible: capability === "content-creator"; text: "Record design decision"; onClicked: controlCenter.recordLatestContentDecision(contentDecision.text, contentDecisionRationale.text, contentDecisionResearch.text, contentDecisionKnowledge.text) }
             Repeater {

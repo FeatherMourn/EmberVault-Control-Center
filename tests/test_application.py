@@ -1093,6 +1093,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertTrue(result["review_required"])
             self.assertFalse(result["automatic_overwrite"])
 
+    def test_community_record_submission_is_versioned_and_conflict_safe(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            path = runtime.community_sync.stage_record("knowledge", "EV-KNOW-1", 2,
+                {"id": "EV-KNOW-1", "title": "Public note", "version": 2})
+            local = json.loads(path.read_text(encoding="utf-8"))
+            remote = json.loads(json.dumps(local))
+            remote["record_version"] = 3
+            remote["payload"]["title"] = "Remote note"
+            result = runtime.community_sync.compare_record(local, remote)
+            self.assertEqual(result["status"], "conflict")
+            self.assertTrue(result["review_required"])
+
     def test_research_collaboration_records_evidence_comparisons_and_report(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
