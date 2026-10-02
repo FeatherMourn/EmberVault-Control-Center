@@ -20,8 +20,9 @@ reproducibility metadata rather than private source paths or raw project data.
 Existing profile, operations, adapter, promotion, and publication gates remain
 the authority for runtime evidence and public release.
 
-## Remaining Stage 22 work
+## Completion status
 
-Experiment-template selection, richer evidence attachment inspection, and
-research-to-knowledge promotion UI still need to be expanded on these service
-contracts before final release verification.
+Experiment-template selection, evidence inspection, research filtering, and
+research-to-knowledge promotion are exposed through the Control Center. A
+promoted record becomes a private knowledge draft and must be published
+explicitly.
