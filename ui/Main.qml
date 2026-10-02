@@ -337,6 +337,15 @@ ApplicationWindow {
             Button { text: "Import staged tuning manifest"; onClicked: settingsFileDialog.open() }
             Button { text: "Audit staged settings safely"; onClicked: controlCenter.launchTuningAudit() }
             Button { text: "Prepare EML operation (no write)"; onClicked: controlCenter.prepareTuningOperation() }
+            Button { text: "Stage EML adapter payload"; onClicked: controlCenter.stageTuningAdapter() }
+            Button { text: "Deploy staged EML adapter"; onClicked: adapterDeployDialog.open() }
+            Dialog {
+                id: adapterDeployDialog
+                title: "Deploy EmberVault EML adapter?"
+                standardButtons: Dialog.Ok | Dialog.Cancel
+                contentItem: Label { text: "This deploys only the EmberVault-owned adapter package. The game must be closed. EML launch verification remains pending."; wrapMode: Text.WordWrap; width: 360 }
+                onAccepted: controlCenter.deployStagedTuningAdapter()
+            }
             Text { text: controlCenter.lastSaveMessage; color: ink; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             FileDialog {
                 id: settingsFileDialog

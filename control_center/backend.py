@@ -70,6 +70,7 @@ class ControlCenterBackend(QObject):
         self._restore_preview = "No restore selected"
         self._selected_profile_id = self.profiles[0].id if self.profiles else ""
         self._knowledge_query = ""
+        self._staged_adapter_package = None
 
     @Property(str, notify=stateChanged)
     def gameStatus(self):
@@ -161,6 +162,46 @@ class ControlCenterBackend(QObject):
             self.stateChanged.emit()
             return self._last_save_message
         except (ValueError, KeyError, OSError) as exc:
+            self._last_save_message = str(exc)
+            self.stateChanged.emit()
+            return self._last_save_message
+
+    @Slot(result=str)
+    def stageTuningAdapter(self):
+        if not self.tuning_adapter or not self.game_settings:
+            return "EML adapter unavailable"
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return "Select a profile first"
+        try:
+            values = self.game_settings.values(profile)
+            operation_id = self.operations.start("tuning-adapter-stage", profile_id=profile.id).id if self.operations else "EV-ADAPTER-STAGE"
+            source = Path(__file__).parents[1] / "packages" / "eml-tuning-adapter"
+            staged = self.tuning_adapter.stage_package(
+                source, self.data_root / "staging", values["base_crit_chance"], operation_id
+            )
+            self._staged_adapter_package = staged
+            self._last_save_message = f"Staged owned EML adapter for {values['base_crit_chance']} — ready for confirmation"
+            self.stateChanged.emit()
+            return self._last_save_message
+        except (OSError, ValueError, PermissionError) as exc:
+            self._last_save_message = str(exc)
+            self.stateChanged.emit()
+            return self._last_save_message
+
+    @Slot(result=str)
+    def deployStagedTuningAdapter(self):
+        if not self._staged_adapter_package or not self.settings.game_path:
+            return "Stage the adapter and choose a game folder first"
+        try:
+            destination = self.tuning_adapter.deploy_staged_package(
+                self._staged_adapter_package, Path(self.settings.game_path),
+                game_running=self._game_status == "Running",
+            )
+            self._last_save_message = f"Deployed owned EML adapter to {destination}; launch verification pending"
+            self.stateChanged.emit()
+            return self._last_save_message
+        except (OSError, ValueError, PermissionError) as exc:
             self._last_save_message = str(exc)
             self.stateChanged.emit()
             return self._last_save_message
