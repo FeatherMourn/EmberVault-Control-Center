@@ -48,6 +48,10 @@ class ApplicationCompositionTests(unittest.TestCase):
     def test_backend_recovers_staged_adapter_from_operation_history(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
             runtime = EmbervaultRuntime.create(root)
             package = root / "staging" / "EV-OP-RECOVER-eml-tuning-adapter"
             package.mkdir(parents=True)
@@ -56,6 +60,20 @@ class ApplicationCompositionTests(unittest.TestCase):
             recovered = ControlCenterBackend(root, runtime=EmbervaultRuntime.create(root))
             self.assertEqual(recovered._staged_adapter_package, package)
             self.assertEqual(recovered._staged_adapter_operation_id, operation.id)
+
+    def test_backend_recovers_deployed_adapter_state_from_operation_history(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            runtime = EmbervaultRuntime.create(root)
+            operation = runtime.operations.start("tuning-adapter-deploy", profile_id="research")
+            runtime.operations.finish(operation, OperationStatus.SUCCEEDED, "Deployed owned EML adapter")
+            recovered = ControlCenterBackend(root, runtime=EmbervaultRuntime.create(root))
+            self.assertTrue(recovered._adapter_deployed)
+            self.assertIn("deployed; launch verification pending", recovered.tuningAdapterStatus)
 
     def test_backend_exposes_selected_profile_index(self):
         with tempfile.TemporaryDirectory() as temp:
