@@ -30,6 +30,10 @@ class ModuleManifest:
     feature_state: str = "stable"
     entrypoint: str | None = None
     process_mode: str = "embedded"
+    contract_version: int = 1
+    safety: dict = field(default_factory=dict, compare=False)
+    recovery: dict = field(default_factory=dict, compare=False)
+    operation_types: tuple[str, ...] = ()
     path: Path | None = field(default=None, compare=False)
 
     @classmethod
@@ -68,6 +72,24 @@ class ModuleManifest:
             process_mode = "embedded" if entrypoint else "separate" if executable else "embedded"
         if process_mode not in {"embedded", "separate"}:
             raise ValueError("Module process mode is invalid")
+        contract_version = data.get("contract_version", 1)
+        if contract_version != 1 or isinstance(contract_version, bool):
+            raise ValueError("Unsupported module contract version")
+        safety = data.get("safety", {})
+        if not isinstance(safety, dict):
+            raise ValueError("Module safety metadata must be an object")
+        for key in ("read_only", "requires_backup"):
+            if key in safety and not isinstance(safety[key], bool):
+                raise ValueError(f"Module safety field must be boolean: {key}")
+        allowed_profiles = safety.get("allowed_profiles", [])
+        if not isinstance(allowed_profiles, list) or any(not isinstance(item, str) or not item.strip() for item in allowed_profiles):
+            raise ValueError("Module allowed_profiles must be a string array")
+        recovery = data.get("recovery", {})
+        if not isinstance(recovery, dict) or any(not isinstance(recovery.get(key), str) or not recovery[key].strip() for key in recovery):
+            raise ValueError("Module recovery metadata must contain text values")
+        operation_types = data.get("operation_types", [])
+        if not isinstance(operation_types, list) or any(not isinstance(item, str) or not item.strip() for item in operation_types):
+            raise ValueError("Module operation_types must be a string array")
         if explicit_process_mode and process_mode == "embedded":
             if not entrypoint or executable:
                 raise ValueError("Embedded modules must declare only an entrypoint")
@@ -81,6 +103,8 @@ class ModuleManifest:
             capabilities=capabilities,
             feature_state=feature_state,
             entrypoint=entrypoint, process_mode=process_mode, path=path.parent,
+            contract_version=contract_version, safety=dict(safety), recovery=dict(recovery),
+            operation_types=tuple(operation_types),
         )
 
 

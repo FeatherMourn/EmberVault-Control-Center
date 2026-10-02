@@ -14,5 +14,27 @@
     "feature_state": {"enum": ["stable", "verified", "experimental", "research-only", "blocked"]},
     "entrypoint": {"type": ["string", "null"]},
     "process_mode": {"enum": ["embedded", "separate"]}
-  }
+    ,"contract_version": {"const": 1},
+    "safety": {
+      "type": "object",
+      "required": ["read_only", "requires_backup", "allowed_profiles"],
+      "properties": {
+        "read_only": {"type": "boolean"},
+        "requires_backup": {"type": "boolean"},
+        "allowed_profiles": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      },
+      "additionalProperties": false
+    },
+    "recovery": {
+      "type": "object",
+      "required": ["rollback", "verification"],
+      "properties": {
+        "rollback": {"type": "string", "minLength": 1},
+        "verification": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "operation_types": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+  },
+  "additionalProperties": false
 }

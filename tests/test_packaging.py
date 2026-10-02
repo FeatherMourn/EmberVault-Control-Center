@@ -35,6 +35,9 @@ class PackagingContractTests(unittest.TestCase):
             "packages/eml-tuning-adapter/package.json",
             "packages/eml-tuning-adapter/mod.json",
             "packages/eml-tuning-adapter/mod.lua",
+            "templates/module/module.json",
+            "templates/module/module.py",
+            "templates/module/README.md",
             "tools/verify_release.py",
             "tools/verify_catalog.py",
             "tools/sync_catalog.py",
@@ -140,6 +143,20 @@ class PackagingContractTests(unittest.TestCase):
         for capability in ("`research`", "`trainer`", "`content-creator`", "`tuning-audit`"):
             self.assertIn(capability, boundaries)
         self.assertIn("Promotion rule", boundaries)
+
+    def test_module_template_contains_contract_safety_and_recovery_fields(self):
+        root = Path(__file__).resolve().parents[1]
+        manifest = json.loads((root / "templates/module/module.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["contract_version"], 1)
+        self.assertIn("safety", manifest)
+        self.assertIn("recovery", manifest)
+        self.assertTrue((root / "templates/module/module.py").is_file())
+        self.assertTrue((root / "templates/module/README.md").is_file())
+        from core.modules import ModuleManifest
+        parsed = ModuleManifest.from_file(root / "templates/module/module.json")
+        self.assertEqual(parsed.contract_version, 1)
+        self.assertTrue(parsed.safety["read_only"])
+        self.assertIn("replace-me.inspect", parsed.operation_types)
 
 
 if __name__ == "__main__":

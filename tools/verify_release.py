@@ -32,6 +32,9 @@ REQUIRED = (
     "packages/eml-tuning-adapter/package.json",
     "packages/eml-tuning-adapter/mod.json",
     "packages/eml-tuning-adapter/mod.lua",
+    "templates/module/module.json",
+    "templates/module/module.py",
+    "templates/module/README.md",
 )
 
 

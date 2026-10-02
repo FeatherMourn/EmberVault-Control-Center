@@ -7,6 +7,12 @@ Control Center renders normal, low-risk workflows in-process; higher-risk or
 highly independent capabilities use a guarded worker process with an explicit
 launch context and versioned result contract.
 
+New modules should start from `templates/module/`. Its manifest records the
+contract version, capability state, safety requirements, allowed profiles,
+operation types, rollback behavior, and verification behavior. A module is not
+ready for shell integration until those fields, its Core boundary, and its
+tests are defined.
+
 ## Capability map
 
 | Capability | Default execution | Release boundary |

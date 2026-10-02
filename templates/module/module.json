@@ -1,0 +1,22 @@
+{
+  "id": "embervault.replace-me",
+  "name": "Replace Me Module",
+  "version": "0.1.0",
+  "publisher": "Your Name or Organization",
+  "minimum_core_version": "0.1.0",
+  "contract_version": 1,
+  "capabilities": ["replace-me"],
+  "feature_state": "research-only",
+  "process_mode": "embedded",
+  "entrypoint": "module.py",
+  "safety": {
+    "read_only": true,
+    "requires_backup": false,
+    "allowed_profiles": ["research"]
+  },
+  "recovery": {
+    "rollback": "No mutation; remove the module-owned research record if required.",
+    "verification": "Confirm the operation result and inspect the activity log."
+  },
+  "operation_types": ["replace-me.inspect"]
+}
