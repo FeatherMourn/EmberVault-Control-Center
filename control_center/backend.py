@@ -71,6 +71,7 @@ class ControlCenterBackend(QObject):
         self._selected_profile_id = self.profiles[0].id if self.profiles else ""
         self._knowledge_query = ""
         self._staged_adapter_package = None
+        self._staged_adapter_operation_id = None
 
     @Property(str, notify=stateChanged)
     def gameStatus(self):
@@ -181,6 +182,7 @@ class ControlCenterBackend(QObject):
                 source, self.data_root / "staging", values["base_crit_chance"], operation_id
             )
             self._staged_adapter_package = staged
+            self._staged_adapter_operation_id = operation_id
             self._last_save_message = f"Staged owned EML adapter for {values['base_crit_chance']} — ready for confirmation"
             self.stateChanged.emit()
             return self._last_save_message
@@ -189,6 +191,31 @@ class ControlCenterBackend(QObject):
             self.stateChanged.emit()
             return self._last_save_message
 
+    @Slot(result=str)
+    def verifyTuningAdapter(self):
+        if not self.tuning_adapter or not self.settings.game_path:
+            return "Configure the game folder first"
+        if not self._staged_adapter_operation_id:
+            return "Stage an EML adapter payload first"
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return "Select a profile first"
+        try:
+            values = self.game_settings.values(profile)
+            logs = sorted((Path(self.settings.game_path) / "logs").glob("*.eml.log"),
+                          key=lambda path: path.stat().st_mtime, reverse=True)
+            if not logs:
+                raise ValueError("No EML runtime log was found")
+            result = self.tuning_adapter.verify_log_file(
+                logs[0], self._staged_adapter_operation_id, values["base_crit_chance"]
+            )
+            self._last_save_message = f"Verified EML readback for {result['field']} = {result['new_value']}"
+            self.stateChanged.emit()
+            return self._last_save_message
+        except (OSError, ValueError, KeyError) as exc:
+            self._last_save_message = f"EML verification failed: {exc}"
+            self.stateChanged.emit()
+            return self._last_save_message
     @Slot(result=str)
     def deployStagedTuningAdapter(self):
         if not self._staged_adapter_package or not self.settings.game_path:

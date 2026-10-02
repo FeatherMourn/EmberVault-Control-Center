@@ -350,6 +350,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             )
             self.assertTrue(result["readback_verified"])
 
+    def test_eml_tuning_adapter_verifies_expected_log_value(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            log = root / "runtime.eml.log"
+            log.write_text("[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.425|new=0.2|operation=EV-OP-4\n", encoding="utf-8")
+            result = TuningAdapterService(root).verify_log_file(log, "EV-OP-4", 0.2)
+            self.assertEqual(result["status"], "verified")
+
     def test_eml_tuning_adapter_deploys_only_owned_staged_package(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
