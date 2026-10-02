@@ -18,7 +18,7 @@ def validate_catalog(payload: dict) -> None:
     versions = payload["contract_versions"]
     if not isinstance(versions, dict):
         raise ValueError("Catalog contract versions must be an object")
-    for key in ("module_manifest", "package_manifest", "research_record", "content_project", "tuning_adapter"):
+    for key in ("module_manifest", "package_manifest", "research_record", "content_project", "tuning_adapter", "integration_context"):
         version = versions.get(key)
         if not isinstance(version, int) or isinstance(version, bool) or version < 1:
             raise ValueError(f"Catalog contract version is missing: {key}")

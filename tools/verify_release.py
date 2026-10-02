@@ -10,6 +10,7 @@ import zipfile
 REQUIRED = (
     "ui/Main.qml",
     "contracts/catalog.schema.json",
+    "contracts/integration-context.schema.json",
     "contracts/content-project.schema.json",
     "contracts/knowledge-entry.schema.json",
     "contracts/research-summary.schema.json",
