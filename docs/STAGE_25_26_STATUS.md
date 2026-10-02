@@ -10,6 +10,8 @@
 - Fail-closed release-candidate audit based on Capability Governance Stable
   decisions.
 - Control Center governance display for release-candidate readiness.
+- Portable `1.0.0rc1` Windows and Linux bundles built from the validated wheel.
+- Standalone distribution verifier and isolated installed-wheel smoke test.
 
 ## Safety and release boundary
 
@@ -22,4 +24,5 @@ evidence. Unsupported live gameplay mutation remains outside the release claim.
 ## Verification
 
 The release workflow is validated through unit tests, compilation, offscreen UI
-smoke testing, fresh wheel asset verification, and standalone catalog validation.
+smoke testing, isolated wheel installation, Windows/Linux bundle verification,
+fresh wheel asset verification, and standalone catalog validation.
