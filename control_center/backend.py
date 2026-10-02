@@ -517,6 +517,23 @@ class ControlCenterBackend(QObject):
         ]
 
     @Property("QStringList", notify=stateChanged)
+    def operationDetails(self):
+        if not self.operations:
+            return []
+        details = []
+        for operation in self.operations.list_recent(8):
+            profile = operation.profile_id or "workspace"
+            capability = operation.capability or "core"
+            safety = operation.capability_state or "unspecified"
+            recovery = operation.recovery_expectation or "review operation record"
+            backup = f" · backup {operation.backup_id}" if operation.backup_id else ""
+            details.append(
+                f"{operation.status.upper()} · {operation.operation_type} · {profile} · "
+                f"{capability}/{safety}{backup} · recovery: {recovery} · {operation.message}"
+            )
+        return details
+
+    @Property("QStringList", notify=stateChanged)
     def moduleOptions(self):
         if not self.modules:
             return []

@@ -646,11 +646,12 @@ ApplicationWindow {
             Text { text: "ACTIVITY"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
             Text { text: "See what EmberVault did."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "Operations are recorded with their status and context so recovery and troubleshooting have an auditable history."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Text { text: "Safety context"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
-                model: controlCenter.recentOperations
+                model: controlCenter.operationDetails
                 delegate: Rectangle {
                     Layout.fillWidth: true
-                    height: 60
+                    height: 78
                     radius: 7
                     color: panel
                     border.color: line
