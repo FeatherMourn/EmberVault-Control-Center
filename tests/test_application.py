@@ -285,6 +285,8 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(record["related_ids"], ["profiles", "save-safety"])
             self.assertNotIn("First draft", json.dumps(public))
             self.assertNotIn("history", json.dumps(public))
+            self.assertIn(entry.id, [item.id for item in runtime.knowledge.search("safety")])
+            self.assertIn(entry.id, [item.id for item in runtime.knowledge.search("EV-RES-2")])
 
     def test_local_knowledge_requires_explicit_publication(self):
         with tempfile.TemporaryDirectory() as temp:

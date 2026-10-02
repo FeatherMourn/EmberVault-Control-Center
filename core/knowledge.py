@@ -84,7 +84,9 @@ class KnowledgeService:
         needle = query.strip().lower()
         if not needle:
             return self.entries()
-        return [entry for entry in self.entries() if needle in " ".join((entry.title, entry.category, entry.summary, entry.content)).lower()]
+        return [entry for entry in self.entries() if needle in " ".join((
+            entry.title, entry.category, entry.summary, entry.content,
+            *entry.tags, *entry.related_ids, *entry.evidence_refs)).lower()]
 
     def create(self, title: str, category: str, summary: str, content: str,
                tags: list[str] | None = None, related_ids: list[str] | None = None,
