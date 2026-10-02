@@ -20,3 +20,11 @@ package target with:
 
 Until those conditions exist, the executor fails closed with no file or game
 mutation. The UI preview remains available for review.
+
+## Staged payload
+
+The adapter can render a transaction-specific Lua payload in memory. The
+payload is tied to an operation ID, targets exactly one
+`keen::BalancingTable`, and assigns only `baseCritChance`. It is not
+automatically written to the installed game, and it is not a substitute for
+post-launch readback or rollback.

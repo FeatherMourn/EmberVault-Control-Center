@@ -320,6 +320,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             with self.assertRaises(PermissionError):
                 service.execute_operation(preview, profile_type="research", backup_verified=True, game_running=False)
 
+    def test_eml_tuning_adapter_renders_scoped_payload(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            payload = TuningAdapterService(root).render_payload(0.2, "EV-OP-1")
+            self.assertIn("operation=EV-OP-1", payload)
+            self.assertIn("resource.data.baseCritChance = 0.2", payload)
+            self.assertNotIn("enshrouded_local.json", payload)
+
     def test_catalog_sync_writes_repository_ready_snapshot(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
