@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from .storage import write_json_atomic
+from .integration import IntegrationContext
 
 
 @dataclass
@@ -170,6 +171,25 @@ class ResearchService:
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
+
+    def record_runtime_evidence(self, record_id: str, result: dict,
+                                context: IntegrationContext) -> ResearchRecord:
+        """Store a sanitized, operation-bound adapter observation.
+
+        Runtime adapters provide evidence; Research owns the durable record.
+        No adapter payload or private path is copied into the public catalog.
+        """
+        if context.capability != "research" or context.capability_state not in {"read-only", "staged"}:
+            raise ValueError("Runtime evidence requires a research read-only or staged context")
+        if not isinstance(result, dict) or result.get("operation_id") != context.operation_id:
+            raise ValueError("Runtime evidence operation does not match integration context")
+        allowed = ("operation_id", "field", "loader", "loader_api_version", "game_build",
+                    "old_value", "new_value", "readback_verified", "status")
+        sanitized = {key: result[key] for key in allowed if key in result}
+        if sanitized.get("readback_verified") is not True:
+            raise ValueError("Only verified runtime readback may be recorded")
+        sanitized["profile_id"] = context.profile_id
+        return self.add_evidence(record_id, "runtime-adapter: " + json.dumps(sanitized, sort_keys=True))
 
     def set_status(self, record_id: str, status: str) -> ResearchRecord:
         if status not in {"planned", "running", "completed", "blocked"}:

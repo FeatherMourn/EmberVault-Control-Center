@@ -8,6 +8,7 @@ from pathlib import Path
 
 from core.application import EmbervaultRuntime
 from core.operations import OperationStatus
+from core.integration import IntegrationContext
 from control_center.backend import ControlCenterBackend
 
 
@@ -527,6 +528,23 @@ class ApplicationCompositionTests(unittest.TestCase):
         )
         self.assertEqual(result["field"], "baseCritChance")
         self.assertEqual(result["new_value"], 0.425)
+
+    def test_research_records_operation_bound_runtime_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            record = runtime.research.create("Adapter probe", "Readback is stable", "research")
+            operation = runtime.operations.start(
+                "research-evidence", profile_id="research", capability="research",
+                capability_state="read-only", recovery_expectation="no live mutation")
+            context = IntegrationContext.from_operation(
+                operation, capability="research", capability_state="read-only",
+                recovery_expectation="no live mutation")
+            result = {"operation_id": operation.id, "field": "baseCritChance",
+                      "loader": "EML", "readback_verified": True, "new_value": 0.425}
+            updated = runtime.research.record_runtime_evidence(record.id, result, context)
+            self.assertIn(operation.id, updated.evidence[0])
+            self.assertIn('"profile_id": "research"', updated.evidence[0])
 
     def test_eml_tuning_adapter_readback_rejects_missing_or_mismatched_context(self):
         from core.tuning_adapter import TuningAdapterService
