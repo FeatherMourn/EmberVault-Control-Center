@@ -17,7 +17,7 @@ ApplicationWindow {
     property color line: "#2b2739"
     property color ember: "#ef8b4d"
     property int page: 0
-    property var pageTitles: ["Home", "My Mods", "Game Settings", "Save Manager", "Troubleshooter", "Content Creator", "Research Lab", "Knowledge", "Profiles", "Characters", "Trainer", "Activity", "Modules"]
+    property var pageTitles: ["Home", "My Mods", "Game Settings", "Save Manager", "Troubleshooter", "Content Creator", "Research Lab", "Knowledge", "Profiles", "Characters", "Trainer", "Activity", "Modules", "Governance"]
 
     RowLayout {
         anchors.fill: parent
@@ -52,6 +52,7 @@ ApplicationWindow {
                     NavButton { label: "Trainer"; pageIndex: 10 }
                     NavButton { label: "Activity"; pageIndex: 11 }
                     NavButton { label: "Modules"; pageIndex: 12 }
+                    NavButton { label: "Governance"; pageIndex: 13 }
                     Rectangle { Layout.fillWidth: true; height: 1; color: line; Layout.topMargin: 12 }
                     Text { text: "●  Core services ready"; color: "#83a77b"; font.pixelSize: 11 }
                 }
@@ -91,6 +92,7 @@ ApplicationWindow {
                 RiskToolsPage { heading: "Trainer"; capability: "trainer"; body: "Trainer capabilities require a research profile, a verified recovery backup, and a separate-process launch contract." }
                 ActivityPage {}
                 ModulesPage {}
+                GovernancePage {}
             }
         }
     }
@@ -186,6 +188,29 @@ ApplicationWindow {
             }
             Text { text: controlCenter.restorePreview; color: muted; wrapMode: Text.WordWrap }
             Text { text: controlCenter.lastSaveMessage; color: ink; wrapMode: Text.WordWrap }
+        }
+    }
+
+    component GovernancePage: ScrollView {
+        clip: true
+        ColumnLayout {
+            width: parent.width
+            spacing: 16
+            Text { text: "Capability Governance"; color: ink; font.pixelSize: 25; font.bold: true }
+            Text { text: "Promotion readiness across Research-only, Experimental, Verified, and Stable capabilities."; color: muted; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Rectangle { Layout.fillWidth: true; height: 1; color: line }
+            Repeater {
+                model: controlCenter.capabilityGovernance
+                delegate: Rectangle {
+                    Layout.fillWidth: true; height: 58; color: panel; border.color: line; radius: 6
+                    Text { anchors.left: parent.left; anchors.leftMargin: 16; anchors.verticalCenter: parent.verticalCenter; text: modelData; color: ink; font.pixelSize: 13; width: parent.width - 32; elide: Text.ElideRight }
+                }
+            }
+            Text { text: "Promotion history"; color: ember; font.bold: true; font.pixelSize: 16; Layout.topMargin: 12 }
+            Repeater {
+                model: controlCenter.promotionSummary
+                delegate: Text { text: modelData; color: muted; font.pixelSize: 12 }
+            }
         }
     }
 

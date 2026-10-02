@@ -153,6 +153,31 @@ class ControlCenterBackend(QObject):
         return [f"{item['evidence'].get('capability_id', 'unknown')} → {item.get('target_state', 'unknown')}"
                 for item in self.promotion.decisions()[-20:]]
 
+    @Property("QStringList", notify=stateChanged)
+    def capabilityGovernance(self):
+        """Sanitized capability readiness rows for the governance workspace."""
+        rows = []
+        decisions = self.promotion.decisions() if self.promotion else []
+        latest = {item["evidence"].get("capability_id"): item for item in decisions}
+        for manifest in (self.modules.discover().values() if self.modules else []):
+            decision = latest.get(manifest.id) or latest.get(next(iter(manifest.capabilities), ""))
+            state = decision.get("target_state", manifest.feature_state) if decision else manifest.feature_state
+            evidence = decision.get("evidence", {}) if decision else {}
+            checks = [evidence.get(key) is True for key in
+                      ("reproducible", "runtime_confirmed", "recovery_tested",
+                       "compatibility_documented", "rollback_tested")]
+            rows.append(f"{manifest.name} · {state} · {sum(checks)}/5 evidence checks · owner: {evidence.get('owner', 'unassigned')}")
+        if self.tuning_adapter:
+            try:
+                manifest = self.tuning_adapter.manifest()
+            except ValueError:
+                rows.append("EML runtime adapter · unavailable until adapter evidence is installed")
+            else:
+                decision = latest.get(manifest["id"])
+                state = decision.get("target_state", manifest["feature_state"]) if decision else manifest["feature_state"]
+                rows.append(f"{manifest['name']} · {state} · runtime adapter · rollback required")
+        return rows
+
     @Slot(str, str, str, str, bool, bool, bool, bool, str, bool, result=str)
     def promoteCapability(self, capability_id, target_state, current_build, source_research_id,
                           reproducible, runtime_confirmed, recovery_tested,
