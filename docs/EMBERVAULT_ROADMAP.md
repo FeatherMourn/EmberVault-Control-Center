@@ -457,6 +457,26 @@ Goal: connect Control Center to the broader EmberVault community and research hu
 
 - Add Windows and Linux distribution packages, update checking, release channels,
   backup-before-update, migration previews, repair installation, and data-preserving uninstall.
+
+#### Stage 25.0 — Windows desktop packaging repair
+
+- Establish a pinned Windows packaging toolchain with compatible Python, PySide6,
+  and bundler versions.
+- Prove a minimal PySide6/QML executable before packaging the full Control Center.
+- Collect only the Qt modules and Quick Controls plugins the application requires;
+  avoid broad, conflicting Qt DLL collection.
+- Rebuild the Control Center incrementally with its QML interface, contracts,
+  knowledge, module manifests, and guarded workers.
+- Provide a normal windowed build and a troubleshooting build with console output
+  and startup logs.
+- Verify the executable on a clean Windows environment for QtWidgets import,
+  QML loading, seed-module discovery, knowledge discovery, and clean smoke-test
+  exit behavior.
+- Do not distribute a bundle until the frozen executable passes the smoke test.
+
+Goal: produce a directly openable Windows Control Center without weakening the
+existing safety, recovery, or module-isolation boundaries.
+
 - Publish a signed update manifest through GitHub Releases or EmberVault-Web.
 - Track Control Center and independently packaged modules as separate update targets.
 - Show version, compatibility range, changelog, download URL, hash, signature,

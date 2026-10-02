@@ -88,6 +88,15 @@ deliberately non-mutating; Research includes a
 
 ## Stage 25 update-system roadmap
 
+## Stage 25.0 Windows packaging repair
+
+The Windows desktop build is tracked as a prerequisite to the updater. The
+packaging work must use a pinned Python/PySide6/bundler toolchain, prove a minimal
+PySide6/QML executable, collect only required Qt components, and then rebuild the
+Control Center incrementally. A windowed user build and a console troubleshooting
+build are required, and neither may be distributed until the clean executable
+passes QtWidgets, QML, seed-inventory, and clean-exit smoke checks.
+
 The next distribution milestone includes a signed, review-first updater for the
 Control Center and independently packaged modules. Updates must be staged outside
 the running application, verified for compatibility, hashes, and signatures, and
