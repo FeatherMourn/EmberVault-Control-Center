@@ -274,6 +274,26 @@ class PackageService:
         self._packages[manifest.id] = PackageManifest.from_file(target / "package.json")
         return self._packages[manifest.id]
 
+    def stage_upgrade(self, source: Path) -> dict:
+        """Validate and stage an upgrade without replacing the installed package."""
+        source = Path(source)
+        incoming = PackageManifest.from_file(source / "package.json")
+        current = self.get(incoming.id)
+        if not current:
+            raise ValueError("Upgrade target is not an installed managed package")
+        if self._version_key(incoming.version) <= self._version_key(current.version):
+            raise ValueError("Upgrade version must be newer than the installed version")
+        if any(item.is_symlink() for item in [source, *source.rglob("*")]):
+            raise ValueError("Upgrade source contains an unsafe symlink")
+        staging = self.root / "package-upgrades" / incoming.id / incoming.version
+        if staging.exists():
+            shutil.rmtree(staging)
+        staging.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(source, staging)
+        return {"package_id": incoming.id, "installed_version": current.version,
+                "staged_version": incoming.version, "staged_path": str(staging),
+                "requires_review": True, "replacement_performed": False}
+
     def install_from_archive(self, archive: Path) -> PackageManifest:
         archive = Path(archive)
         if not archive.is_file() or archive.suffix.lower() != ".zip":

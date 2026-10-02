@@ -961,6 +961,19 @@ class CoreServiceTests(unittest.TestCase):
             imported = profiles.import_profile(exported, new_id="copied")
             self.assertEqual(imported.id, "copied")
 
+    def test_package_upgrade_is_staged_without_replacement(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); profiles = ProfileService(root); profiles.ensure_defaults()
+            installed = root / "packages" / "demo.mod"; installed.mkdir(parents=True)
+            (installed / "package.json").write_text(json.dumps({"id": "demo.mod", "name": "Demo", "version": "1.0.0"}))
+            incoming = root / "incoming"; incoming.mkdir()
+            (incoming / "package.json").write_text(json.dumps({"id": "demo.mod", "name": "Demo", "version": "1.1.0"}))
+            service = PackageService(root, profiles); service.discover()
+            result = service.stage_upgrade(incoming)
+            self.assertTrue(result["requires_review"])
+            self.assertFalse(result["replacement_performed"])
+            self.assertEqual(service.get("demo.mod").version, "1.0.0")
+
 
 if __name__ == "__main__":
     unittest.main()
