@@ -226,6 +226,8 @@ ApplicationWindow {
                 model: controlCenter.promotionSummary
                 delegate: Text { text: modelData; color: muted; font.pixelSize: 12 }
             }
+            Text { text: "Release candidate audit"; color: ember; font.bold: true; font.pixelSize: 16; Layout.topMargin: 12 }
+            Repeater { model: controlCenter.releaseAuditOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 12 } }
             Text { text: "Runtime adapter boundary"; color: ember; font.bold: true; font.pixelSize: 16; Layout.topMargin: 12 }
             Repeater { model: controlCenter.adapterGovernance; delegate: Text { text: modelData; color: muted; font.pixelSize: 12 } }
         }

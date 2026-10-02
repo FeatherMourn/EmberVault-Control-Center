@@ -27,6 +27,8 @@ from .tuning_adapter import TuningAdapterService
 from .promotion import PromotionService
 from .migrations import MigrationService
 from .community_sync import CommunitySyncService
+from .distribution import DistributionService
+from .release import ReleaseCandidateService
 
 
 @dataclass
@@ -55,6 +57,8 @@ class EmbervaultRuntime:
     promotion: PromotionService
     migrations: MigrationService
     community_sync: CommunitySyncService
+    distribution: DistributionService
+    release: ReleaseCandidateService
 
     @classmethod
     def create(cls, root: Path) -> "EmbervaultRuntime":
@@ -84,6 +88,8 @@ class EmbervaultRuntime:
             promotion=None,
             migrations=None,
             community_sync=None,
+            distribution=None,
+            release=None,
         )
         runtime.save_workflow = SaveWorkflowService(runtime.saves, runtime.operations, runtime.logs)
         runtime.profiles.ensure_defaults()
@@ -108,6 +114,8 @@ class EmbervaultRuntime:
         runtime.trainer = TrainerPlanService(root, runtime.saves)
         runtime.catalog.set_content(runtime.content)
         runtime.community_sync = CommunitySyncService(root, runtime.catalog)
+        runtime.distribution = DistributionService(root)
+        runtime.release = ReleaseCandidateService(root, runtime.promotion)
         runtime.modules.discover()
         runtime.logs.info("EmberVault Core initialized")
         return runtime

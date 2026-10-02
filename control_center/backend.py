@@ -55,6 +55,7 @@ class ControlCenterBackend(QObject):
         self.knowledge = runtime.knowledge if runtime else None
         self.catalog = runtime.catalog if runtime else None
         self.community_sync = runtime.community_sync if runtime else None
+        self.release = runtime.release if runtime else None
         self.content = runtime.content if runtime else None
         self.trainer = runtime.trainer if runtime else None
         self.tuning_adapter = runtime.tuning_adapter if runtime else None
@@ -925,6 +926,14 @@ class ControlCenterBackend(QObject):
         except (OSError, ValueError) as exc:
             self._last_save_message = str(exc)
         self.stateChanged.emit()
+
+    @Property("QStringList", notify=stateChanged)
+    def releaseAuditOptions(self):
+        if not self.release:
+            return []
+        audit = self.release.audit(["embervault.trainer", "embervault.research", "embervault.content-creator"])
+        return [f"Release candidate: {'READY' if audit['ready'] else 'BLOCKED'}",
+                *(f"{item['capability_id']} · {item['state']}" for item in audit["blocked"])]
 
     @Slot()
     def stageLatestResearchSubmission(self):

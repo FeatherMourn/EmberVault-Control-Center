@@ -1106,6 +1106,28 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(result["status"], "conflict")
             self.assertTrue(result["review_required"])
 
+    def test_distribution_update_repair_and_uninstall_preserve_data(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            release = {"version": "1.1.0", "channel": "stable", "platform": "windows", "package_name": "embervault.exe"}
+            self.assertTrue(runtime.distribution.check_update("1.0.0", release)["available"])
+            (Path(temp) / "user-data.json").write_text("keep", encoding="utf-8")
+            plan = runtime.distribution.uninstall_plan()
+            self.assertTrue(plan["preserve_data"])
+            self.assertIn("user-data.json", plan["preserved_paths"])
+            repair = runtime.distribution.repair_plan([Path(temp) / "missing.dll"], {})
+            self.assertTrue(repair["repair_required"])
+            self.assertFalse(repair["automatic_repair"])
+
+    def test_release_candidate_gate_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            audit = runtime.release.audit(["trainer"])
+            self.assertFalse(audit["ready"])
+            self.assertFalse(audit["unsupported_mutation_claimed"])
+            with self.assertRaises(ValueError):
+                runtime.release.create("1.0.0", ["trainer"])
+
     def test_research_collaboration_records_evidence_comparisons_and_report(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
