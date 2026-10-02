@@ -42,6 +42,31 @@ class TuningAdapterService:
         return expected | {"compatible": compatible,
                            "state": "compatible" if compatible else "incompatible"}
 
+    def capture_failure_session(self, operation_id: str, failure: str,
+                                *, phase: str, recovery_started: bool = False) -> Path:
+        """Persist a small sanitized failure record for Research review."""
+        if not isinstance(operation_id, str) or not operation_id.strip() or not isinstance(failure, str) or not failure.strip():
+            raise ValueError("Failure session requires an operation and description")
+        if phase not in {"stage", "deploy", "verify", "rollback"}:
+            raise ValueError("Unknown adapter failure phase")
+        destination = self.root / "runtime-evidence" / f"{operation_id}-failure.json"
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(json.dumps({"schema_version": 1, "adapter_id": self.manifest()["id"],
+                                           "operation_id": operation_id, "phase": phase,
+                                           "failure": failure.strip()[:2000],
+                                           "recovery_started": bool(recovery_started)}, indent=2) + "\n", encoding="utf-8")
+        return destination
+
+    @staticmethod
+    def recovery_report(operation_id: str, backup_id: str, *, readback_verified: bool,
+                         rollback_verified: bool, failure_session: str = "") -> dict[str, Any]:
+        if not operation_id.strip() or not backup_id.strip():
+            raise ValueError("Recovery report requires operation and backup IDs")
+        return {"schema_version": 1, "operation_id": operation_id, "backup_id": backup_id,
+                "readback_verified": bool(readback_verified), "rollback_verified": bool(rollback_verified),
+                "failure_session": failure_session, "recovery_state":
+                "recovered" if rollback_verified else "recovery-required"}
+
     @staticmethod
     def validate(payload: dict[str, Any]) -> None:
         required = {

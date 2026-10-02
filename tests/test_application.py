@@ -545,6 +545,18 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(incompatible["state"], "incompatible")
             self.assertIn("shroudtopia", incompatible["future_adapters"])
 
+    def test_runtime_adapter_captures_failure_and_recovery_report(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); (root / "adapters").mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (root / "adapters" / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            service = TuningAdapterService(root)
+            failure = service.capture_failure_session("EV-OP-FAIL", "Readback timed out", phase="verify", recovery_started=True)
+            report = service.recovery_report("EV-OP-FAIL", "EV-BACKUP-1", readback_verified=False, rollback_verified=True, failure_session=str(failure))
+            self.assertEqual(report["recovery_state"], "recovered")
+            self.assertTrue(failure.is_file())
+
     def test_eml_tuning_adapter_readback_includes_verified_field_name(self):
         from core.tuning_adapter import TuningAdapterService
         result = TuningAdapterService.parse_runtime_readback(
