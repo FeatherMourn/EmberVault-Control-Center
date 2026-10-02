@@ -680,14 +680,22 @@ class ControlCenterBackend(QObject):
             for item in self.content.list() if item.profile_id == self._selected_profile_id
         ]
 
-    @Slot(str, str, str, str)
-    def createContentProject(self, name: str, description: str = "", design_type: str = "furniture", design_notes: str = "", asset_references: str = ""):
+    @Slot(str, str, str, str, str, str, str, str, str, str)
+    def createContentProject(self, name: str, description: str = "", design_type: str = "furniture", design_notes: str = "", asset_references: str = "", materials: str = "", dimensions: str = "", recipe_plan: str = "", registration_plan: str = "", compatibility_notes: str = ""):
         if not self.content:
             return
         operation = self.operations.start("content-project-create", profile_id=self._selected_profile_id) if self.operations else None
         try:
             references = [item.strip() for item in asset_references.split(",") if item.strip()]
-            project = self.content.create(name, self._selected_profile_id, description, design_type, design_notes, references)
+            material_list = [item.strip() for item in materials.split(",") if item.strip()]
+            recipe_list = [item.strip() for item in recipe_plan.split(";") if item.strip()]
+            dimension_values = {}
+            for item in dimensions.split(","):
+                if item.strip():
+                    key, value = item.split("=", 1)
+                    dimension_values[key.strip()] = float(value.strip())
+            project = self.content.create(name, self._selected_profile_id, description, design_type, design_notes, references,
+                                          material_list, dimension_values, recipe_list, registration_plan, compatibility_notes)
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created content project {project.id}")
             self._last_save_message = f"Created content project {project.id}"
@@ -733,8 +741,8 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
-    @Slot(str, str, str)
-    def updateLatestContentDesign(self, design_type: str, design_notes: str, asset_references: str):
+    @Slot(str, str, str, str, str, str, str, str)
+    def updateLatestContentDesign(self, design_type: str, design_notes: str, asset_references: str, materials: str = "", dimensions: str = "", recipe_plan: str = "", registration_plan: str = "", compatibility_notes: str = ""):
         if not self.content:
             return
         projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
@@ -744,7 +752,15 @@ class ControlCenterBackend(QObject):
             operation = self.operations.start("content-design-update", profile_id=self._selected_profile_id) if self.operations else None
             try:
                 references = [item.strip() for item in asset_references.split(",") if item.strip()]
-                project = self.content.update_design(projects[-1].id, design_type, design_notes, references)
+                material_list = [item.strip() for item in materials.split(",") if item.strip()]
+                recipe_list = [item.strip() for item in recipe_plan.split(";") if item.strip()]
+                dimension_values = {}
+                for item in dimensions.split(","):
+                    if item.strip():
+                        key, value = item.split("=", 1)
+                        dimension_values[key.strip()] = float(value.strip())
+                project = self.content.update_design(projects[-1].id, design_type, design_notes, references,
+                                                     material_list, dimension_values, recipe_list, registration_plan, compatibility_notes)
                 if operation and self.operations:
                     self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Updated content design {project.id}")
                 self._last_save_message = f"Updated design for {project.id}"
