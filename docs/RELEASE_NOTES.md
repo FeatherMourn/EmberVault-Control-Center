@@ -52,6 +52,9 @@
   the seeded safety catalog.
 - The isolated tuning-audit worker can review staged settings and confirm the
   live game was not changed; it does not apply tuning.
+- The experimental EML adapter now supports a guarded, owned-package lifecycle
+  for the evidenced `BalancingTable.baseCritChance` field, including staged
+  payloads, deployment, log readback, operation tracking, and rollback.
 - Trainer and Content Creator gates now require an existing checksum-valid
   verified backup, not merely a backup identifier.
 - Trainer plans enforce the same checksum-valid backup requirement at creation

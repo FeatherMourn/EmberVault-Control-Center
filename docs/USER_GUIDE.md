@@ -61,7 +61,14 @@ setting buttons to change the selected profile, then export a JSON manifest for
 review or import a previously exported manifest. Imports must belong to the
 selected profile and use the `staged-only` contract; invalid or mismatched
 manifests are rejected before the profile is changed. The tuning audit can
-inspect the staged manifest without applying it.
+  inspect the staged manifest without applying it.
+
+The experimental EML adapter is separate from ordinary staged settings. It
+supports only the evidenced `baseCritChance` field on the pinned EML build.
+Use the readiness, preview, staging, deployment, verification, and rollback
+controls in that order. Deployment requires the Research profile, a verified
+recovery point, and a closed game. A failed or missing EML readback rolls the
+owned adapter back; it does not modify the existing Mod Hub.
 
 ## Research and tools
 
