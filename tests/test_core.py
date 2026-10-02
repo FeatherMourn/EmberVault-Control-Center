@@ -937,6 +937,19 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(plan[0].compatibility_state, "incompatible")
             self.assertEqual(plan[0].status, "incompatible")
 
+    def test_package_graph_profile_compare_and_batch_enablement(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); profiles = ProfileService(root); profiles.ensure_defaults()
+            for package_id, dependencies in (("base.mod", []), ("addon.mod", ["base.mod"])):
+                folder = root / "packages" / package_id; folder.mkdir(parents=True)
+                (folder / "package.json").write_text(json.dumps({"id": package_id, "name": package_id, "version": "1", "dependencies": dependencies}))
+            service = PackageService(root, profiles); service.discover(); profile = profiles.list()[0]
+            updated = service.batch_set_enabled(profile, ["base.mod", "addon.mod"], True)
+            other = Profile("other", "Other", enabled_packages=["base.mod"])
+            comparison = service.compare_profiles(updated, other)
+            self.assertEqual(service.dependency_graph()["addon.mod"], ["base.mod"])
+            self.assertEqual(comparison["only_left"], ["addon.mod"])
+
 
 if __name__ == "__main__":
     unittest.main()

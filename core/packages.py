@@ -156,6 +156,27 @@ class PackageService:
     def is_enabled(self, profile: Profile, package_id: str) -> bool:
         return package_id in profile.enabled_packages
 
+    def dependency_graph(self) -> dict[str, list[str]]:
+        """Return a stable package-to-dependency graph for UI and tooling."""
+        return {package.id: sorted(package.dependencies) for package in self.list()}
+
+    def compare_profiles(self, left: Profile, right: Profile) -> dict[str, list[str]]:
+        left_ids, right_ids = set(left.enabled_packages), set(right.enabled_packages)
+        return {"only_left": sorted(left_ids - right_ids),
+                "only_right": sorted(right_ids - left_ids),
+                "shared": sorted(left_ids & right_ids)}
+
+    def batch_set_enabled(self, profile: Profile, package_ids: list[str], enabled: bool,
+                          detected_build: str | None = None) -> Profile:
+        """Validate a batch completely before changing profile state."""
+        if not isinstance(package_ids, list) or any(not isinstance(item, str) or not item.strip() for item in package_ids):
+            raise ValueError("Package batch must contain non-empty IDs")
+        requested = list(dict.fromkeys(item.strip() for item in package_ids))
+        candidate = Profile(**{**profile.__dict__, "enabled_packages": list(profile.enabled_packages)})
+        for package_id in requested:
+            candidate = self.set_enabled(candidate, package_id, enabled, detected_build)
+        return candidate
+
     def set_enabled(self, profile: Profile, package_id: str, enabled: bool, detected_build: str | None = None) -> Profile:
         if package_id not in self._packages:
             raise ValueError(f"Unknown package: {package_id}")
