@@ -1124,6 +1124,17 @@ class ControlCenterBackend(QObject):
             references = [item.strip() for item in asset_references.split(",") if item.strip()]
             material_list = [item.strip() for item in materials.split(",") if item.strip()]
             recipe_list = [item.strip() for item in recipe_plan.split(";") if item.strip()]
+            creator_module = self.modules.get("embervault.content-creator") if self.modules else None
+            if creator_module:
+                loaded = self.modules.load_embedded(creator_module.id)
+                validator = getattr(loaded, "validate_design", None)
+                if not callable(validator):
+                    raise ValueError("Content Creator does not provide design validation")
+                from embervault_sdk import ModuleContext
+                validation = validator(ModuleContext(creator_module.id, self._selected_profile_id,
+                                                     operation.id if operation else None, "plan-only"), design_type, references)
+                if validation.status != "ready":
+                    raise ValueError(validation.message)
             dimension_values = {}
             for item in dimensions.split(","):
                 if item.strip():
@@ -1189,6 +1200,17 @@ class ControlCenterBackend(QObject):
                 references = [item.strip() for item in asset_references.split(",") if item.strip()]
                 material_list = [item.strip() for item in materials.split(",") if item.strip()]
                 recipe_list = [item.strip() for item in recipe_plan.split(";") if item.strip()]
+                creator_module = self.modules.get("embervault.content-creator") if self.modules else None
+                if creator_module:
+                    loaded = self.modules.load_embedded(creator_module.id)
+                    validator = getattr(loaded, "validate_design", None)
+                    if not callable(validator):
+                        raise ValueError("Content Creator does not provide design validation")
+                    from embervault_sdk import ModuleContext
+                    validation = validator(ModuleContext(creator_module.id, self._selected_profile_id,
+                                                         operation.id if operation else None, "plan-only"), design_type, references)
+                    if validation.status != "ready":
+                        raise ValueError(validation.message)
                 dimension_values = {}
                 for item in dimensions.split(","):
                     if item.strip():
