@@ -379,6 +379,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             export = runtime.catalog.build()
             self.assertEqual(export["schema_version"], 1)
             self.assertEqual(export["contract_versions"]["package_manifest"], 1)
+            self.assertEqual(export["contract_versions"]["integration_context"], 1)
             self.assertIn("knowledge", export)
             self.assertTrue(all(item["path"] is None for item in export["modules"]))
 

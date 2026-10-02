@@ -60,7 +60,7 @@ class CatalogExportService:
         return {
             "schema_version": 1,
             "generated_at": datetime.now(timezone.utc).isoformat(),
-            "contract_versions": {"module_manifest": 1, "package_manifest": 1, "research_record": 1, "content_project": 1, "tuning_adapter": 1},
+            "contract_versions": {"module_manifest": 1, "package_manifest": 1, "research_record": 1, "content_project": 1, "tuning_adapter": 1, "integration_context": 1},
             "packages": [asdict(item) | {"path": None} for item in packages],
             "modules": public_modules,
             "tuning_adapters": tuning_adapters,
@@ -94,7 +94,7 @@ class CatalogExportService:
             raise ValueError("Catalog generation timestamp is required")
         if not isinstance(payload["contract_versions"], dict):
             raise ValueError("Catalog contract versions must be an object")
-        for key in ("module_manifest", "package_manifest", "research_record", "content_project", "tuning_adapter"):
+        for key in ("module_manifest", "package_manifest", "research_record", "content_project", "tuning_adapter", "integration_context"):
             version = payload["contract_versions"].get(key)
             if not isinstance(version, int) or isinstance(version, bool) or version < 1:
                 raise ValueError(f"Catalog contract version is missing: {key}")

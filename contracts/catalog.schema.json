@@ -9,13 +9,14 @@
     "generated_at": {"type": "string", "minLength": 1},
     "contract_versions": {
       "type": "object",
-      "required": ["module_manifest", "package_manifest", "research_record", "content_project", "tuning_adapter"],
+      "required": ["module_manifest", "package_manifest", "research_record", "content_project", "tuning_adapter", "integration_context"],
       "properties": {
         "module_manifest": {"type": "integer", "minimum": 1},
         "package_manifest": {"type": "integer", "minimum": 1},
         "research_record": {"type": "integer", "minimum": 1},
         "content_project": {"type": "integer", "minimum": 1},
-        "tuning_adapter": {"type": "integer", "minimum": 1}
+        "tuning_adapter": {"type": "integer", "minimum": 1},
+        "integration_context": {"type": "integer", "minimum": 1}
       },
       "additionalProperties": false
     },
