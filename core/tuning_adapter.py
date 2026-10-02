@@ -151,7 +151,7 @@ class TuningAdapterService:
         lines = [line for line in log_text.splitlines() if marker in line and "[EMBERVAULT-EML-TUNING] write|" in line]
         if len(lines) != 1:
             raise ValueError("Expected exactly one EML adapter readback line")
-        match = re.search(r"old=([^|]+)\|new=([^|]+)", lines[0])
+        match = re.search(r"old=([^|\s]+)\|new=([^|\s]+)", lines[0])
         if not match:
             raise ValueError("EML adapter readback is malformed")
         return {"operation_id": operation_id, "old_value": float(match.group(1)),
