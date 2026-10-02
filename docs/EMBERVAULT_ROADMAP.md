@@ -458,6 +458,9 @@ Goal: connect Control Center to the broader EmberVault community and research hu
 The complete repository-module map and development order are maintained in
 [`MODULE_REPOSITORY_ROADMAP.md`](MODULE_REPOSITORY_ROADMAP.md).
 
+The usability, advanced-capability, and product-maturity plan is maintained in
+[`PRODUCT_EVOLUTION_ROADMAP.md`](PRODUCT_EVOLUTION_ROADMAP.md).
+
 - Add Windows and Linux distribution packages, update checking, release channels,
   backup-before-update, migration previews, repair installation, and data-preserving uninstall.
 

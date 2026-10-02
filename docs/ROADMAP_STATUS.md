@@ -100,6 +100,11 @@ passes QtWidgets, QML, seed-inventory, and clean-exit smoke checks.
 The repository-to-module map and cross-repository development sequence are
 recorded in [`MODULE_REPOSITORY_ROADMAP.md`](MODULE_REPOSITORY_ROADMAP.md).
 
+The product-evolution roadmap records the Beginner, Standard, and Advanced
+experience modes, the Home command center, shared capability services, Mod
+Manager priority, event system, and module maturity model:
+[`PRODUCT_EVOLUTION_ROADMAP.md`](PRODUCT_EVOLUTION_ROADMAP.md).
+
 The next distribution milestone includes a signed, review-first updater for the
 Control Center and independently packaged modules. Updates must be staged outside
 the running application, verified for compatibility, hashes, and signatures, and
