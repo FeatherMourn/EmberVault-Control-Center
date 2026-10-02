@@ -61,6 +61,8 @@ class ControlCenterBackend(QObject):
         self.risk = runtime.risk if runtime else None
         self.launcher = runtime.launcher if runtime else None
         self.promotion = runtime.promotion if runtime else None
+        self.migrations = runtime.migrations if runtime else None
+        self._migration_report = None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -144,7 +146,35 @@ class ControlCenterBackend(QObject):
             f"Content · {len(self.content.list()) if self.content else 0} projects",
             f"Trainer · {len(self.trainer.list()) if self.trainer else 0} plans",
             f"Promotions · {len(self.promotion.decisions()) if self.promotion else 0} decisions",
+            f"Migration · {'ready' if self.migrations else 'unavailable'}",
         ]
+
+    @Property("QStringList", notify=stateChanged)
+    def migrationPreview(self):
+        if not self.migrations:
+            return ["Migration service unavailable"]
+        return [f"{item.status.upper()} · {item.path} · {item.reason or str(item.records) + ' record(s)'}"
+                for item in self.migrations.preview()]
+
+    @Property(str, notify=stateChanged)
+    def migrationReport(self):
+        return self._migration_report or "No migration has been applied. Preview first."
+
+    @Slot()
+    def applyMigration(self):
+        if not self.migrations:
+            return
+        operation = self.operations.start("data-migration", profile_id=self._selected_profile_id,
+                                          capability="migration", capability_state="staged",
+                                          recovery_expectation="migration backup and rollback available") if self.operations else None
+        try:
+            report = self.migrations.apply()
+            self._migration_report = f"Migration backup: {report['backup']} · {len(report['items'])} item(s)"
+            if operation and self.operations: self.operations.finish(operation, OperationStatus.SUCCEEDED, self._migration_report)
+        except (OSError, ValueError, TypeError) as exc:
+            self._migration_report = str(exc)
+            if operation and self.operations: self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+        self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
     def promotionSummary(self):

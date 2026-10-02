@@ -139,6 +139,20 @@ ApplicationWindow {
                     }
                 }
             }
+            Text { text: "Data migration"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Text { text: controlCenter.migrationReport; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Button { text: "Preview data migration"; onClicked: migrationPreviewDialog.open() }
+            Button { text: "Apply migration with backup"; onClicked: controlCenter.applyMigration() }
+            Dialog {
+                id: migrationPreviewDialog
+                title: "Migration preview"
+                modal: true
+                standardButtons: Dialog.Close
+                contentItem: Column {
+                    spacing: 6
+                    Repeater { model: controlCenter.migrationPreview; delegate: Text { text: modelData; color: ink; wrapMode: Text.WordWrap } }
+                }
+            }
             Button { text: "Choose game folder"; onClicked: controlCenter.chooseGameFolder() }
             Text { text: "Continue"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 10 }
             Button { text: "Open Save Manager"; onClicked: page = 3 }
