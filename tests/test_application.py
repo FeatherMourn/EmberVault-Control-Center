@@ -1079,6 +1079,24 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIn("Oak frame", project.design_notes)
             self.assertEqual(runtime.saves.list_backups(), [])
 
+    def test_research_collaboration_records_evidence_comparisons_and_report(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Collaboration probe", "The safe probe is reproducible", "research", "1076226", "1.0")
+            runtime.research.add_attachment(record.id, "evidence/notes.txt", "observation", "Captured locally")
+            runtime.research.add_reproduction_step(record.id, "Run the read-only probe")
+            runtime.research.add_comparison(record.id, "baseline", "No mutation observed", "1076226")
+            runtime.research.add_discussion_note(record.id, "Repeat with the next build")
+            runtime.research.add_evidence(record.id, "Observed stable output")
+            runtime.research.set_status(record.id, "completed")
+            score = runtime.research.reproducibility_score(record.id)
+            self.assertEqual(score["score"], 100)
+            report = runtime.research.export_report(record.id)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            self.assertEqual(payload["application_state"], "research-report")
+            self.assertEqual(payload["report"]["attachment_count"], 1)
+            self.assertNotIn(str(Path(temp)), report.read_text(encoding="utf-8"))
+
     def test_content_project_export_is_design_only(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

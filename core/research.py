@@ -30,6 +30,11 @@ class ResearchRecord:
     linked_package_ids: list[str] = field(default_factory=list)
     linked_module_ids: list[str] = field(default_factory=list)
     linked_knowledge_ids: list[str] = field(default_factory=list)
+    experiment_template: str = "general"
+    attachments: list[dict] = field(default_factory=list)
+    build_history: list[str] = field(default_factory=list)
+    comparison_runs: list[dict] = field(default_factory=list)
+    discussion_notes: list[str] = field(default_factory=list)
 
 
 class ResearchService:
@@ -79,6 +84,14 @@ class ResearchService:
                         values = []
                     setattr(record, field_name, sorted({value.strip() for value in values
                                                          if isinstance(value, str) and value.strip()}))
+                for field_name in ("build_history", "discussion_notes"):
+                    values = getattr(record, field_name)
+                    setattr(record, field_name, [value.strip() for value in values if isinstance(value, str) and value.strip()] if isinstance(values, list) else [])
+                for field_name in ("attachments", "comparison_runs"):
+                    values = getattr(record, field_name)
+                    setattr(record, field_name, [value for value in values if isinstance(value, dict)] if isinstance(values, list) else [])
+                if not isinstance(record.experiment_template, str) or not record.experiment_template.strip():
+                    record.experiment_template = "general"
                 records.append(record)
             return records
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
@@ -112,6 +125,65 @@ class ResearchService:
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
+
+    def add_attachment(self, record_id: str, name: str, kind: str, note: str = "") -> ResearchRecord:
+        if not name.strip() or not kind.strip():
+            raise ValueError("Evidence attachment name and kind are required")
+        path = Path(name.strip())
+        if path.is_absolute() or ".." in path.parts:
+            raise ValueError("Evidence attachments must be relative")
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                record.attachments.append({"name": path.as_posix(), "kind": kind.strip(), "note": note.strip()})
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return record
+        raise KeyError(record_id)
+
+    def import_runtime_log(self, record_id: str, source: Path) -> ResearchRecord:
+        """Import bounded text evidence without retaining the source path."""
+        source = Path(source)
+        if not source.is_file():
+            raise ValueError("Runtime log does not exist")
+        text = source.read_text(encoding="utf-8", errors="replace")[-12000:]
+        safe = "\n".join(line[:500] for line in text.splitlines()[-100:])
+        return self.add_evidence(record_id, "runtime-log-import: " + safe)
+
+    def reproducibility_score(self, record_id: str) -> dict:
+        record = next((item for item in self.list() if item.id == record_id), None)
+        if record is None:
+            raise KeyError(record_id)
+        checks = {"hypothesis": bool(record.hypothesis), "evidence": bool(record.evidence),
+                  "reproduction_steps": bool(record.reproduction_steps), "game_build": bool(record.game_build),
+                  "outcome": record.status == "completed" and not record.failures}
+        return {"score": round(sum(checks.values()) / len(checks) * 100), "checks": checks}
+
+    def add_comparison(self, record_id: str, label: str, outcome: str, build: str = "") -> ResearchRecord:
+        if not label.strip() or not outcome.strip():
+            raise ValueError("Comparison label and outcome are required")
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                record.comparison_runs.append({"label": label.strip(), "outcome": outcome.strip(), "build": build.strip()})
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return record
+        raise KeyError(record_id)
+
+    def add_discussion_note(self, record_id: str, note: str) -> ResearchRecord:
+        return self._append_record_text(record_id, "discussion_notes", note)
+
+    def export_report(self, record_id: str) -> Path:
+        record = next((item for item in self.list() if item.id == record_id), None)
+        if record is None:
+            raise KeyError(record_id)
+        destination = self.path.parent.parent / "exports" / "research" / f"{record.id}-report.json"
+        write_json_atomic(destination, {"schema_version": 1, "report": {"id": record.id, "title": record.title,
+            "hypothesis": record.hypothesis, "status": record.status, "build": record.game_build,
+            "reproducibility": self.reproducibility_score(record.id), "evidence_count": len(record.evidence),
+            "attachment_count": len(record.attachments), "comparison_count": len(record.comparison_runs),
+            "discussion_count": len(record.discussion_notes)}, "application_state": "research-report",
+            "generated_at": datetime.now(timezone.utc).isoformat()})
+        return destination
 
     def _append_record_text(self, record_id: str, field_name: str, text: str) -> ResearchRecord:
         if not isinstance(text, str) or not text.strip():
