@@ -403,6 +403,21 @@ class ApplicationCompositionTests(unittest.TestCase):
             manifest = TuningAdapterService(root).manifest()
             self.assertEqual(manifest["supported_setting_keys"], ["baseCritChance"])
 
+    def test_eml_tuning_adapter_rejects_runtime_build_or_api_mismatch(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            service = TuningAdapterService(root)
+            self.assertEqual(service.validate_runtime_context(loader="EML", loader_api_version="1.3", game_build="1076226")["game_build"], "1076226")
+            with self.assertRaises(ValueError):
+                service.validate_runtime_context(loader="EML", loader_api_version="1.2", game_build="1076226")
+            with self.assertRaises(ValueError):
+                service.validate_runtime_context(loader="EML", loader_api_version="1.3", game_build="other")
+
     def test_eml_tuning_adapter_prepares_preview_without_mutation(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

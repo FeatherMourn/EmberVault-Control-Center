@@ -28,6 +28,7 @@ class TuningAdapterService:
         required = {
             "schema_version", "id", "name", "version", "process_mode",
             "loader", "game_build", "supported_setting_keys", "evidence",
+            "loader_api_version",
             "backup_requirements", "mutation_scope", "verification_steps",
             "feature_state",
             "owned_package_id",
@@ -36,7 +37,7 @@ class TuningAdapterService:
             raise ValueError("Tuning adapter manifest has an invalid shape")
         if payload["schema_version"] != 1 or payload["process_mode"] != "separate":
             raise ValueError("Unsupported tuning adapter manifest")
-        if payload["loader"] != "EML" or payload["game_build"] != "1076226":
+        if payload["loader"] != "EML" or payload["loader_api_version"] != "1.3" or payload["game_build"] != "1076226":
             raise ValueError("Adapter is not compatible with the reviewed EML build")
         keys = payload["supported_setting_keys"]
         if keys != ["baseCritChance"]:
@@ -53,6 +54,27 @@ class TuningAdapterService:
             raise ValueError("Adapter must remain experimental until behavior is verified")
         if payload["owned_package_id"] != "embervault.eml-tuning-adapter":
             raise ValueError("Adapter ownership is not recognized")
+
+    def validate_runtime_context(self, *, loader: str, loader_api_version: str,
+                                 game_build: str) -> dict[str, str]:
+        """Fail closed unless the observed runtime matches reviewed evidence."""
+        manifest = self.manifest()
+        expected = {
+            "loader": manifest["loader"],
+            "loader_api_version": manifest["loader_api_version"],
+            "game_build": manifest["game_build"],
+        }
+        observed = {
+            "loader": str(loader),
+            "loader_api_version": str(loader_api_version),
+            "game_build": str(game_build),
+        }
+        if observed != expected:
+            raise ValueError(
+                "EML runtime is incompatible: expected "
+                f"{expected['loader']} API {expected['loader_api_version']} build {expected['game_build']}"
+            )
+        return observed
 
     def prepare_operation(self, profile_type: str, backup_verified: bool,
                           game_running: bool, staged_value: float,

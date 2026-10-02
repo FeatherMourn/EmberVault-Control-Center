@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "process_mode": "separate",
   "loader": "EML",
+  "loader_api_version": "1.3",
   "game_build": "1076226",
   "supported_setting_keys": ["baseCritChance"],
   "evidence": {
