@@ -253,7 +253,8 @@ from game and save state.
 
 ## Stage 11 — Character tools
 
-Status: plan-only implementation.
+Status: complete for the planned first-release scope; direct save mutation
+remains outside the boundary.
 
 - Character profiles.
 - Build goals.
@@ -264,6 +265,10 @@ Status: plan-only implementation.
 - Plan exports.
 
 Direct save mutation requires a separate evidence and safety review.
+
+Verification: 231 tests pass, the offscreen launcher smoke test passes, the
+fresh wheel contains all required assets, and character plans remain separate
+from live save contents.
 
 ## Stage 12 — Trainer
 

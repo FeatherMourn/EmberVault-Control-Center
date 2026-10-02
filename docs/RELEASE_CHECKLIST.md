@@ -2,7 +2,9 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (230 tests passing).
+- [x] Run the complete Python test suite (231 tests passing).
+- [x] Confirm Character Tools remains plan-only and requires existing verified
+      backups for backup associations.
 - [x] Confirm Content Creator remains design-only and validates structured
       materials, dimensions, recipe, registration, and compatibility data.
 - [x] Confirm Knowledge Base tags, cross-links, evidence references, version

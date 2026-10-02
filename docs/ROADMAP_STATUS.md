@@ -59,6 +59,9 @@ deliberately non-mutating; Research includes a
 - Content Creator supports furniture and other design projects with asset
   references, materials, dimensions, recipe/registration plans, compatibility
   notes, validation, and design-only exports (230 tests).
+- Character Tools supports structured build goals, progression, equipment and
+  skill notes, verified-backup associations, validation, and plan-only exports
+  without save mutation (231 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
   packaged launcher passes its offscreen smoke test, which asserts discovery of
