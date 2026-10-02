@@ -92,6 +92,22 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIsNone(recovered._staged_adapter_operation_id)
             self.assertFalse(recovered._adapter_deployed)
 
+    def test_backend_recovers_verified_adapter_state_from_operation_history(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            runtime = EmbervaultRuntime.create(root)
+            deploy = runtime.operations.start("tuning-adapter-deploy", profile_id="research")
+            runtime.operations.finish(deploy, OperationStatus.SUCCEEDED, "Deployed owned EML adapter")
+            verify = runtime.operations.start("tuning-adapter-verify", profile_id="research")
+            runtime.operations.finish(verify, OperationStatus.SUCCEEDED, "Verified EML readback")
+            recovered = ControlCenterBackend(root, runtime=EmbervaultRuntime.create(root))
+            self.assertTrue(recovered._adapter_verified)
+            self.assertIn("verified", recovered.tuningAdapterStatus)
+
     def test_backend_exposes_selected_profile_index(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

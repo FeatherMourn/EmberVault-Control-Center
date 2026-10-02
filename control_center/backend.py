@@ -74,6 +74,7 @@ class ControlCenterBackend(QObject):
         self._staged_adapter_package = None
         self._staged_adapter_operation_id = None
         self._adapter_deployed = False
+        self._adapter_verified = False
         self._restore_adapter_operation_state()
 
     def _restore_adapter_operation_state(self) -> None:
@@ -87,7 +88,12 @@ class ControlCenterBackend(QObject):
                 self._staged_adapter_package = None
                 self._staged_adapter_operation_id = None
                 self._adapter_deployed = False
+                self._adapter_verified = False
                 return
+            if operation.operation_type == "tuning-adapter-verify":
+                self._adapter_verified = True
+                self._adapter_deployed = True
+                continue
             if operation.operation_type == "tuning-adapter-deploy":
                 self._adapter_deployed = True
                 continue
@@ -164,7 +170,9 @@ class ControlCenterBackend(QObject):
             return "EML adapter unavailable"
         try:
             manifest = self.tuning_adapter.manifest()
-            if self._adapter_deployed:
+            if self._adapter_verified:
+                lifecycle = "verified"
+            elif self._adapter_deployed:
                 lifecycle = "deployed; launch verification pending"
             elif self._staged_adapter_package:
                 lifecycle = "payload staged"
@@ -262,6 +270,7 @@ class ControlCenterBackend(QObject):
                 logs[0], self._staged_adapter_operation_id, values["base_crit_chance"]
             )
             self._last_save_message = f"Verified EML readback for {result['field']} = {result['new_value']}"
+            self._adapter_verified = True
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, self._last_save_message)
             self.stateChanged.emit()
@@ -292,6 +301,7 @@ class ControlCenterBackend(QObject):
             )
             self._last_save_message = f"Deployed owned EML adapter to {destination}; launch verification pending"
             self._adapter_deployed = True
+            self._adapter_verified = False
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, self._last_save_message)
             self.stateChanged.emit()
@@ -313,6 +323,7 @@ class ControlCenterBackend(QObject):
             operation = self.operations.start("tuning-adapter-rollback", profile_id=self._selected_profile_id) if self.operations else None
             self.tuning_adapter.undeploy_adapter(Path(self.settings.game_path))
             self._adapter_deployed = False
+            self._adapter_verified = False
             self._last_save_message = "Removed the EmberVault-owned EML adapter; existing mods were not changed"
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, self._last_save_message)
