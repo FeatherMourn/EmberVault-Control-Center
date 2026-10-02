@@ -118,6 +118,36 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertFalse(backend.canVerifyTuningAdapter)
             self.assertEqual(backend.verifyTuningAdapter(), "Deploy the staged EML adapter first")
 
+    def test_backend_rolls_back_owned_adapter_after_failed_readback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            runtime = EmbervaultRuntime.create(root)
+            backend = ControlCenterBackend(root, runtime=runtime)
+            game = root / "game"
+            destination = game / "mods" / "embervault.eml-tuning-adapter"
+            destination.mkdir(parents=True)
+            (destination / ".embervault-managed.json").write_text(
+                json.dumps({"package_id": "embervault.eml-tuning-adapter", "managed_by": "embervault-control-center"}),
+                encoding="utf-8",
+            )
+            (game / "logs").mkdir(parents=True)
+            (game / "logs" / "current.eml.log").write_text("unrelated runtime output", encoding="utf-8")
+            backend.settings.game_path = str(game)
+            backend._staged_adapter_operation_id = "EV-OP-FAIL"
+            backend._adapter_deployed = True
+            backend._adapter_deployed_at = 0.0
+            message = backend.verifyTuningAdapter()
+            self.assertIn("EML verification failed", message)
+            self.assertIn("rolled back", message)
+            self.assertFalse(destination.exists())
+            self.assertFalse(backend._adapter_deployed)
+            self.assertTrue(any(item.operation_type == "tuning-adapter-verify" and item.status == OperationStatus.FAILED
+                                for item in runtime.operations.list_recent()))
+
     def test_backend_exposes_selected_profile_index(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
