@@ -148,6 +148,18 @@ class ModuleRegistryTests(unittest.TestCase):
             loaded = registry.load_embedded(manifest.id)
             self.assertEqual(loaded.describe()["id"], manifest.id)
 
+    def test_research_installs_as_separate_process_and_requires_research_profile(self):
+        module_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Research-Module")
+        if not (module_root / "module.json").is_file():
+            self.skipTest("Research module checkout is not available")
+        with tempfile.TemporaryDirectory() as temp:
+            registry = ModuleRegistry(Path(temp) / "modules")
+            manifest = registry.install_from_directory(module_root)
+            self.assertEqual(manifest.process_mode, "separate")
+            process = registry.launch(manifest.id, LaunchContext("research", None, "EV-OP-RESEARCH"))
+            output = process.communicate(timeout=5)[0]
+            self.assertIn('"status": "ready"', output)
+
     def test_guarded_content_launch_requires_recovery_token(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
