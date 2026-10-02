@@ -2,7 +2,7 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (204 tests passing).
+- [x] Run the complete Python test suite (207 tests passing).
 - [x] Run the same test, QML smoke, wheel, and asset-verification gates in
       GitHub Actions (`.github/workflows/ci.yml`).
 - [x] Upload the verified wheel as a CI artifact for review.
@@ -19,6 +19,7 @@
 - [x] Confirm gameplay tuning adapter schema is included in the wheel data.
 - [x] Confirm character-plan and content-project schemas are included in the wheel data.
 - [x] Confirm trainer-plan schema is included in the wheel data.
+- [x] Generate and independently validate a sanitized catalog handoff.
 - [x] Review the frozen vocabulary in `docs/TERMINOLOGY.md`.
 - [x] Review embedded and separate-process boundaries in
       `docs/MODULE_BOUNDARIES.md`.
