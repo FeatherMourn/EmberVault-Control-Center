@@ -8,7 +8,7 @@
     "schema_version": {"const": 1},
     "record": {
       "type": "object",
-      "required": ["id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at"],
+      "required": ["id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at", "game_build", "game_version", "reproduction_step_count", "failure_count", "promotion_status"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "title": {"type": "string", "minLength": 1},
@@ -17,6 +17,11 @@
         "evidence_count": {"type": "integer", "minimum": 0},
         "created_at": {"type": "string"},
         "published_at": {"type": "string"}
+        ,"game_build": {"type": "string"}
+        ,"game_version": {"type": "string"}
+        ,"reproduction_step_count": {"type": "integer", "minimum": 0}
+        ,"failure_count": {"type": "integer", "minimum": 0}
+        ,"promotion_status": {"enum": ["not-requested", "requested", "approved", "rejected"]}
       },
       "additionalProperties": false
     },

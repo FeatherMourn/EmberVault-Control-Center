@@ -179,7 +179,8 @@ passes standalone validation.
 
 ## Stage 8 — Research and Development
 
-Status: initial implementation complete; expand evidence workflows.
+Status: in progress; structured research records and promotion review are now
+implemented, with worker and catalog integration still being expanded.
 
 - Experiment records.
 - Hypotheses.
@@ -189,6 +190,8 @@ Status: initial implementation complete; expand evidence workflows.
 - Research-only profiles.
 - Promotion reviews.
 - Sanitized research exports.
+- Records now preserve build/version context, reproduction steps, failure
+  records, and promotion-review state without exporting private evidence text.
 
 Exit criteria:
 

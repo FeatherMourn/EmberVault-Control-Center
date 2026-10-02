@@ -22,7 +22,7 @@ outside the first-release mutation boundary.
 
 ## Release evidence
 
-- 226 unit tests pass.
+- 227 unit tests pass.
 - The offscreen QML smoke test passes.
 - A fresh wheel contains and verifies all 24 required release assets.
 - Catalog generation and standalone catalog validation pass.

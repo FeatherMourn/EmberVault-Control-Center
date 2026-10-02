@@ -20,6 +20,12 @@ class ResearchRecord:
     created_at: str = ""
     published: bool = False
     published_at: str = ""
+    game_build: str = ""
+    game_version: str = ""
+    reproduction_steps: list[str] = field(default_factory=list)
+    failures: list[str] = field(default_factory=list)
+    promotion_status: str = "not-requested"
+    promotion_note: str = ""
 
 
 class ResearchService:
@@ -52,18 +58,31 @@ class ResearchService:
                     record.published = False
                 if not isinstance(record.published_at, str):
                     record.published_at = ""
+                for field_name in ("game_build", "game_version", "promotion_note"):
+                    if not isinstance(getattr(record, field_name), str):
+                        setattr(record, field_name, "")
+                for field_name in ("reproduction_steps", "failures"):
+                    values = getattr(record, field_name)
+                    if not isinstance(values, list):
+                        values = []
+                    setattr(record, field_name, [value.strip() for value in values
+                                                 if isinstance(value, str) and value.strip()])
+                if record.promotion_status not in {"not-requested", "requested", "approved", "rejected"}:
+                    record.promotion_status = "not-requested"
                 records.append(record)
             return records
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
 
-    def create(self, title: str, hypothesis: str, profile_id: str) -> ResearchRecord:
+    def create(self, title: str, hypothesis: str, profile_id: str,
+               game_build: str = "", game_version: str = "") -> ResearchRecord:
         if not title.strip() or not hypothesis.strip() or not profile_id.strip():
             raise ValueError("Research title, hypothesis, and profile are required")
         record = ResearchRecord(
             id=f"EV-RES-{uuid.uuid4().hex[:8].upper()}", title=title.strip(),
             hypothesis=hypothesis.strip(), profile_id=profile_id,
             created_at=datetime.now(timezone.utc).isoformat(),
+            game_build=game_build.strip(), game_version=game_version.strip(),
         )
         records = self.list()
         records.append(record)
@@ -80,6 +99,42 @@ class ResearchService:
                 if record.published:
                     record.published = False
                     record.published_at = ""
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return record
+        raise KeyError(record_id)
+
+    def _append_record_text(self, record_id: str, field_name: str, text: str) -> ResearchRecord:
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError("Research record text is required")
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                getattr(record, field_name).append(text.strip())
+                if record.published:
+                    record.published = False
+                    record.published_at = ""
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return record
+        raise KeyError(record_id)
+
+    def add_reproduction_step(self, record_id: str, step: str) -> ResearchRecord:
+        return self._append_record_text(record_id, "reproduction_steps", step)
+
+    def add_failure(self, record_id: str, failure: str) -> ResearchRecord:
+        return self._append_record_text(record_id, "failures", failure)
+
+    def set_promotion_review(self, record_id: str, status: str, note: str = "") -> ResearchRecord:
+        if status not in {"not-requested", "requested", "approved", "rejected"}:
+            raise ValueError("Unknown promotion review status")
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                if status in {"requested", "approved"} and record.status != "completed":
+                    raise ValueError("Only completed research can enter promotion review")
+                if status == "approved" and (not record.evidence or not record.reproduction_steps):
+                    raise ValueError("Approved research requires evidence and reproduction steps")
+                record.promotion_status = status
+                record.promotion_note = note.strip()
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
@@ -131,6 +186,9 @@ class ResearchService:
                 "id": record.id, "title": record.title, "hypothesis": record.hypothesis,
                 "status": record.status, "evidence_count": len(record.evidence),
                 "created_at": record.created_at, "published_at": record.published_at,
+                "game_build": record.game_build, "game_version": record.game_version,
+                "reproduction_step_count": len(record.reproduction_steps),
+                "failure_count": len(record.failures), "promotion_status": record.promotion_status,
             },
             "application_state": "research-summary",
             "generated_at": datetime.now(timezone.utc).isoformat(),
