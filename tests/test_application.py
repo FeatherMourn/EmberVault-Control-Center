@@ -1097,6 +1097,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(payload["report"]["attachment_count"], 1)
             self.assertNotIn(str(Path(temp)), report.read_text(encoding="utf-8"))
 
+    def test_research_template_and_private_knowledge_promotion(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Compatibility finding", "Loader behavior is stable", "research",
+                                             experiment_template="compatibility")
+            runtime.research.add_evidence(record.id, "Observed stable behavior")
+            runtime.research.set_status(record.id, "completed")
+            entry = runtime.knowledge.create(record.title, "Research report", record.hypothesis,
+                                              "Sanitized draft", related_ids=[record.id], evidence_refs=[record.id])
+            runtime.research.link_context(record.id, knowledge=[entry.id])
+            self.assertEqual(runtime.research.list()[-1].experiment_template, "compatibility")
+            self.assertFalse(runtime.knowledge.entries()[-1].published)
+
     def test_content_project_export_is_design_only(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

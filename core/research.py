@@ -98,14 +98,17 @@ class ResearchService:
             return []
 
     def create(self, title: str, hypothesis: str, profile_id: str,
-               game_build: str = "", game_version: str = "") -> ResearchRecord:
+               game_build: str = "", game_version: str = "", experiment_template: str = "general") -> ResearchRecord:
         if not title.strip() or not hypothesis.strip() or not profile_id.strip():
             raise ValueError("Research title, hypothesis, and profile are required")
+        if experiment_template not in {"general", "runtime-observation", "compatibility", "content-design", "reproduction"}:
+            raise ValueError("Unknown experiment template")
         record = ResearchRecord(
             id=f"EV-RES-{uuid.uuid4().hex[:8].upper()}", title=title.strip(),
             hypothesis=hypothesis.strip(), profile_id=profile_id,
             created_at=datetime.now(timezone.utc).isoformat(),
             game_build=game_build.strip(), game_version=game_version.strip(),
+            experiment_template=experiment_template,
         )
         records = self.list()
         records.append(record)

@@ -76,6 +76,7 @@ class ControlCenterBackend(QObject):
         self._restore_preview = "No restore selected"
         self._selected_profile_id = self.profiles[0].id if self.profiles else ""
         self._knowledge_query = ""
+        self._research_query = ""
         self._staged_adapter_package = None
         self._staged_adapter_operation_id = None
         self._adapter_deployed = False
@@ -703,7 +704,28 @@ class ControlCenterBackend(QObject):
         if not self.research:
             return []
         return [f"{item.status.upper()} · {'PUBLISHED' if item.published else 'PRIVATE'} · {item.title} · {len(item.evidence)} evidence note(s)"
-                for item in self.research.list() if item.profile_id == self._selected_profile_id]
+                for item in self.research.list() if item.profile_id == self._selected_profile_id
+                and (not self._research_query or self._research_query.lower() in (item.title + " " + item.hypothesis + " " + item.experiment_template).lower())]
+
+    @Slot(str)
+    def searchResearch(self, query: str):
+        self._research_query = query.strip()
+        self.stateChanged.emit()
+
+    @Property("QStringList", notify=stateChanged)
+    def researchEvidenceOptions(self):
+        if not self.research:
+            return []
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
+        if not records:
+            return []
+        latest = records[-1]
+        return [f"Evidence {index + 1}: {value[:180]}" for index, value in enumerate(latest.evidence)] + [
+            f"Attachment: {item.get('name', '')} · {item.get('kind', '')}" for item in latest.attachments]
+
+    @Property("QStringList", notify=stateChanged)
+    def researchTemplateOptions(self):
+        return ["general", "runtime-observation", "compatibility", "content-design", "reproduction"]
 
     @Property("QStringList", notify=stateChanged)
     def researchCollaborationOptions(self):
@@ -760,6 +782,28 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         else:
             self._last_save_message = "Create a research record first"
+        self.stateChanged.emit()
+
+    @Slot()
+    def promoteLatestResearchToKnowledge(self):
+        if not self.research or not self.knowledge:
+            return
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
+        if not records:
+            self._last_save_message = "Create a research record first"
+        else:
+            record = records[-1]
+            try:
+                if record.status != "completed" or not record.evidence:
+                    raise ValueError("Complete research with evidence before promotion")
+                entry = self.knowledge.create(record.title, "Research report",
+                    record.hypothesis, f"Research report {record.id}: {len(record.evidence)} evidence item(s); "
+                    f"reproducibility {self.research.reproducibility_score(record.id)['score']}%.",
+                    related_ids=[record.id], evidence_refs=[record.id])
+                self.research.link_context(record.id, knowledge=[entry.id])
+                self._last_save_message = f"Created private knowledge draft {entry.id}"
+            except (KeyError, OSError, ValueError) as exc:
+                self._last_save_message = str(exc)
         self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
@@ -1377,13 +1421,13 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
-    @Slot(str, str)
-    def createResearchRecord(self, title: str, hypothesis: str):
+    @Slot(str, str, str)
+    def createResearchRecord(self, title: str, hypothesis: str, experiment_template: str = "general"):
         if not self.research:
             return
         operation = self.operations.start("research-create", profile_id=self._selected_profile_id) if self.operations else None
         try:
-            record = self.research.create(title, hypothesis, self._selected_profile_id)
+            record = self.research.create(title, hypothesis, self._selected_profile_id, experiment_template=experiment_template)
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Created research record {record.id}")
             self._last_save_message = f"Created research record {record.id}"

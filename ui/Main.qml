@@ -428,9 +428,11 @@ ApplicationWindow {
             Text { text: "RESEARCH LAB"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
             Text { text: "Test ideas without losing the thread."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "Research records stay associated with an isolated profile. Evidence is captured before experimental work is promoted into a normal workflow."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            TextField { id: researchSearch; placeholderText: "Filter research by title, hypothesis, or template"; Layout.fillWidth: true; onTextChanged: controlCenter.searchResearch(text) }
             TextField { id: titleField; placeholderText: "Experiment title"; Layout.fillWidth: true }
             TextField { id: hypothesisField; placeholderText: "Hypothesis"; Layout.fillWidth: true }
-            Button { text: "Create research record"; onClicked: controlCenter.createResearchRecord(titleField.text, hypothesisField.text) }
+            ComboBox { id: researchTemplate; model: controlCenter.researchTemplateOptions; Layout.fillWidth: true }
+            Button { text: "Create research record"; onClicked: controlCenter.createResearchRecord(titleField.text, hypothesisField.text, researchTemplate.currentText) }
             TextField { id: evidenceField; placeholderText: "Evidence note for latest record"; Layout.fillWidth: true }
             Button { text: "Add evidence note"; onClicked: controlCenter.addResearchEvidence(evidenceField.text) }
             TextField { id: reproductionField; placeholderText: "Reproduction step for latest record"; Layout.fillWidth: true }
@@ -450,6 +452,7 @@ ApplicationWindow {
             Button { text: "Unpublish latest research"; onClicked: controlCenter.unpublishLatestResearch() }
             Button { text: "Export latest research summary"; onClicked: controlCenter.exportLatestResearchSummary() }
             Button { text: "Export reproducibility report"; onClicked: controlCenter.exportLatestResearchReport() }
+            Button { text: "Promote latest research to private knowledge draft"; onClicked: controlCenter.promoteLatestResearchToKnowledge() }
             TextField { id: discussionNoteField; placeholderText: "Discussion note for latest experiment"; Layout.fillWidth: true }
             Button { text: "Add discussion note"; onClicked: controlCenter.addLatestResearchDiscussion(discussionNoteField.text) }
             TextField { id: comparisonLabelField; placeholderText: "Comparison label"; Layout.fillWidth: true }
@@ -463,6 +466,10 @@ ApplicationWindow {
             }
             Repeater {
                 model: controlCenter.researchCollaborationOptions
+                delegate: Text { text: modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            }
+            Repeater {
+                model: controlCenter.researchEvidenceOptions
                 delegate: Text { text: modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             }
         }
