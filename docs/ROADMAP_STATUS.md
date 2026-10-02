@@ -49,7 +49,7 @@ deliberately non-mutating; Research includes a
 
 - Python unit suite currently covers the Core services, workflows, module gates,
   profile isolation, package contracts, packaging assets, and installed-process
-  contracts (205 tests).
+  contracts (207 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
   packaged launcher passes its offscreen smoke test, which asserts discovery of
@@ -60,3 +60,5 @@ deliberately non-mutating; Research includes a
   packaged assets, and the offscreen launcher smoke test passes. The default
   catalog sync command includes the reviewed adapter and seeded knowledge assets;
   isolated exports can still provide `--data-root` explicitly.
+- CI also generates and independently validates a catalog handoff on every
+  verification run.
