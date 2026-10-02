@@ -28,6 +28,9 @@ REQUIRED = (
     "modules/tuning-audit/tuning_stub.py",
     "knowledge/entries.json",
     "packages/example-mod/package.json",
+    "adapters/eml-balancing-table.json",
+    "packages/eml-tuning-adapter/package.json",
+    "packages/eml-tuning-adapter/mod.lua",
 )
 
 
