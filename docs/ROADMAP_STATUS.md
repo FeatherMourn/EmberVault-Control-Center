@@ -97,6 +97,9 @@ Control Center incrementally. A windowed user build and a console troubleshootin
 build are required, and neither may be distributed until the clean executable
 passes QtWidgets, QML, seed-inventory, and clean-exit smoke checks.
 
+The repository-to-module map and cross-repository development sequence are
+recorded in [`MODULE_REPOSITORY_ROADMAP.md`](MODULE_REPOSITORY_ROADMAP.md).
+
 The next distribution milestone includes a signed, review-first updater for the
 Control Center and independently packaged modules. Updates must be staged outside
 the running application, verified for compatibility, hashes, and signatures, and

@@ -455,6 +455,9 @@ Goal: connect Control Center to the broader EmberVault community and research hu
 
 ### Stage 25 — Distribution and Updates
 
+The complete repository-module map and development order are maintained in
+[`MODULE_REPOSITORY_ROADMAP.md`](MODULE_REPOSITORY_ROADMAP.md).
+
 - Add Windows and Linux distribution packages, update checking, release channels,
   backup-before-update, migration previews, repair installation, and data-preserving uninstall.
 
