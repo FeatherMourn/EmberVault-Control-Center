@@ -2,7 +2,9 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (229 tests passing).
+- [x] Run the complete Python test suite (230 tests passing).
+- [x] Confirm Content Creator remains design-only and validates structured
+      materials, dimensions, recipe, registration, and compatibility data.
 - [x] Confirm Knowledge Base tags, cross-links, evidence references, version
       history, metadata search, and publication boundaries.
 - [x] Run the same test, QML smoke, wheel, and asset-verification gates in

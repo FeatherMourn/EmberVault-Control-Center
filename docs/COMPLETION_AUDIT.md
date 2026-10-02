@@ -24,7 +24,9 @@ outside the first-release mutation boundary.
 
 ## Release evidence
 
-- 229 unit tests pass.
+- 230 unit tests pass.
+- Stage 10 Content Creator projects support structured design data, validation,
+  operation-tracked UI editing, and design-only exports without game mutation.
 - Stage 9 knowledge records support metadata, references, local version history,
   operation-tracked editing, search, and sanitized public publication.
 - The offscreen QML smoke test passes.

@@ -233,7 +233,8 @@ standalone validation.
 
 ## Stage 10 — Content Creator
 
-Status: design-only implementation.
+Status: complete for the planned first-release scope; future work may add
+reviewed asset tooling without crossing the mutation boundary.
 
 - Furniture projects.
 - Asset references.
@@ -245,6 +246,10 @@ Status: design-only implementation.
 
 First-release boundary: no direct live game mutation or untracked asset
 injection.
+
+Verification: 230 tests pass, the offscreen launcher smoke test passes, the
+fresh wheel contains all required assets, and design exports remain separate
+from game and save state.
 
 ## Stage 11 — Character tools
 

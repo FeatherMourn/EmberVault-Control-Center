@@ -56,6 +56,9 @@ deliberately non-mutating; Research includes a
   ownership inspection, interrupted deployment cleanup, and research
   publication retraction safeguards (229 tests). Knowledge now supports
   structured metadata, version history, references, and sanitized publication.
+- Content Creator supports furniture and other design projects with asset
+  references, materials, dimensions, recipe/registration plans, compatibility
+  notes, validation, and design-only exports (230 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
   packaged launcher passes its offscreen smoke test, which asserts discovery of
