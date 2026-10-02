@@ -150,7 +150,8 @@ field and remains experimental.
 
 ## Stage 7 — Mods Management
 
-Status: initial implementation complete; continue hardening.
+Status: complete for the planned first-release scope; future work may add
+additional package formats and deployment adapters.
 
 - Folder and ZIP import.
 - Manifest validation.
@@ -162,6 +163,8 @@ Status: initial implementation complete; continue hardening.
 - Ownership markers.
 - Safe undeployment.
 - External unmanaged-mod inspection.
+- Versioned ownership records and read-only managed/external/unsafe destination
+  inspection.
 
 Exit criteria:
 
@@ -169,6 +172,10 @@ Exit criteria:
 - Deployments are reversible.
 - Profile isolation works.
 - Failed deployments roll back safely.
+
+Verification: 226 tests pass, the offscreen launcher smoke test passes, the
+fresh wheel contains all 27 required assets, and the synchronized catalog
+passes standalone validation.
 
 ## Stage 8 — Research and Development
 
