@@ -7,14 +7,22 @@ from core.application import EmbervaultRuntime
 from .backend import ControlCenterBackend
 
 
-ROOT = Path(__file__).resolve().parents[1]
+def _application_root() -> Path:
+    """Return the source or PyInstaller bundle root."""
+    bundled = getattr(sys, "_MEIPASS", None)
+    if bundled:
+        return Path(bundled)
+    return Path(__file__).resolve().parents[1]
+
+
+ROOT = _application_root()
 
 
 def _ui_path() -> Path:
     local = ROOT / "ui" / "Main.qml"
     if local.is_file():
         return local
-    return Path(sys.prefix) / "ui" / "Main.qml"
+    return ROOT / "ui" / "Main.qml"
 
 
 def main() -> int:
@@ -22,8 +30,8 @@ def main() -> int:
         from PySide6.QtWidgets import QApplication
         from PySide6.QtCore import QTimer
         from PySide6.QtQml import QQmlApplicationEngine
-    except ImportError:
-        print("PySide6 is required to launch EmberVault Control Center. Install project dependencies first.", file=sys.stderr)
+    except ImportError as exc:
+        print(f"PySide6 is required to launch EmberVault Control Center: {exc}", file=sys.stderr)
         return 2
 
     app = QApplication(sys.argv)
