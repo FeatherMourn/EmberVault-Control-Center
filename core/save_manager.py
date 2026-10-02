@@ -125,6 +125,23 @@ class SaveManagerService:
         actual = self.inspect(save_dir)
         return tuple((f.relative_path, f.sha256) for f in actual) == tuple((f.relative_path, f.sha256) for f in snapshot.files)
 
+    def require_verified_backup(self, snapshot_id: str, *, profile_id: str,
+                                context=None) -> SaveSnapshot:
+        """Return a checksum-valid backup for a module handoff.
+
+        The save manager does not edit the backup or infer ownership from its
+        contents. The caller supplies the active profile and optional
+        IntegrationContext; mismatched context is rejected before use.
+        """
+        if not isinstance(profile_id, str) or not profile_id.strip():
+            raise SaveManagerError("A profile is required for a save handoff")
+        if context is not None and context.profile_id != profile_id:
+            raise SaveManagerError("Save handoff profile does not match integration context")
+        snapshot = next((item for item in self.list_backups() if item.id == snapshot_id), None)
+        if not snapshot or not snapshot.verified or not self.verify_backup(snapshot_id):
+            raise SaveManagerError("Handoff requires an existing checksum-valid backup")
+        return snapshot
+
     def preview_restore(self, snapshot_id: str, destination: Path) -> dict:
         snapshot = next((item for item in self.list_backups() if item.id == snapshot_id), None)
         if not snapshot:

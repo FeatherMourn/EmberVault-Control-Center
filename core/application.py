@@ -86,6 +86,8 @@ class EmbervaultRuntime:
         runtime.game_settings = GameSettingsService(runtime.profiles)
         runtime.research = ResearchService(root)
         runtime.knowledge = KnowledgeService(root)
+        # Character plans remain storage-only by default; guarded callers can
+        # inject Save Manager explicitly when a verified backup is required.
         runtime.characters = CharacterService(root)
         runtime.risk = RiskGateService(runtime.saves)
         runtime.launcher = ModuleLaunchService(runtime.modules, runtime.risk)

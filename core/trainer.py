@@ -53,12 +53,8 @@ class TrainerPlanService:
         if not target.strip() or not backup_id.strip():
             raise ValueError("Trainer target and verified backup are required")
         if self.saves:
-            backup = next((item for item in self.saves.list_backups() if item.id == backup_id), None)
-            if not backup or not backup.verified:
-                raise ValueError("Trainer plan requires an existing verified backup")
             try:
-                if not self.saves.verify_backup(backup.id):
-                    raise ValueError("Trainer plan requires a checksum-valid backup")
+                self.saves.require_verified_backup(backup_id, profile_id=profile.id)
             except SaveManagerError as exc:
                 raise ValueError("Trainer plan requires a checksum-valid backup") from exc
         plan = TrainerPlan(

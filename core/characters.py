@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from .storage import write_json_atomic
+from .save_manager import SaveManagerError, SaveManagerService
 
 
 @dataclass
@@ -24,9 +25,10 @@ class CharacterRecord:
 
 
 class CharacterService:
-    def __init__(self, root: Path):
+    def __init__(self, root: Path, saves: SaveManagerService | None = None):
         self.path = Path(root) / "characters" / "records.json"
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.saves = saves
 
     def list(self) -> list[CharacterRecord]:
         if not self.path.exists():
@@ -80,6 +82,11 @@ class CharacterService:
         records = self.list()
         for record in records:
             if record.id == record_id:
+                if verified_backup_id.strip() and self.saves:
+                    try:
+                        self.saves.require_verified_backup(verified_backup_id.strip(), profile_id=record.profile_id)
+                    except SaveManagerError as exc:
+                        raise ValueError("Character plan requires a checksum-valid backup") from exc
                 record.build_goals = self._normalize_list(build_goals)
                 record.progression_plan = self._normalize_list(progression_plan)
                 record.equipment_notes = self._normalize_list(equipment_notes)
