@@ -719,6 +719,21 @@ class ControlCenterBackend(QObject):
             operation = self.operations.start("troubleshooter-scan", profile_id=self._selected_profile_id) if self.operations else None
             try:
                 findings = self.troubleshooter.scan()
+                diagnostic_module = self.modules.get("embervault.troubleshooter") if self.modules else None
+                if diagnostic_module:
+                    loaded = self.modules.load_embedded(diagnostic_module.id)
+                    scanner = getattr(loaded, "scan", None)
+                    if not callable(scanner):
+                        raise ValueError("Troubleshooter does not provide a scan contract")
+                    from embervault_sdk import ModuleContext
+                    result = scanner(
+                        ModuleContext(diagnostic_module.id, self._selected_profile_id,
+                                      operation.id if operation else None, "plan-only"),
+                        [{"title": item.title, "severity": item.severity, "message": item.message}
+                         for item in findings],
+                    )
+                    if result.status != "ready":
+                        raise ValueError(result.message)
                 attention = sum(1 for item in findings if item.severity == "attention")
                 if operation and self.operations:
                     self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Diagnostics completed: {attention} attention finding(s)")
