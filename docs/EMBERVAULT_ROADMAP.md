@@ -179,8 +179,8 @@ passes standalone validation.
 
 ## Stage 8 — Research and Development
 
-Status: in progress; structured research records and promotion review are now
-implemented, with worker and catalog integration still being expanded.
+Status: complete for the planned first-release scope; future work may expand
+collaboration and richer evidence attachments.
 
 - Experiment records.
 - Hypotheses.
@@ -192,11 +192,18 @@ implemented, with worker and catalog integration still being expanded.
 - Sanitized research exports.
 - Records now preserve build/version context, reproduction steps, failure
   records, and promotion-review state without exporting private evidence text.
+- Research actions are operation-tracked, profile-scoped, linked to package,
+  module, and knowledge context, and protected by publication retraction when
+  material context changes.
 
 Exit criteria:
 
 - Experiments are reproducible or clearly documented as failed.
 - Evidence can link to adapters, mods, and knowledge articles.
+
+Verification: 228 tests pass, the offscreen launcher smoke test passes, the
+fresh wheel contains all 27 required assets, and the synchronized catalog
+passes standalone validation.
 
 ## Stage 9 — Knowledge Base
 

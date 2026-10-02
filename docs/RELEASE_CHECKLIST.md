@@ -18,6 +18,10 @@
       destination inspection without modifying game content.
 - [x] Review operation and structured-log output for a backup and restore preview.
 - [x] Confirm staged Game Settings schema is included in the wheel data.
+- [x] Confirm research records support build context, reproduction steps,
+      failures, promotion review, and sanitized export.
+- [x] Confirm published research catalog records exclude profile IDs and
+      private evidence text.
 - [x] Confirm gameplay tuning adapter schema is included in the wheel data.
 - [x] Confirm character-plan and content-project schemas are included in the wheel data.
 - [x] Confirm trainer-plan schema is included in the wheel data.

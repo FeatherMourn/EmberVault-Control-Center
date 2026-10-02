@@ -17,6 +17,8 @@ outside the first-release mutation boundary.
 - Character, Trainer, Content Creator, and Research workflows are explicitly
   isolated and plan/design/read-only by contract where live mutation is not
   proven.
+- Stage 8 research records support reproducibility, failures, promotion review,
+  linked project context, operation tracking, and sanitized public export.
 - The catalog handoff is sanitized, independently validated, packaged, and
   covered by CI.
 
@@ -24,7 +26,7 @@ outside the first-release mutation boundary.
 
 - 228 unit tests pass.
 - The offscreen QML smoke test passes.
-- A fresh wheel contains and verifies all 24 required release assets.
+- A fresh wheel contains and verifies all 27 required release assets.
 - Catalog generation and standalone catalog validation pass.
 - Windows and Linux packaging/smoke paths are defined in CI.
 
