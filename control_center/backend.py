@@ -548,6 +548,23 @@ class ControlCenterBackend(QObject):
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot()
+    def installModuleFolder(self):
+        if not self.modules:
+            return
+        try:
+            from PySide6.QtWidgets import QFileDialog
+            selected = QFileDialog.getExistingDirectory(None, "Choose module folder")
+        except ImportError:
+            selected = ""
+        if selected:
+            try:
+                manifest = self.modules.install_from_directory(Path(selected))
+                self._last_save_message = f"Installed module {manifest.name} v{manifest.version}"
+            except (FileExistsError, OSError, ValueError) as exc:
+                self._last_save_message = str(exc)
+            self.stateChanged.emit()
+
     @Property("QStringList", notify=stateChanged)
     def packageOptions(self):
         if not getattr(self, "packages", None):

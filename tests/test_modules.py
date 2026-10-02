@@ -62,6 +62,26 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertIn("local.module", discovered)
             self.assertIn("embervault.example", discovered)
 
+    def test_registry_installs_external_module_under_control_center_ownership(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / "source"
+            source.mkdir()
+            (source / "module.json").write_text(json.dumps({
+                "id": "embervault.external", "name": "External", "version": "1.0.0",
+                "publisher": "Test", "capabilities": ["external.plan"],
+                "feature_state": "experimental", "process_mode": "embedded",
+                "entrypoint": "module.py", "contract_version": 1,
+                "safety": {"read_only": True, "requires_backup": False, "allowed_profiles": ["default"]},
+                "recovery": {"rollback": "discard", "verification": "inspect"},
+                "operation_types": ["external-plan"]
+            }), encoding="utf-8")
+            (source / "module.py").write_text("def describe(): return {'plan_only': True}\n", encoding="utf-8")
+            registry = ModuleRegistry(root / "modules")
+            installed = registry.install_from_directory(source)
+            self.assertEqual(installed.id, "embervault.external")
+            self.assertTrue((root / "modules" / installed.id / "module.json").is_file())
+
     def test_guarded_content_launch_requires_recovery_token(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

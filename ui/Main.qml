@@ -242,6 +242,7 @@ ApplicationWindow {
             Text { text: "EmberVault discovers independently packaged modules through their contracts. Experimental modules are labeled before they are enabled."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Text { text: controlCenter.moduleOptions.length === 0 ? "No modules discovered yet." : "Discovered modules"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Button { text: "Inspect embedded modules"; onClicked: controlCenter.inspectEmbeddedModules() }
+            Button { text: "Install module folder"; onClicked: controlCenter.installModuleFolder() }
             Repeater {
                 model: controlCenter.embeddedModuleOptions
                 delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true }

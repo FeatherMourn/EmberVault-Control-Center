@@ -5,6 +5,7 @@ import json
 import importlib.util
 import subprocess
 import sys
+import shutil
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path, PureWindowsPath
@@ -144,6 +145,23 @@ class ModuleRegistry:
                 except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
                     continue
         return dict(self._modules)
+
+    def install_from_directory(self, source: Path) -> ModuleManifest:
+        """Install a reviewed module directory under Control Center ownership."""
+        source = Path(source)
+        manifest_path = source / "module.json"
+        if not source.is_dir() or not manifest_path.is_file():
+            raise ValueError("Module directory must contain module.json")
+        if source.is_symlink() or any(item.is_symlink() for item in source.rglob("*")):
+            raise ValueError("Module source contains an unsafe symlink")
+        manifest = ModuleManifest.from_file(manifest_path)
+        destination = self.directory / manifest.id
+        if destination.exists():
+            raise FileExistsError(f"Module is already installed: {manifest.id}")
+        self.directory.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(source, destination)
+        self.discover()
+        return self._modules[manifest.id]
 
     def get(self, module_id: str) -> ModuleManifest | None:
         return self._modules.get(module_id)
