@@ -1289,8 +1289,30 @@ class ControlCenterBackend(QObject):
         if len(records) < 2:
             self._last_save_message = "Create two character projects to compare equipment"
         else:
-            result = self.characters.compare_equipment(records[-2].id, records[-1].id)
-            self._last_save_message = f"Compared equipment for {result['left']['id']} and {result['right']['id']} (plan-only)"
+            try:
+                if not self.modules or not self.modules.get("embervault.character-tools"):
+                    raise ValueError("Character Tools module is not installed")
+                loaded = self.modules.load_embedded("embervault.character-tools")
+                compare = getattr(loaded, "compare_equipment", None)
+                if not callable(compare):
+                    raise ValueError("Character Tools does not provide equipment comparison")
+                from embervault_sdk import ModuleContext
+                left, right = records[-2], records[-1]
+                operation = self.operations.start("character-equipment-comparison", profile_id=left.profile_id) if self.operations else None
+                result = compare(ModuleContext(
+                    module_id="embervault.character-tools",
+                    profile_id=left.profile_id,
+                    operation_id=operation.id if operation else None,
+                    capability_state="plan-only",
+                    backup_id=left.backup_id or right.backup_id or None,
+                ), left.equipment_notes, right.equipment_notes)
+                if result.status != "ready":
+                    raise ValueError(result.message)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, result.message)
+                self._last_save_message = f"Compared equipment for {left.id} and {right.id} (plan-only)"
+            except (ImportError, KeyError, OSError, ValueError) as exc:
+                self._last_save_message = str(exc)
         self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
