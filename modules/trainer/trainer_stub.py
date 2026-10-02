@@ -12,14 +12,15 @@ def main() -> int:
     parser.add_argument("--operation", default="")
     parser.add_argument("--backup", default="")
     args = parser.parse_args()
+    allowed = args.profile == "research" and bool(args.backup)
     checks = [f"profile_selected: {bool(args.profile)}",
               f"game_path_configured: {bool(args.game_path)}",
               f"recovery_backup_supplied: {bool(args.backup)}",
               "mutation_performed: False"]
-    print(json.dumps({"contract_version": 1, "status": "ready", "read_only": True,
+    print(json.dumps({"contract_version": 1, "status": "ready" if allowed else "blocked", "read_only": True,
                       "profile": args.profile, "game_path": args.game_path, "operation": args.operation,
                       "checks": checks}))
-    return 0
+    return 0 if allowed else 2
 
 
 if __name__ == "__main__":

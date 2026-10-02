@@ -368,6 +368,11 @@ class ModuleRegistryTests(unittest.TestCase):
             process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)
 
+    def test_trainer_manifest_declares_backup_and_research_safety(self):
+        manifest = ModuleRegistry(Path(__file__).parents[1] / "modules").discover()["embervault.trainer"]
+        self.assertTrue(manifest.safety["requires_backup"])
+        self.assertEqual(manifest.safety["allowed_profiles"], ["research"])
+
     def test_guarded_worker_reports_read_only_contract(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

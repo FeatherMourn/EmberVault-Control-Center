@@ -4,8 +4,12 @@
   "version": "0.1.0",
   "publisher": "EmberVault",
   "minimum_core_version": "0.1.0",
-  "capabilities": ["trainer"],
+  "capabilities": ["trainer", "trainer.recovery"],
   "feature_state": "experimental",
   "process_mode": "separate",
-  "executable": "trainer_stub.py"
+  "executable": "trainer_stub.py",
+  "contract_version": 1,
+  "safety": {"read_only": true, "requires_backup": true, "allowed_profiles": ["research"]},
+  "recovery": {"rollback": "Terminate the trainer worker and restore the verified backup if a future adapter is used.", "verification": "The current implementation performs no mutation and reports readiness checks only."},
+  "operation_types": ["trainer-readiness", "trainer-recovery-simulation"]
 }
