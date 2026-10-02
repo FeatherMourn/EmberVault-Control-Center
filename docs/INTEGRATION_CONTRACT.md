@@ -14,6 +14,9 @@ site can identify stale or unexpectedly old handoffs.
 - package manifests
 - module manifests, including the canonical `process_mode` value (`embedded`
   or `separate`) for downstream display and filtering
+- sanitized tuning-adapter records containing loader, supported game build,
+  supported setting keys, feature state, process mode, and public evidence state;
+  local evidence paths, recovery details, and mutation payloads are excluded
 - knowledge entries
 - explicitly published, sanitized research summaries with evidence counts and
   publication timestamps (never local evidence text or profile identifiers)
