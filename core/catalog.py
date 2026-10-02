@@ -69,7 +69,13 @@ class CatalogExportService:
                            "published_at": item.published_at or "seeded"} for item in knowledge],
             "research": [{"id": item.id, "title": item.title, "hypothesis": item.hypothesis,
                           "status": item.status, "evidence_count": len(item.evidence),
-                          "created_at": item.created_at, "published_at": item.published_at} for item in research],
+                          "created_at": item.created_at, "published_at": item.published_at,
+                          "game_build": item.game_build, "game_version": item.game_version,
+                          "reproduction_step_count": len(item.reproduction_steps),
+                          "failure_count": len(item.failures), "promotion_status": item.promotion_status,
+                          "linked_package_count": len(item.linked_package_ids),
+                          "linked_module_count": len(item.linked_module_ids),
+                          "linked_knowledge_count": len(item.linked_knowledge_ids)} for item in research],
             "content_projects": [{"id": item.id, "name": item.name, "status": item.status,
                                   "published_at": item.published_at} for item in content],
         }
@@ -116,10 +122,18 @@ class CatalogExportService:
                    for key in ("id", "title", "category", "summary", "content", "published_at")):
                 raise ValueError("Knowledge catalog records must contain non-empty fields")
         for item in payload["research"]:
-            if not isinstance(item, dict) or set(item) != {"id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at"}:
+            required_fields = {"id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at",
+                               "game_build", "game_version", "reproduction_step_count", "failure_count", "promotion_status",
+                               "linked_package_count", "linked_module_count", "linked_knowledge_count"}
+            if not isinstance(item, dict) or set(item) != required_fields:
                 raise ValueError("Research catalog records must remain sanitized")
             if item["status"] != "completed" or not isinstance(item["evidence_count"], int) or item["evidence_count"] < 1:
                 raise ValueError("Research catalog records must be completed with evidence")
+            if item["promotion_status"] not in {"not-requested", "requested", "approved", "rejected"}:
+                raise ValueError("Research catalog promotion status is invalid")
+            for key in ("reproduction_step_count", "failure_count", "linked_package_count", "linked_module_count", "linked_knowledge_count"):
+                if not isinstance(item[key], int) or item[key] < 0:
+                    raise ValueError("Research catalog counts must be non-negative integers")
         for item in payload["content_projects"]:
             if not isinstance(item, dict) or set(item) != {"id", "name", "status", "published_at"}:
                 raise ValueError("Content catalog records must remain sanitized")

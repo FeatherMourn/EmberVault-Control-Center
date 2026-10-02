@@ -44,10 +44,17 @@ def validate_catalog(payload: dict) -> None:
                for key in ("id", "title", "category", "summary", "content", "published_at")):
             raise ValueError("Knowledge catalog records must contain non-empty fields")
     for item in payload["research"]:
-        if not isinstance(item, dict) or set(item) != {"id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at"}:
+        required_fields = {"id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at",
+                           "game_build", "game_version", "reproduction_step_count", "failure_count", "promotion_status",
+                           "linked_package_count", "linked_module_count", "linked_knowledge_count"}
+        if not isinstance(item, dict) or set(item) != required_fields:
             raise ValueError("Research catalog records must remain sanitized")
         if item["status"] != "completed" or not isinstance(item["evidence_count"], int) or item["evidence_count"] < 1:
             raise ValueError("Research catalog records must be completed with evidence")
+        if item["promotion_status"] not in {"not-requested", "requested", "approved", "rejected"}:
+            raise ValueError("Research catalog promotion status is invalid")
+        if any(not isinstance(item[key], int) or item[key] < 0 for key in ("reproduction_step_count", "failure_count", "linked_package_count", "linked_module_count", "linked_knowledge_count")):
+            raise ValueError("Research catalog counts must be non-negative integers")
     for item in payload["content_projects"]:
         if not isinstance(item, dict) or set(item) != {"id", "name", "status", "published_at"}:
             raise ValueError("Content catalog records must remain sanitized")

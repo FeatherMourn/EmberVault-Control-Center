@@ -65,7 +65,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at"],
+        "required": ["id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at", "game_build", "game_version", "reproduction_step_count", "failure_count", "promotion_status", "linked_package_count", "linked_module_count", "linked_knowledge_count"],
         "properties": {
           "id": {"type": "string", "minLength": 1},
           "title": {"type": "string", "minLength": 1},
@@ -73,7 +73,14 @@
           "status": {"const": "completed"},
           "evidence_count": {"type": "integer", "minimum": 1},
           "created_at": {"type": "string"},
-          "published_at": {"type": "string", "minLength": 1}
+          "published_at": {"type": "string", "minLength": 1},
+          "game_build": {"type": "string"}, "game_version": {"type": "string"},
+          "reproduction_step_count": {"type": "integer", "minimum": 0},
+          "failure_count": {"type": "integer", "minimum": 0},
+          "promotion_status": {"enum": ["not-requested", "requested", "approved", "rejected"]},
+          "linked_package_count": {"type": "integer", "minimum": 0},
+          "linked_module_count": {"type": "integer", "minimum": 0},
+          "linked_knowledge_count": {"type": "integer", "minimum": 0}
         },
         "additionalProperties": false
       }
