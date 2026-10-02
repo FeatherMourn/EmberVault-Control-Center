@@ -26,6 +26,9 @@ class ResearchRecord:
     failures: list[str] = field(default_factory=list)
     promotion_status: str = "not-requested"
     promotion_note: str = ""
+    linked_package_ids: list[str] = field(default_factory=list)
+    linked_module_ids: list[str] = field(default_factory=list)
+    linked_knowledge_ids: list[str] = field(default_factory=list)
 
 
 class ResearchService:
@@ -69,6 +72,12 @@ class ResearchService:
                                                  if isinstance(value, str) and value.strip()])
                 if record.promotion_status not in {"not-requested", "requested", "approved", "rejected"}:
                     record.promotion_status = "not-requested"
+                for field_name in ("linked_package_ids", "linked_module_ids", "linked_knowledge_ids"):
+                    values = getattr(record, field_name)
+                    if not isinstance(values, list):
+                        values = []
+                    setattr(record, field_name, sorted({value.strip() for value in values
+                                                         if isinstance(value, str) and value.strip()}))
                 records.append(record)
             return records
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
@@ -139,6 +148,23 @@ class ResearchService:
                 return record
         raise KeyError(record_id)
 
+    def link_context(self, record_id: str, packages: list[str] | None = None,
+                     modules: list[str] | None = None, knowledge: list[str] | None = None) -> ResearchRecord:
+        """Attach stable public IDs without copying private records into research."""
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                for field_name, values in (("linked_package_ids", packages),
+                                           ("linked_module_ids", modules),
+                                           ("linked_knowledge_ids", knowledge)):
+                    if values is not None:
+                        if not isinstance(values, list) or any(not isinstance(value, str) or not value.strip() for value in values):
+                            raise ValueError("Research links must be non-empty string IDs")
+                        setattr(record, field_name, sorted(set(value.strip() for value in values)))
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return record
+        raise KeyError(record_id)
+
     def set_status(self, record_id: str, status: str) -> ResearchRecord:
         if status not in {"planned", "running", "completed", "blocked"}:
             raise ValueError("Unknown research status")
@@ -189,6 +215,9 @@ class ResearchService:
                 "game_build": record.game_build, "game_version": record.game_version,
                 "reproduction_step_count": len(record.reproduction_steps),
                 "failure_count": len(record.failures), "promotion_status": record.promotion_status,
+                "linked_package_count": len(record.linked_package_ids),
+                "linked_module_count": len(record.linked_module_ids),
+                "linked_knowledge_count": len(record.linked_knowledge_ids),
             },
             "application_state": "research-summary",
             "generated_at": datetime.now(timezone.utc).isoformat(),

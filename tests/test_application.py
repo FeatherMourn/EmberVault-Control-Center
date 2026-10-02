@@ -231,10 +231,13 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(requested.failures, ["First run lacked the expected log evidence"])
             approved = runtime.research.set_promotion_review(record.id, "approved", "Evidence is sufficient")
             self.assertEqual(approved.promotion_status, "approved")
-            exported = runtime.research.export_summary(approved)
+            linked = runtime.research.link_context(record.id, ["embervault.example-mod"], ["embervault.research"], ["save-safety"])
+            self.assertEqual(linked.linked_package_ids, ["embervault.example-mod"])
+            exported = runtime.research.export_summary(linked)
             payload = json.loads(exported.read_text(encoding="utf-8"))
             self.assertEqual(payload["record"]["reproduction_step_count"], 1)
             self.assertEqual(payload["record"]["failure_count"], 1)
+            self.assertEqual(payload["record"]["linked_module_count"], 1)
             self.assertNotIn("clean research profile", exported.read_text(encoding="utf-8"))
 
     def test_knowledge_catalog_searches_seeded_entries(self):
