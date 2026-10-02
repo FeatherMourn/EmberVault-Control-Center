@@ -1075,6 +1075,31 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    @Slot(str, str, str, str, str)
+    def updateLatestCharacterPlan(self, goals: str, progression: str, equipment: str, skills: str, backup_id: str):
+        if not self.characters:
+            return
+        records = [item for item in self.characters.list() if item.profile_id == self._selected_profile_id]
+        if not records:
+            self._last_save_message = "Create a character project first"
+        else:
+            operation = self.operations.start("character-plan-update", profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                if backup_id.strip():
+                    snapshot = next((item for item in self.save_manager.list_backups() if item.id == backup_id.strip() and item.verified), None)
+                    if snapshot is None:
+                        raise ValueError("Character plans may reference only an existing verified backup")
+                split = lambda value: [item.strip() for item in value.split(";") if item.strip()]
+                record = self.characters.update_plan(records[-1].id, split(goals), split(progression), split(equipment), split(skills), backup_id.strip())
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Updated character plan {record.id}")
+                self._last_save_message = f"Updated character plan {record.id}"
+            except (KeyError, OSError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot()
     def exportLatestCharacterPlan(self):
         if not self.characters:

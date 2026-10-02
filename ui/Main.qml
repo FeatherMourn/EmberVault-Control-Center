@@ -455,8 +455,14 @@ ApplicationWindow {
             Text { text: "Character projects are stored separately from saves. This first slice records plans only; it does not write character changes into game data."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             TextField { id: characterName; placeholderText: "Character name"; Layout.fillWidth: true }
             TextField { id: characterNotes; placeholderText: "Build notes or intended progression"; Layout.fillWidth: true }
+            TextField { id: characterGoals; placeholderText: "Build goals (semicolon-separated)"; Layout.fillWidth: true }
+            TextField { id: characterProgression; placeholderText: "Progression plan (semicolon-separated)"; Layout.fillWidth: true }
+            TextField { id: characterEquipment; placeholderText: "Equipment notes (semicolon-separated)"; Layout.fillWidth: true }
+            TextField { id: characterSkills; placeholderText: "Skill notes (semicolon-separated)"; Layout.fillWidth: true }
+            TextField { id: characterBackup; placeholderText: "Verified backup ID (optional)"; Layout.fillWidth: true }
             Button { text: "Create character project"; onClicked: controlCenter.createCharacter(characterName.text, characterNotes.text) }
             Button { text: "Update latest plan notes"; onClicked: controlCenter.updateLatestCharacterNotes(characterNotes.text) }
+            Button { text: "Update structured character plan"; onClicked: controlCenter.updateLatestCharacterPlan(characterGoals.text, characterProgression.text, characterEquipment.text, characterSkills.text, characterBackup.text) }
             SpinBox { id: characterLevel; from: 1; to: 50; value: 1; Layout.fillWidth: true }
             Button { text: "Stage level for latest project"; onClicked: controlCenter.stageLatestCharacterLevel(characterLevel.value) }
             Button { text: "Export latest character plan"; onClicked: controlCenter.exportLatestCharacterPlan() }
