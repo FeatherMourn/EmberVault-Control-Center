@@ -28,6 +28,7 @@ Read:
 - [User Guide](docs/USER_GUIDE.md)
 - [Release Checklist](docs/RELEASE_CHECKLIST.md)
 - [Roadmap Status](docs/ROADMAP_STATUS.md)
+- [Full Staged Roadmap](docs/EMBERVAULT_ROADMAP.md)
 - [Completion Audit](docs/COMPLETION_AUDIT.md)
 - [Release Notes](docs/RELEASE_NOTES.md)
 
