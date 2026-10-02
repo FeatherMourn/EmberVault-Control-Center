@@ -25,6 +25,23 @@ class TuningAdapterService:
         self.validate(payload)
         return payload
 
+    def compatibility_report(self, *, loader: str, loader_api_version: str,
+                             game_build: str) -> dict[str, Any]:
+        """Return a fail-closed compatibility matrix result for this adapter."""
+        manifest = self.manifest()
+        expected = {
+            "adapter_id": manifest["id"], "adapter_version": manifest["version"],
+            "loader": manifest["loader"], "loader_api_version": manifest["loader_api_version"],
+            "supported_builds": [manifest["game_build"]],
+            "supported_setting_keys": list(manifest["supported_setting_keys"]),
+            "future_adapters": ["shroudtopia"],
+        }
+        compatible = (str(loader) == manifest["loader"] and
+                      str(loader_api_version) == manifest["loader_api_version"] and
+                      str(game_build) in expected["supported_builds"])
+        return expected | {"compatible": compatible,
+                           "state": "compatible" if compatible else "incompatible"}
+
     @staticmethod
     def validate(payload: dict[str, Any]) -> None:
         required = {

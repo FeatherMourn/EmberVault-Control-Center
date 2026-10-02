@@ -530,6 +530,21 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(preview["field"], "baseCritChance")
             self.assertFalse(preview["mutation_performed"])
 
+    def test_runtime_adapter_exposes_fail_closed_compatibility_matrix(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            service = TuningAdapterService(root)
+            compatible = service.compatibility_report(loader="EML", loader_api_version="1.3", game_build="1076226")
+            incompatible = service.compatibility_report(loader="EML", loader_api_version="1.3", game_build="other")
+            self.assertEqual(compatible["state"], "compatible")
+            self.assertEqual(incompatible["state"], "incompatible")
+            self.assertIn("shroudtopia", incompatible["future_adapters"])
+
     def test_eml_tuning_adapter_readback_includes_verified_field_name(self):
         from core.tuning_adapter import TuningAdapterService
         result = TuningAdapterService.parse_runtime_readback(
