@@ -2,7 +2,7 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (231 tests passing).
+- [x] Run the complete Python test suite (236 tests passing).
 - [x] Confirm Trainer remains read-only/plan-only with research-profile,
       verified-backup, timeout, crash, and recovery safeguards.
 - [x] Confirm Character Tools remains plan-only and requires existing verified
@@ -33,6 +33,7 @@
 - [x] Confirm gameplay tuning adapter schema is included in the wheel data.
 - [x] Confirm character-plan and content-project schemas are included in the wheel data.
 - [x] Confirm trainer-plan schema is included in the wheel data.
+- [x] Confirm promotion evidence schema is included in the wheel data.
 - [x] Generate and independently validate a sanitized catalog handoff.
 - [x] Review the frozen vocabulary in `docs/TERMINOLOGY.md`.
 - [x] Review embedded and separate-process boundaries in
@@ -49,6 +50,7 @@
 - [x] Test from a clean environment with an empty runtime-data directory. The
       installed wheel discovers five modules, one seed package, and eight
       knowledge entries without source-tree assets.
+- [x] Verify capability promotion gates and sanitized promotion catalog export.
 
 ## Release notes
 

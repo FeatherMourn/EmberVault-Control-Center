@@ -34,7 +34,7 @@ outside the first-release mutation boundary.
 - Stage 9 knowledge records support metadata, references, local version history,
   operation-tracked editing, search, and sanitized public publication.
 - The offscreen QML smoke test passes.
-- A fresh wheel contains and verifies all 27 required release assets.
+- A fresh wheel contains and verifies all 29 required release assets.
 - Catalog generation and standalone catalog validation pass.
 - Windows and Linux packaging/smoke paths are defined in CI.
 

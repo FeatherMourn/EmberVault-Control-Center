@@ -83,7 +83,7 @@ deliberately non-mutating; Research includes a
   five modules and eight knowledge entries. The package-manifest schema is
   present in the installed wheel data.
 - Save Manager remains inspection/backup/verification/restore-only.
-- A fresh wheel build has passed release-asset verification with all 28 required
+- A fresh wheel build has passed release-asset verification with all 29 required
   packaged assets, and the offscreen launcher smoke test passes. The default
   catalog sync command includes the reviewed adapter and seeded knowledge assets;
   isolated exports can still provide `--data-root` explicitly.
