@@ -121,9 +121,10 @@ Exit criteria:
 
 ## Stage 6 — EML runtime adapter
 
-Status: experimental implementation complete; promotion work remains.
+Status: in progress.
 
 - EML manifest and build compatibility.
+- Explicit EML API version compatibility (`1.3` for the reviewed evidence).
 - Supported field declarations.
 - Research-profile gate.
 - Verified-backup gate.
@@ -131,6 +132,7 @@ Status: experimental implementation complete; promotion work remains.
 - Payload staging.
 - Owned deployment.
 - Runtime readback.
+- Operation-bound runtime context evidence for loader, API, and game build.
 - Rollback.
 - Restart recovery.
 - Catalog integration.
