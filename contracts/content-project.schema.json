@@ -8,7 +8,7 @@
     "schema_version": {"const": 1},
     "project": {
       "type": "object",
-      "required": ["id", "name", "profile_id", "status", "description", "design_type", "design_notes", "asset_references", "published", "published_at", "materials", "dimensions", "recipe_plan", "registration_plan", "compatibility_notes"],
+      "required": ["id", "name", "profile_id", "status", "description", "design_type", "design_notes", "asset_references", "published", "published_at", "materials", "dimensions", "recipe_plan", "registration_plan", "compatibility_notes", "linked_research_ids"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "name": {"type": "string", "minLength": 1},
@@ -24,7 +24,8 @@
         "dimensions": {"type": "object", "additionalProperties": {"type": "number", "exclusiveMinimum": 0}},
         "recipe_plan": {"type": "array", "items": {"type": "string", "minLength": 1}},
         "registration_plan": {"type": "string"},
-        "compatibility_notes": {"type": "string"}
+        "compatibility_notes": {"type": "string"},
+        "linked_research_ids": {"type": "array", "items": {"type": "string", "minLength": 1}}
       },
       "additionalProperties": false
     },

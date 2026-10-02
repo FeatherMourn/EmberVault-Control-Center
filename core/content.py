@@ -26,6 +26,7 @@ class ContentProject:
     recipe_plan: list[str] = field(default_factory=list)
     registration_plan: str = ""
     compatibility_notes: str = ""
+    linked_research_ids: list[str] = field(default_factory=list)
 
 
 class ContentProjectService:
@@ -76,12 +77,17 @@ class ContentProjectService:
                 for field_name in ("registration_plan", "compatibility_notes"):
                     if not isinstance(getattr(project, field_name), str):
                         setattr(project, field_name, "")
+                if not isinstance(project.linked_research_ids, list):
+                    project.linked_research_ids = []
+                else:
+                    project.linked_research_ids = sorted({value.strip() for value in project.linked_research_ids
+                                                          if isinstance(value, str) and value.strip()})
                 projects.append(project)
             return projects
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
 
-    def create(self, name: str, profile_id: str, description: str = "", design_type: str = "furniture", design_notes: str = "", asset_references: list[str] | None = None, materials: list[str] | None = None, dimensions: dict[str, float] | None = None, recipe_plan: list[str] | None = None, registration_plan: str = "", compatibility_notes: str = "") -> ContentProject:
+    def create(self, name: str, profile_id: str, description: str = "", design_type: str = "furniture", design_notes: str = "", asset_references: list[str] | None = None, materials: list[str] | None = None, dimensions: dict[str, float] | None = None, recipe_plan: list[str] | None = None, registration_plan: str = "", compatibility_notes: str = "", linked_research_ids: list[str] | None = None) -> ContentProject:
         if not name.strip() or not profile_id.strip():
             raise ValueError("Content project name and profile are required")
         if design_type not in {"furniture", "building", "recipe", "other"}:
@@ -92,7 +98,8 @@ class ContentProjectService:
                                  design_notes=design_notes.strip(), asset_references=references,
                                  materials=self._normalize_text_list(materials), dimensions=self._normalize_dimensions(dimensions),
                                  recipe_plan=self._normalize_text_list(recipe_plan), registration_plan=registration_plan.strip(),
-                                 compatibility_notes=compatibility_notes.strip())
+                                 compatibility_notes=compatibility_notes.strip(),
+                                 linked_research_ids=self._normalize_ids(linked_research_ids))
         projects = self.list()
         projects.append(project)
         write_json_atomic(self.path, [asdict(item) for item in projects])
@@ -105,6 +112,28 @@ class ContentProjectService:
         if not isinstance(values, list) or any(not isinstance(value, str) or not value.strip() for value in values):
             raise ValueError("Content lists must contain non-empty strings")
         return list(dict.fromkeys(value.strip() for value in values))
+
+    @staticmethod
+    def _normalize_ids(values: list[str] | None) -> list[str]:
+        if values is None:
+            return []
+        if not isinstance(values, list) or any(not isinstance(value, str) or not value.strip() for value in values):
+            raise ValueError("Research references must contain non-empty IDs")
+        return sorted(set(value.strip() for value in values))
+
+    def link_research(self, project_id: str, research_ids: list[str]) -> ContentProject:
+        """Attach stable research IDs without copying research records."""
+        links = self._normalize_ids(research_ids)
+        projects = self.list()
+        for project in projects:
+            if project.id == project_id:
+                project.linked_research_ids = links
+                if project.published:
+                    project.published = False
+                    project.published_at = ""
+                write_json_atomic(self.path, [asdict(item) for item in projects])
+                return project
+        raise KeyError(project_id)
 
     @staticmethod
     def _normalize_dimensions(values: dict[str, float] | None) -> dict[str, float]:
