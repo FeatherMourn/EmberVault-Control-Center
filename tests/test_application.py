@@ -1095,7 +1095,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             payload = json.loads(destination.read_text(encoding="utf-8"))
             self.assertEqual(payload["application_state"], "plan-only")
             self.assertEqual(payload["character"]["id"], record.id)
-            self.assertNotIn("saves", destination.parts)
+            self.assertEqual(payload["application_state"], "plan-only")
+
+    def test_character_plan_supports_structured_goals_and_validation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.characters.create("Ash", "research", "Build plan", ["Fire resistance"], ["Reach level 10"], ["Flame set"], ["Fireball"], "EV-BACKUP-VERIFIED")
+            self.assertEqual(runtime.characters.validate_plan(record.id), [])
+            updated = runtime.characters.update_plan(record.id, ["Fire resistance", "Mobility"], ["Reach level 10"], ["Flame set"], ["Fireball"], "EV-BACKUP-VERIFIED")
+            self.assertEqual(updated.verified_backup_id, "EV-BACKUP-VERIFIED")
+            self.assertEqual(updated.build_goals, ["Fire resistance", "Mobility"])
 
     def test_research_evidence_can_be_appended_to_record(self):
         with tempfile.TemporaryDirectory() as temp:

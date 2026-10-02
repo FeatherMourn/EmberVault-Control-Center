@@ -8,13 +8,18 @@
     "schema_version": {"const": 1},
     "character": {
       "type": "object",
-      "required": ["id", "name", "profile_id", "notes", "planned_level"],
+      "required": ["id", "name", "profile_id", "notes", "planned_level", "build_goals", "progression_plan", "equipment_notes", "skill_notes", "verified_backup_id"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "name": {"type": "string", "minLength": 1},
         "profile_id": {"type": "string", "minLength": 1},
         "notes": {"type": "string"},
-        "planned_level": {"type": "integer", "minimum": 1, "maximum": 50}
+        "planned_level": {"type": "integer", "minimum": 1, "maximum": 50},
+        "build_goals": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "progression_plan": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "equipment_notes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "skill_notes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "verified_backup_id": {"type": "string"}
       },
       "additionalProperties": false
     },
