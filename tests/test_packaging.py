@@ -90,6 +90,12 @@ class PackagingContractTests(unittest.TestCase):
         self.assertIn("process_mode", verifier)
         self.assertIn('"embedded", "separate"', verifier)
 
+    def test_catalog_schema_declares_tuning_adapter_records(self):
+        root = Path(__file__).resolve().parents[1]
+        schema = json.loads((root / "contracts/catalog.schema.json").read_text(encoding="utf-8"))
+        self.assertIn("tuning_adapters", schema["required"])
+        self.assertIn("tuning_adapters", schema["properties"])
+
     def test_tuning_adapter_contract_declares_safety_boundaries(self):
         root = Path(__file__).resolve().parents[1]
         schema = json.loads((root / "contracts/tuning-adapter.schema.json").read_text(encoding="utf-8"))
