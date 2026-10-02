@@ -154,7 +154,7 @@ class ControlCenterBackend(QObject):
             preview = self.tuning_adapter.prepare_operation(
                 profile.profile_type,
                 bool(self._selected_backup_id and self.save_manager.verify_backup(self._selected_backup_id)),
-                self._game_status == "Running",
+                self.detector.is_running(),
                 values["base_crit_chance"],
                 self.tuning_adapter.manifest()["evidence"]["test_value"],
             )
@@ -243,7 +243,7 @@ class ControlCenterBackend(QObject):
             operation = self.operations.start("tuning-adapter-deploy", profile_id=self._selected_profile_id) if self.operations else None
             destination = self.tuning_adapter.deploy_staged_package(
                 self._staged_adapter_package, Path(self.settings.game_path),
-                game_running=self._game_status == "Running",
+                game_running=self.detector.is_running(),
             )
             self._last_save_message = f"Deployed owned EML adapter to {destination}; launch verification pending"
             self._adapter_deployed = True
@@ -263,6 +263,8 @@ class ControlCenterBackend(QObject):
         if not self.tuning_adapter or not self.settings.game_path:
             return "Configure the game folder first"
         try:
+            if self.detector.is_running():
+                raise PermissionError("Close Enshrouded before rolling back the adapter")
             operation = self.operations.start("tuning-adapter-rollback", profile_id=self._selected_profile_id) if self.operations else None
             self.tuning_adapter.undeploy_adapter(Path(self.settings.game_path))
             self._adapter_deployed = False
