@@ -2052,6 +2052,16 @@ class ControlCenterBackend(QObject):
         enabled = not self.packages.is_enabled(selected, package.id)
         operation = self.operations.start("package-enable" if enabled else "package-disable", profile_id=selected.id, package_id=package.id) if self.operations else None
         try:
+            mod_manager = self.modules.get("embervault.mod-manager") if self.modules else None
+            if mod_manager:
+                loaded = self.modules.load_embedded(mod_manager.id)
+                planner = getattr(loaded, "plan_profile_change", None)
+                if not callable(planner):
+                    raise ValueError("Mod Manager does not provide profile change planning")
+                from embervault_sdk import ModuleContext
+                plan = planner(ModuleContext(mod_manager.id, selected.id, operation.id if operation else None, "approved"), package.id, enabled)
+                if plan.status != "ready":
+                    raise ValueError(plan.message)
             detected_build = self._build if self._build not in {"Unknown build", "Choose game folder"} else None
             updated = self.packages.set_enabled(selected, package.id, enabled, detected_build)
             if operation and self.operations:
