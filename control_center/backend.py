@@ -177,17 +177,22 @@ class ControlCenterBackend(QObject):
             return "Select a profile first"
         try:
             values = self.game_settings.values(profile)
-            operation_id = self.operations.start("tuning-adapter-stage", profile_id=profile.id).id if self.operations else "EV-ADAPTER-STAGE"
+            operation = self.operations.start("tuning-adapter-stage", profile_id=profile.id) if self.operations else None
+            operation_id = operation.id if operation else "EV-ADAPTER-STAGE"
             source = Path(__file__).parents[1] / "packages" / "eml-tuning-adapter"
             staged = self.tuning_adapter.stage_package(
                 source, self.data_root / "staging", values["base_crit_chance"], operation_id
             )
             self._staged_adapter_package = staged
             self._staged_adapter_operation_id = operation_id
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, "Staged EML adapter payload")
             self._last_save_message = f"Staged owned EML adapter for {values['base_crit_chance']} — ready for confirmation"
             self.stateChanged.emit()
             return self._last_save_message
         except (OSError, ValueError, PermissionError) as exc:
+            if 'operation' in locals() and operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
             self.stateChanged.emit()
             return self._last_save_message
@@ -202,6 +207,7 @@ class ControlCenterBackend(QObject):
         if not profile:
             return "Select a profile first"
         try:
+            operation = self.operations.start("tuning-adapter-verify", profile_id=profile.id) if self.operations else None
             values = self.game_settings.values(profile)
             logs = sorted((Path(self.settings.game_path) / "logs").glob("*.eml.log"),
                           key=lambda path: path.stat().st_mtime, reverse=True)
@@ -211,9 +217,13 @@ class ControlCenterBackend(QObject):
                 logs[0], self._staged_adapter_operation_id, values["base_crit_chance"]
             )
             self._last_save_message = f"Verified EML readback for {result['field']} = {result['new_value']}"
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, self._last_save_message)
             self.stateChanged.emit()
             return self._last_save_message
         except (OSError, ValueError, KeyError) as exc:
+            if 'operation' in locals() and operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             rollback_note = ""
             if self._adapter_deployed:
                 try:
@@ -230,15 +240,20 @@ class ControlCenterBackend(QObject):
         if not self._staged_adapter_package or not self.settings.game_path:
             return "Stage the adapter and choose a game folder first"
         try:
+            operation = self.operations.start("tuning-adapter-deploy", profile_id=self._selected_profile_id) if self.operations else None
             destination = self.tuning_adapter.deploy_staged_package(
                 self._staged_adapter_package, Path(self.settings.game_path),
                 game_running=self._game_status == "Running",
             )
             self._last_save_message = f"Deployed owned EML adapter to {destination}; launch verification pending"
             self._adapter_deployed = True
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, self._last_save_message)
             self.stateChanged.emit()
             return self._last_save_message
         except (OSError, ValueError, PermissionError) as exc:
+            if 'operation' in locals() and operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
             self.stateChanged.emit()
             return self._last_save_message
@@ -248,12 +263,17 @@ class ControlCenterBackend(QObject):
         if not self.tuning_adapter or not self.settings.game_path:
             return "Configure the game folder first"
         try:
+            operation = self.operations.start("tuning-adapter-rollback", profile_id=self._selected_profile_id) if self.operations else None
             self.tuning_adapter.undeploy_adapter(Path(self.settings.game_path))
             self._adapter_deployed = False
             self._last_save_message = "Removed the EmberVault-owned EML adapter; existing mods were not changed"
+            if operation and self.operations:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, self._last_save_message)
             self.stateChanged.emit()
             return self._last_save_message
         except (OSError, ValueError, PermissionError) as exc:
+            if 'operation' in locals() and operation and self.operations:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = f"EML adapter rollback failed: {exc}"
             self.stateChanged.emit()
             return self._last_save_message
