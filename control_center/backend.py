@@ -566,7 +566,7 @@ class ControlCenterBackend(QObject):
     def knowledgeOptions(self):
         if not self.knowledge:
             return []
-        return [f"{entry.category} · {'PUBLIC' if entry.published else 'PRIVATE'} · {entry.title} — {entry.summary}"
+        return [f"{entry.category} · {'PUBLIC' if entry.published else 'PRIVATE'} · v{entry.version} · {entry.title} — {entry.summary}"
                 for entry in self.knowledge.search(self._knowledge_query)]
 
     @Slot(str)
@@ -589,6 +589,37 @@ class ControlCenterBackend(QObject):
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))
             self._last_save_message = str(exc)
         self.stateChanged.emit()
+
+    @Slot(str, str, str, str, str, str, str)
+    def updateLatestKnowledge(self, title: str, category: str, summary: str, content: str,
+                              tags: str, related_ids: str, evidence_refs: str):
+        if not self.knowledge:
+            return
+        entries = self.knowledge.entries()
+        if not entries:
+            self._last_save_message = "Create a knowledge entry first"
+        else:
+            operation = self.operations.start("knowledge-entry-update") if self.operations else None
+            split_ids = lambda value: [item.strip() for item in value.split(",") if item.strip()]
+            try:
+                entry = self.knowledge.update(entries[-1].id, title, category, summary, content,
+                                              split_ids(tags), split_ids(related_ids), split_ids(evidence_refs))
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Updated knowledge entry {entry.id} to v{entry.version}")
+                self._last_save_message = f"Updated knowledge entry {entry.id} to v{entry.version}"
+            except (KeyError, OSError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Property("QStringList", notify=stateChanged)
+    def knowledgeHistoryOptions(self):
+        if not self.knowledge or not self.knowledge.entries():
+            return []
+        entry = self.knowledge.entries()[-1]
+        return [f"v{item.get('version', '?')} · {item.get('title', 'Untitled')} · {item.get('saved_at', '')}"
+                for item in entry.history]
 
     def _setLatestKnowledgePublication(self, published: bool):
         if not self.knowledge:

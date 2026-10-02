@@ -422,10 +422,16 @@ ApplicationWindow {
             TextField { id: knowledgeSummary; placeholderText: "Short summary"; Layout.fillWidth: true }
             TextField { id: knowledgeContent; placeholderText: "Knowledge content or research note"; Layout.fillWidth: true }
             Button { text: "Save local knowledge entry"; onClicked: controlCenter.createKnowledgeEntry(knowledgeTitle.text, knowledgeCategory.text, knowledgeSummary.text, knowledgeContent.text) }
+            TextField { id: knowledgeTags; placeholderText: "Tags (comma separated)"; Layout.fillWidth: true }
+            TextField { id: knowledgeRelated; placeholderText: "Related article/research IDs (comma separated)"; Layout.fillWidth: true }
+            TextField { id: knowledgeEvidence; placeholderText: "Evidence reference IDs (comma separated)"; Layout.fillWidth: true }
+            Button { text: "Update latest article"; onClicked: controlCenter.updateLatestKnowledge(knowledgeTitle.text, knowledgeCategory.text, knowledgeSummary.text, knowledgeContent.text, knowledgeTags.text, knowledgeRelated.text, knowledgeEvidence.text) }
             RowLayout {
                 Button { text: "Publish latest knowledge"; onClicked: controlCenter.publishLatestKnowledge() }
                 Button { text: "Unpublish latest knowledge"; onClicked: controlCenter.unpublishLatestKnowledge() }
             }
+            Text { text: controlCenter.knowledgeHistoryOptions.length === 0 ? "No previous versions for latest article." : "Previous versions"; color: muted; font.pixelSize: 13 }
+            Repeater { model: controlCenter.knowledgeHistoryOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; Layout.fillWidth: true } }
             Repeater {
                 model: controlCenter.knowledgeOptions
                 delegate: Rectangle {
