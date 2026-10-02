@@ -163,10 +163,12 @@ class ControlCenterBackend(QObject):
             decision = latest.get(manifest.id) or latest.get(next(iter(manifest.capabilities), ""))
             state = decision.get("target_state", manifest.feature_state) if decision else manifest.feature_state
             evidence = decision.get("evidence", {}) if decision else {}
-            checks = [evidence.get(key) is True for key in
-                      ("reproducible", "runtime_confirmed", "recovery_tested",
-                       "compatibility_documented", "rollback_tested")]
-            rows.append(f"{manifest.name} · {state} · {sum(checks)}/5 evidence checks · owner: {evidence.get('owner', 'unassigned')}")
+            labels = (("reproducible", "reproducibility"), ("runtime_confirmed", "runtime"),
+                      ("recovery_tested", "recovery"), ("compatibility_documented", "compatibility"),
+                      ("rollback_tested", "rollback"))
+            missing = [label for key, label in labels if evidence.get(key) is not True]
+            suffix = "missing: " + ", ".join(missing) if missing else "all evidence present"
+            rows.append(f"{manifest.name} · {state} · {suffix} · owner: {evidence.get('owner', 'unassigned')}")
         if self.tuning_adapter:
             try:
                 manifest = self.tuning_adapter.manifest()
