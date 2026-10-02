@@ -555,6 +555,12 @@ ApplicationWindow {
             Button { visible: capability === "content-creator"; text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
             Button { visible: capability === "content-creator"; text: "Update latest design"; onClicked: controlCenter.updateLatestContentDesign(contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
             Button { visible: capability === "content-creator"; text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
+            Button { visible: capability === "content-creator"; text: "Refresh design preview"; onClicked: controlCenter.previewLatestContentProject() }
+            Repeater {
+                visible: capability === "content-creator"
+                model: controlCenter.contentPreview
+                delegate: Text { text: modelData; color: index === 0 ? ember : muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            }
             RowLayout {
                 visible: capability === "content-creator"
                 Button { text: "Publish latest"; onClicked: controlCenter.publishLatestContentProject() }

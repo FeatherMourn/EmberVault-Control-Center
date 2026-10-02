@@ -823,6 +823,42 @@ class ControlCenterBackend(QObject):
             for item in self.content.list() if item.profile_id == self._selected_profile_id
         ]
 
+    @Property("QStringList", notify=stateChanged)
+    def contentPreview(self):
+        if not self.content:
+            return []
+        projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
+        if not projects:
+            return ["No content project selected"]
+        try:
+            preview = self.content.preview(projects[-1].id)
+        except (KeyError, ValueError):
+            return ["Preview unavailable"]
+        readiness = "READY FOR DESIGN EXPORT" if preview["ready_for_export"] else "NEEDS DESIGN REVIEW"
+        return [
+            f"{readiness} · {preview['name']} · {preview['design_type']}",
+            f"Assets {preview['asset_count']} · Materials {len(preview['materials'])} · Recipe steps {len(preview['recipe_steps'])}",
+            f"Research links {len(preview['research_ids'])} · Knowledge links {len(preview['knowledge_ids'])}",
+            "DESIGN-ONLY · Live installation: disabled",
+            *(f"Review: {issue}" for issue in preview["validation_issues"]),
+        ]
+
+    @Slot()
+    def previewLatestContentProject(self):
+        if not self.content:
+            return
+        projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
+        if not projects:
+            self._last_save_message = "Create a content project first"
+        else:
+            try:
+                preview = self.content.preview(projects[-1].id)
+                self._last_save_message = ("Design preview ready" if preview["ready_for_export"]
+                                           else f"Design preview has {len(preview['validation_issues'])} review item(s)")
+            except (KeyError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
     @Slot(str, str, str, str, str, str, str, str, str, str)
     def createContentProject(self, name: str, description: str = "", design_type: str = "furniture", design_notes: str = "", asset_references: str = "", materials: str = "", dimensions: str = "", recipe_plan: str = "", registration_plan: str = "", compatibility_notes: str = ""):
         if not self.content:

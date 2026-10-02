@@ -1091,6 +1091,22 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(payload["project"]["id"], project.id)
             self.assertNotIn("game", destination.parts)
 
+    def test_content_preview_is_structured_and_design_only(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            project = runtime.content.create("Ashen Furniture", "research", "A modular furniture experiment",
+                                             "furniture", "Oak frame", ["assets/chair.png"], ["oak"],
+                                             {"width": 2}, [], "Register ash_chair", "Build 1076226")
+            runtime.content.link_references(project.id, ["EV-RES-1"], ["EV-KNOW-1"])
+            preview = runtime.content.preview(project.id)
+            self.assertTrue(preview["ready_for_export"])
+            self.assertEqual(preview["research_ids"], ["EV-RES-1"])
+            self.assertEqual(preview["knowledge_ids"], ["EV-KNOW-1"])
+            self.assertEqual(preview["application_state"], "design-only")
+            self.assertFalse(preview["live_installation"])
+            payload = json.loads(runtime.content.export(runtime.content.list()[-1]).read_text(encoding="utf-8"))
+            self.assertEqual(payload["preview"]["project_id"], project.id)
+
     def test_content_project_tracks_structured_design_and_validates_without_mutation(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

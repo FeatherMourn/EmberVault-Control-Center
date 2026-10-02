@@ -27,6 +27,7 @@ class ContentProject:
     registration_plan: str = ""
     compatibility_notes: str = ""
     linked_research_ids: list[str] = field(default_factory=list)
+    linked_knowledge_ids: list[str] = field(default_factory=list)
 
 
 class ContentProjectService:
@@ -82,6 +83,11 @@ class ContentProjectService:
                 else:
                     project.linked_research_ids = sorted({value.strip() for value in project.linked_research_ids
                                                           if isinstance(value, str) and value.strip()})
+                if not isinstance(project.linked_knowledge_ids, list):
+                    project.linked_knowledge_ids = []
+                else:
+                    project.linked_knowledge_ids = sorted({value.strip() for value in project.linked_knowledge_ids
+                                                           if isinstance(value, str) and value.strip()})
                 projects.append(project)
             return projects
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
@@ -123,17 +129,51 @@ class ContentProjectService:
 
     def link_research(self, project_id: str, research_ids: list[str]) -> ContentProject:
         """Attach stable research IDs without copying research records."""
+        return self.link_references(project_id, research_ids=research_ids)
+
+    def link_references(self, project_id: str, research_ids: list[str] | None = None,
+                        knowledge_ids: list[str] | None = None) -> ContentProject:
+        """Attach stable research and knowledge IDs without copying source records."""
         links = self._normalize_ids(research_ids)
+        knowledge_links = self._normalize_ids(knowledge_ids)
         projects = self.list()
         for project in projects:
             if project.id == project_id:
                 project.linked_research_ids = links
+                project.linked_knowledge_ids = knowledge_links
                 if project.published:
                     project.published = False
                     project.published_at = ""
                 write_json_atomic(self.path, [asdict(item) for item in projects])
                 return project
         raise KeyError(project_id)
+
+    def preview(self, project_id: str) -> dict:
+        """Build a deterministic, non-mutating design review for the Control Center."""
+        project = next((item for item in self.list() if item.id == project_id), None)
+        if project is None:
+            raise KeyError(project_id)
+        issues = self.validate_design(project_id)
+        return {
+            "schema_version": 1,
+            "project_id": project.id,
+            "name": project.name,
+            "design_type": project.design_type,
+            "status": project.status,
+            "ready_for_export": not issues,
+            "validation_issues": issues,
+            "asset_references": list(project.asset_references),
+            "asset_count": len(project.asset_references),
+            "materials": list(project.materials),
+            "dimensions": dict(sorted(project.dimensions.items())),
+            "recipe_steps": list(project.recipe_plan),
+            "registration_plan": project.registration_plan,
+            "compatibility_notes": project.compatibility_notes,
+            "research_ids": list(project.linked_research_ids),
+            "knowledge_ids": list(project.linked_knowledge_ids),
+            "application_state": "design-only",
+            "live_installation": False,
+        }
 
     @staticmethod
     def _normalize_dimensions(values: dict[str, float] | None) -> dict[str, float]:
@@ -250,6 +290,7 @@ class ContentProjectService:
         write_json_atomic(destination, {
             "schema_version": 1,
             "project": asdict(project),
+            "preview": self.preview(project.id),
             "application_state": "design-only",
             "generated_at": datetime.now(timezone.utc).isoformat(),
         })
