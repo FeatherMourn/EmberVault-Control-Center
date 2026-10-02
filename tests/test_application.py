@@ -284,6 +284,21 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             self.assertEqual(runtime.catalog.build()["contract_versions"]["tuning_adapter"], 1)
 
+    def test_catalog_exposes_sanitized_tuning_adapter_record_when_manifest_exists(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            catalog = EmbervaultRuntime.create(root).catalog.build()
+            self.assertEqual(len(catalog["tuning_adapters"]), 1)
+            record = catalog["tuning_adapters"][0]
+            self.assertEqual(record["loader"], "EML")
+            self.assertEqual(record["supported_setting_keys"], ["baseCritChance"])
+            self.assertNotIn("source", record)
+            self.assertNotIn("mutation_scope", record)
+
     def test_eml_tuning_adapter_loads_existing_reversible_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
