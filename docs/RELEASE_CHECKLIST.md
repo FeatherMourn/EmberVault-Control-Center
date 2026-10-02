@@ -2,7 +2,7 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (236 tests passing).
+- [x] Run the complete Python test suite (265 tests passing at the last release audit).
 - [x] Confirm Trainer remains read-only/plan-only with research-profile,
       verified-backup, timeout, crash, and recovery safeguards.
 - [x] Confirm Character Tools remains plan-only and requires existing verified
@@ -38,6 +38,7 @@
 - [x] Review the frozen vocabulary in `docs/TERMINOLOGY.md`.
 - [x] Review embedded and separate-process boundaries in
       `docs/MODULE_BOUNDARIES.md`.
+- [x] Review the security and recovery audit in `docs/SECURITY_AUDIT.md`.
 
 ## Packaging
 
