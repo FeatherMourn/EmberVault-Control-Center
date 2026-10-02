@@ -138,7 +138,13 @@ class ControlCenterBackend(QObject):
             return "EML adapter unavailable"
         try:
             manifest = self.tuning_adapter.manifest()
-            return f"EML {manifest['game_build']} · {manifest['feature_state']} · {', '.join(manifest['supported_setting_keys'])}"
+            if self._adapter_deployed:
+                lifecycle = "deployed; launch verification pending"
+            elif self._staged_adapter_package:
+                lifecycle = "payload staged"
+            else:
+                lifecycle = "not staged"
+            return f"EML {manifest['game_build']} · {manifest['feature_state']} · {', '.join(manifest['supported_setting_keys'])} · {lifecycle}"
         except ValueError as exc:
             return f"EML adapter blocked · {exc}"
 

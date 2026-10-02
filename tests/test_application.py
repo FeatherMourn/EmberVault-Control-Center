@@ -33,6 +33,17 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIn("Content · 0 projects", backend.workspaceSummary)
             self.assertIn("Trainer · 0 plans", backend.workspaceSummary)
 
+    def test_backend_reports_adapter_lifecycle_state(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            runtime = EmbervaultRuntime.create(root)
+            backend = ControlCenterBackend(root, runtime=runtime)
+            self.assertIn("not staged", backend.tuningAdapterStatus)
+
     def test_backend_exposes_selected_profile_index(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
