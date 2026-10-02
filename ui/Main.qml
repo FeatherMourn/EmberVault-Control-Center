@@ -154,9 +154,12 @@ ApplicationWindow {
                 }
             }
             Button { text: "Choose game folder"; onClicked: controlCenter.chooseGameFolder() }
+            Text { text: "First steps"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Text { text: "EmberVault keeps the Control Center in charge. Start with the game folder, make a verified backup, then review module safety before enabling anything experimental."; color: muted; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Repeater { model: controlCenter.onboardingOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; Layout.fillWidth: true } }
             Text { text: "Continue"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 10 }
             Button { text: "Open Save Manager"; onClicked: page = 3 }
-            Button { text: "Review modules"; onClicked: page = 1 }
+            Button { text: "Review modules"; onClicked: page = 12 }
             Text { text: "Recent activity"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 10 }
             Repeater {
                 model: controlCenter.recentOperations

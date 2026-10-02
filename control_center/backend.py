@@ -153,6 +153,19 @@ class ControlCenterBackend(QObject):
         ]
 
     @Property("QStringList", notify=stateChanged)
+    def onboardingOptions(self):
+        """Small, non-destructive first-run guide for the shell."""
+        game_ready = bool(self.settings.game_path)
+        backup_ready = bool(self.save_manager.list_backups())
+        module_count = len(self.modules.discover()) if self.modules else 0
+        return [
+            f"{'DONE' if game_ready else 'NEXT'} · Choose the Enshrouded game folder",
+            f"{'DONE' if backup_ready else 'NEXT'} · Create and verify a save backup",
+            f"{'DONE' if module_count else 'NEXT'} · Review or install modules ({module_count} discovered)",
+            "INFO · Use the Research profile for experimental tools",
+        ]
+
+    @Property("QStringList", notify=stateChanged)
     def migrationPreview(self):
         if not self.migrations:
             return ["Migration service unavailable"]
