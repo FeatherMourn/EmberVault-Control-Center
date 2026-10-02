@@ -200,6 +200,19 @@ class ControlCenterBackend(QObject):
                 rows.append(f"{manifest['name']} · {state} · runtime adapter · rollback required")
         return rows
 
+    @Property("QStringList", notify=stateChanged)
+    def adapterGovernance(self):
+        if not self.tuning_adapter:
+            return ["No runtime adapter service available"]
+        try:
+            manifest = self.tuning_adapter.manifest()
+        except ValueError:
+            return ["EML adapter evidence is unavailable"]
+        return [f"{manifest['id']} v{manifest['version']} · {manifest['loader']} API {manifest['loader_api_version']}",
+                f"Build boundary: {manifest['game_build']}",
+                f"Supported keys: {', '.join(manifest['supported_setting_keys'])}",
+                "Future boundary: Shroudtopia requires an independent adapter contract"]
+
     @Slot(str, str, str, str, bool, bool, bool, bool, str, bool, result=str)
     def promoteCapability(self, capability_id, target_state, current_build, source_research_id,
                           reproducible, runtime_confirmed, recovery_tested,
