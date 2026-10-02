@@ -60,6 +60,15 @@ deliberately non-mutating; Research includes a
   optionally by Character Tools; direct save mutation remains unsupported.
 - Catalog and release verifiers enforce the integration-context contract.
 
+## Stage 17 governance status
+
+- The Control Center includes a Capability Governance workspace with lifecycle
+  state, evidence readiness, ownership, missing requirements, and promotion history.
+- Governance review is read-only; promotion remains operation-tracked and
+  fail-closed through the promotion evidence contract.
+- Runtime adapter availability and compatibility evidence remain explicit rather
+  than being inferred as stable capability.
+
 ## Release evidence
 
 - Python unit suite currently covers the Core services, workflows, module gates,
