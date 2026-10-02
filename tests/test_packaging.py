@@ -90,6 +90,11 @@ class PackagingContractTests(unittest.TestCase):
         self.assertIn("live_mutation_supported", audit)
         self.assertIn("data_preserving_uninstall", audit)
 
+    def test_release_readiness_gate_includes_all_release_checks(self):
+        gate = (Path(__file__).parents[1] / "tools" / "verify_release_readiness.py").read_text(encoding="utf-8")
+        for check in ("verify_release.py", "verify_distribution.py", "audit_distribution.py", "unittest"):
+            self.assertIn(check, gate)
+
     def test_release_verifier_lists_tuning_adapter_contract(self):
         root = Path(__file__).resolve().parents[1]
         verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
