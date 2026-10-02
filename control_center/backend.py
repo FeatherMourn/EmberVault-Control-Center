@@ -84,6 +84,7 @@ class ControlCenterBackend(QObject):
         self._adapter_deployed = False
         self._adapter_verified = False
         self._adapter_deployed_at = None
+        self._staged_module_upgrade = None
         self._restore_adapter_operation_state()
 
     def _restore_adapter_operation_state(self) -> None:
@@ -633,6 +634,31 @@ class ControlCenterBackend(QObject):
                 manifest = self.modules.install_from_directory(Path(selected))
                 self._last_save_message = f"Installed module {manifest.name} v{manifest.version}"
             except (FileExistsError, OSError, ValueError) as exc:
+                self._last_save_message = str(exc)
+            self.stateChanged.emit()
+
+    @Property(str, notify=stateChanged)
+    def moduleUpgradeReview(self):
+        if not self._staged_module_upgrade:
+            return "No module upgrade staged for review."
+        item = self._staged_module_upgrade
+        return (f"REVIEW REQUIRED · {item['module_id']} · installed {item['installed_version']} → "
+                f"staged {item['staged_version']} · replacement performed: {item['replacement_performed']}")
+
+    @Slot()
+    def stageModuleUpgrade(self):
+        if not self.modules:
+            return
+        try:
+            from PySide6.QtWidgets import QFileDialog
+            selected = QFileDialog.getExistingDirectory(None, "Choose newer module folder")
+        except ImportError:
+            selected = ""
+        if selected:
+            try:
+                self._staged_module_upgrade = self.modules.stage_upgrade(Path(selected))
+                self._last_save_message = f"Staged module upgrade for review: {self._staged_module_upgrade['module_id']}"
+            except (OSError, ValueError) as exc:
                 self._last_save_message = str(exc)
             self.stateChanged.emit()
 
