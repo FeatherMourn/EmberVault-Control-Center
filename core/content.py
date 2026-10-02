@@ -21,6 +21,11 @@ class ContentProject:
     asset_references: list[str] = field(default_factory=list)
     published: bool = False
     published_at: str = ""
+    materials: list[str] = field(default_factory=list)
+    dimensions: dict[str, float] = field(default_factory=dict)
+    recipe_plan: list[str] = field(default_factory=list)
+    registration_plan: str = ""
+    compatibility_notes: str = ""
 
 
 class ContentProjectService:
@@ -58,12 +63,25 @@ class ContentProjectService:
                     project.published = False
                 if not isinstance(project.published_at, str):
                     project.published_at = ""
+                for field_name in ("materials", "recipe_plan"):
+                    values = getattr(project, field_name)
+                    if not isinstance(values, list):
+                        values = []
+                    setattr(project, field_name, [value.strip() for value in values if isinstance(value, str) and value.strip()])
+                if not isinstance(project.dimensions, dict):
+                    project.dimensions = {}
+                else:
+                    project.dimensions = {str(key): float(value) for key, value in project.dimensions.items()
+                                          if isinstance(key, str) and isinstance(value, (int, float)) and value > 0}
+                for field_name in ("registration_plan", "compatibility_notes"):
+                    if not isinstance(getattr(project, field_name), str):
+                        setattr(project, field_name, "")
                 projects.append(project)
             return projects
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
 
-    def create(self, name: str, profile_id: str, description: str = "", design_type: str = "furniture", design_notes: str = "", asset_references: list[str] | None = None) -> ContentProject:
+    def create(self, name: str, profile_id: str, description: str = "", design_type: str = "furniture", design_notes: str = "", asset_references: list[str] | None = None, materials: list[str] | None = None, dimensions: dict[str, float] | None = None, recipe_plan: list[str] | None = None, registration_plan: str = "", compatibility_notes: str = "") -> ContentProject:
         if not name.strip() or not profile_id.strip():
             raise ValueError("Content project name and profile are required")
         if design_type not in {"furniture", "building", "recipe", "other"}:
@@ -71,11 +89,35 @@ class ContentProjectService:
         references = self._normalize_asset_references(asset_references or [])
         project = ContentProject(f"EV-CONTENT-{uuid.uuid4().hex[:8].upper()}", name.strip(), profile_id,
                                  description=description.strip(), design_type=design_type,
-                                 design_notes=design_notes.strip(), asset_references=references)
+                                 design_notes=design_notes.strip(), asset_references=references,
+                                 materials=self._normalize_text_list(materials), dimensions=self._normalize_dimensions(dimensions),
+                                 recipe_plan=self._normalize_text_list(recipe_plan), registration_plan=registration_plan.strip(),
+                                 compatibility_notes=compatibility_notes.strip())
         projects = self.list()
         projects.append(project)
         write_json_atomic(self.path, [asdict(item) for item in projects])
         return project
+
+    @staticmethod
+    def _normalize_text_list(values: list[str] | None) -> list[str]:
+        if values is None:
+            return []
+        if not isinstance(values, list) or any(not isinstance(value, str) or not value.strip() for value in values):
+            raise ValueError("Content lists must contain non-empty strings")
+        return list(dict.fromkeys(value.strip() for value in values))
+
+    @staticmethod
+    def _normalize_dimensions(values: dict[str, float] | None) -> dict[str, float]:
+        if values is None:
+            return {}
+        if not isinstance(values, dict):
+            raise ValueError("Dimensions must be an object")
+        result = {}
+        for key, value in values.items():
+            if not isinstance(key, str) or not key.strip() or not isinstance(value, (int, float)) or value <= 0:
+                raise ValueError("Dimensions must contain positive numeric values")
+            result[key.strip()] = float(value)
+        return result
 
     def set_status(self, project_id: str, status: str) -> ContentProject:
         if status not in {"draft", "ready", "blocked"}:
@@ -93,7 +135,7 @@ class ContentProjectService:
                 return project
         raise KeyError(project_id)
 
-    def update_design(self, project_id: str, design_type: str, design_notes: str, asset_references: list[str] | None = None) -> ContentProject:
+    def update_design(self, project_id: str, design_type: str, design_notes: str, asset_references: list[str] | None = None, materials: list[str] | None = None, dimensions: dict[str, float] | None = None, recipe_plan: list[str] | None = None, registration_plan: str = "", compatibility_notes: str = "") -> ContentProject:
         if design_type not in {"furniture", "building", "recipe", "other"}:
             raise ValueError("Unknown content design type")
         projects = self.list()
@@ -102,11 +144,39 @@ class ContentProjectService:
                 project.design_type = design_type
                 project.design_notes = design_notes.strip()
                 project.asset_references = self._normalize_asset_references(asset_references or [])
+                project.materials = self._normalize_text_list(materials)
+                project.dimensions = self._normalize_dimensions(dimensions)
+                project.recipe_plan = self._normalize_text_list(recipe_plan)
+                project.registration_plan = registration_plan.strip()
+                project.compatibility_notes = compatibility_notes.strip()
                 if project.published:
                     project.published = False
                     project.published_at = ""
                 write_json_atomic(self.path, [asdict(item) for item in projects])
                 return project
+        raise KeyError(project_id)
+
+    def validate_design(self, project_id: str) -> list[str]:
+        projects = self.list()
+        for project in projects:
+            if project.id != project_id:
+                continue
+            issues = []
+            if not project.description.strip():
+                issues.append("Development brief is required")
+            if not project.design_notes.strip():
+                issues.append("Design notes are required")
+            if project.design_type == "furniture" and not project.materials:
+                issues.append("Furniture projects need at least one material")
+            if not project.dimensions:
+                issues.append("At least one positive dimension is required")
+            if project.design_type == "recipe" and not project.recipe_plan:
+                issues.append("Recipe projects need a recipe plan")
+            if not project.registration_plan.strip():
+                issues.append("Registration plan is required")
+            if not project.compatibility_notes.strip():
+                issues.append("Compatibility notes are required")
+            return issues
         raise KeyError(project_id)
 
     @staticmethod

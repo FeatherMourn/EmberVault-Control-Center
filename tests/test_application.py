@@ -1034,6 +1034,20 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(payload["project"]["id"], project.id)
             self.assertNotIn("game", destination.parts)
 
+    def test_content_project_tracks_structured_design_and_validates_without_mutation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            project = runtime.content.create("Ashen Table", "research", "Furniture brief", "furniture", "Joinery notes", [],
+                                            ["oak", "iron"], {"width": 2, "height": 1}, [], "Register ash_table", "Build 1076226")
+            self.assertEqual(runtime.content.validate_design(project.id), [])
+            self.assertEqual(runtime.content.set_status(project.id, "ready").status, "ready")
+            exported = runtime.content.export(project)
+            payload = json.loads(exported.read_text(encoding="utf-8"))
+            self.assertEqual(payload["application_state"], "design-only")
+            self.assertEqual(payload["project"]["materials"], ["oak", "iron"])
+            self.assertEqual(payload["project"]["dimensions"]["width"], 2.0)
+            self.assertNotIn("game_path", exported.read_text(encoding="utf-8"))
+
     def test_content_asset_references_are_relative_and_persisted(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
