@@ -258,6 +258,8 @@ ApplicationWindow {
             Text { text: controlCenter.packageOptions.length === 0 ? "No packages discovered yet." : "Available packages"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Text { text: controlCenter.externalPackageOptions.length === 0 ? "No unmanaged external mods detected." : "External mods already in the game folder"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater { model: controlCenter.externalPackageOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
+            Text { text: "Update detection"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater { model: controlCenter.packageUpdates; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
             Button { text: "Import package folder or ZIP"; onClicked: controlCenter.importPackage() }
             Button { text: "Inspect deployment plan"; onClicked: controlCenter.inspectDeploymentPlan() }
             Button { text: "Deploy ready packages"; enabled: controlCenter.canDeploy; onClicked: deployDialog.open() }
@@ -327,6 +329,8 @@ ApplicationWindow {
             Text { text: "Available profiles"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             TextField { id: profileNameField; placeholderText: "New profile name"; Layout.fillWidth: true }
             Button { text: "Create custom profile"; onClicked: controlCenter.createProfile(profileNameField.text) }
+            Button { text: "Export active profile"; onClicked: controlCenter.exportActiveProfile() }
+            Button { text: "Import profile"; onClicked: controlCenter.importProfile() }
             Button { text: "Delete active custom profile"; onClicked: controlCenter.deleteActiveProfile() }
             Repeater {
                 model: controlCenter.profileDetails

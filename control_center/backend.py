@@ -1481,6 +1481,50 @@ class ControlCenterBackend(QObject):
             for profile in self.profiles
         ]
 
+    @Property("QStringList", notify=stateChanged)
+    def packageUpdates(self):
+        return ["No trusted update feed configured; package upgrades remain explicit and local."]
+
+    @Slot()
+    def exportActiveProfile(self):
+        profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        if not profile:
+            return
+        try:
+            from PySide6.QtWidgets import QFileDialog
+            selected, _ = QFileDialog.getSaveFileName(None, "Export EmberVault profile", f"{profile.id}.json", "JSON (*.json)")
+        except ImportError:
+            selected = ""
+        if selected:
+            operation = self.operations.start("profile-export", profile_id=profile.id) if self.operations else None
+            try:
+                destination = self.profile_service.export_profile(profile.id, Path(selected))
+                if operation and self.operations: self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Exported profile to {destination}")
+                self._last_save_message = f"Exported profile to {destination}"
+            except (OSError, ValueError) as exc:
+                if operation and self.operations: self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+            self.stateChanged.emit()
+
+    @Slot()
+    def importProfile(self):
+        try:
+            from PySide6.QtWidgets import QFileDialog
+            selected, _ = QFileDialog.getOpenFileName(None, "Import EmberVault profile", "", "JSON (*.json)")
+        except ImportError:
+            selected = ""
+        if selected:
+            operation = self.operations.start("profile-import") if self.operations else None
+            try:
+                profile = self.profile_service.import_profile(Path(selected))
+                self.profiles.append(profile); self._selected_profile_id = profile.id; self._profile_name = profile.name
+                if operation and self.operations: self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Imported profile {profile.id}")
+                self._last_save_message = f"Imported profile {profile.name}"
+            except (OSError, ValueError, TypeError) as exc:
+                if operation and self.operations: self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+            self.stateChanged.emit()
+
     @Slot()
     def refresh(self):
         if self.settings.game_path:
