@@ -6,7 +6,7 @@ import importlib.util
 import subprocess
 import sys
 import shutil
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace as dataclass_replace
 from enum import StrEnum
 from pathlib import Path, PureWindowsPath
 
@@ -36,6 +36,8 @@ class ModuleManifest:
     recovery: dict = field(default_factory=dict, compare=False)
     operation_types: tuple[str, ...] = ()
     path: Path | None = field(default=None, compare=False)
+    compatibility_state: str = field(default="compatible", compare=False)
+    compatibility_reason: str = field(default="", compare=False)
 
     @classmethod
     def from_file(cls, path: Path) -> "ModuleManifest":
@@ -119,6 +121,7 @@ class LaunchContext:
 
 
 class ModuleRegistry:
+    CORE_VERSION = "1.0.0"
     def __init__(self, directory: Path):
         self.directory = Path(directory)
         source_directory = Path(__file__).resolve().parents[1] / "modules"
@@ -137,6 +140,7 @@ class ModuleRegistry:
             for manifest_path in sorted(directory.glob("*/module.json")):
                 try:
                     manifest = ModuleManifest.from_file(manifest_path)
+                    manifest = self._with_compatibility(manifest)
                     if manifest.id in self._modules:
                         if directory == self.directory:
                             self._modules[manifest.id] = manifest
@@ -145,6 +149,23 @@ class ModuleRegistry:
                 except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
                     continue
         return dict(self._modules)
+
+    @classmethod
+    def _with_compatibility(cls, manifest: ModuleManifest) -> ModuleManifest:
+        required = cls._version_key(manifest.minimum_core_version)
+        current = cls._version_key(cls.CORE_VERSION)
+        if required > current:
+            return dataclass_replace(manifest, compatibility_state="incompatible",
+                                     compatibility_reason=f"Requires Control Center {manifest.minimum_core_version} or newer.")
+        return manifest
+
+    @staticmethod
+    def _version_key(version: str) -> tuple[int, int, int]:
+        parts = []
+        for value in str(version).split("."):
+            digits = "".join(char for char in value if char.isdigit())
+            parts.append(int(digits or 0))
+        return tuple((parts + [0, 0, 0])[:3])
 
     def install_from_directory(self, source: Path) -> ModuleManifest:
         """Install a reviewed module directory under Control Center ownership."""
@@ -155,6 +176,9 @@ class ModuleRegistry:
         if source.is_symlink() or any(item.is_symlink() for item in source.rglob("*")):
             raise ValueError("Module source contains an unsafe symlink")
         manifest = ModuleManifest.from_file(manifest_path)
+        manifest = self._with_compatibility(manifest)
+        if manifest.compatibility_state == "incompatible":
+            raise ValueError(manifest.compatibility_reason)
         destination = self.directory / manifest.id
         if destination.exists():
             raise FileExistsError(f"Module is already installed: {manifest.id}")
@@ -178,6 +202,8 @@ class ModuleRegistry:
         manifest = self.get(module_id)
         if not manifest or not manifest.entrypoint or not manifest.path:
             raise ValueError(f"Module '{module_id}' is not an embedded module.")
+        if manifest.compatibility_state != "compatible":
+            raise ValueError(manifest.compatibility_reason or "Module is incompatible with this Control Center.")
         root = manifest.path.resolve()
         entrypoint = (root / manifest.entrypoint).resolve()
         if root not in entrypoint.parents or not entrypoint.is_file():
@@ -194,6 +220,8 @@ class ModuleRegistry:
         manifest = self.get(module_id)
         if not manifest or not manifest.executable or not manifest.path:
             raise ValueError(f"Module '{module_id}' is not a separate-process module.")
+        if manifest.compatibility_state != "compatible":
+            raise ValueError(manifest.compatibility_reason or "Module is incompatible with this Control Center.")
         module_root = manifest.path.resolve()
         executable = (module_root / manifest.executable).resolve()
         if module_root not in executable.parents:

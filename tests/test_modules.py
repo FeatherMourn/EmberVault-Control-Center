@@ -37,6 +37,23 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertTrue(manifest.safety["read_only"])
             self.assertIn("verification", manifest.recovery)
 
+    def test_module_requiring_newer_core_is_discovered_but_cannot_load(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "future"
+            root.mkdir()
+            (root / "module.json").write_text(json.dumps({
+                "id": "embervault.future", "name": "Future", "version": "1.0.0",
+                "publisher": "Test", "minimum_core_version": "99.0.0",
+                "process_mode": "embedded", "entrypoint": "module.py", "contract_version": 1,
+                "capabilities": [], "safety": {}, "recovery": {}
+            }))
+            (root / "module.py").write_text("def describe(): return {'id': 'embervault.future'}\n")
+            registry = ModuleRegistry(Path(temp))
+            manifest = registry.discover()["embervault.future"]
+            self.assertEqual(manifest.compatibility_state, "incompatible")
+            with self.assertRaises(ValueError):
+                registry.load_embedded(manifest.id)
+
     def test_discovery_ignores_malformed_manifests(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "broken"
