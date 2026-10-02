@@ -15,12 +15,13 @@ from .storage import write_json_atomic
 
 class CatalogExportService:
     def __init__(self, root: Path, modules: ModuleRegistry, packages: PackageService,
-                 knowledge: KnowledgeService, research: ResearchService):
+                 knowledge: KnowledgeService, research: ResearchService, tuning_adapter=None):
         self.root = Path(root)
         self.modules = modules
         self.packages = packages
         self.knowledge = knowledge
         self.research = research
+        self.tuning_adapter = tuning_adapter
         self.content = None
 
     def set_content(self, content: ContentProjectService) -> None:
@@ -32,12 +33,27 @@ class CatalogExportService:
         knowledge = sorted((item for item in self.knowledge.entries() if item.published), key=lambda item: item.id)
         research = sorted((item for item in self.research.list() if item.published), key=lambda item: item.id)
         content = sorted((item for item in (self.content.list() if self.content else []) if item.published), key=lambda item: item.id)
+        tuning_adapters = []
+        if self.tuning_adapter:
+            try:
+                manifest = self.tuning_adapter.manifest()
+            except ValueError:
+                manifest = None
+            if manifest:
+                tuning_adapters.append({
+                    "id": manifest["id"], "name": manifest["name"], "version": manifest["version"],
+                    "loader": manifest["loader"], "game_build": manifest["game_build"],
+                    "supported_setting_keys": manifest["supported_setting_keys"],
+                    "feature_state": manifest["feature_state"], "process_mode": manifest["process_mode"],
+                    "evidence_state": "reversible-runtime-evidence",
+                })
         return {
             "schema_version": 1,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "contract_versions": {"module_manifest": 1, "package_manifest": 1, "research_record": 1, "content_project": 1, "tuning_adapter": 1},
             "packages": [asdict(item) | {"path": None} for item in packages],
             "modules": [asdict(item) | {"path": None} for item in modules],
+            "tuning_adapters": tuning_adapters,
             "knowledge": [{"id": item.id, "title": item.title, "category": item.category,
                            "summary": item.summary, "content": item.content,
                            "published_at": item.published_at or "seeded"} for item in knowledge],
@@ -53,7 +69,7 @@ class CatalogExportService:
         """Validate the public handoff without requiring a web runtime."""
         if not isinstance(payload, dict) or payload.get("schema_version") != 1:
             raise ValueError("Catalog schema version must be 1")
-        required = ("generated_at", "contract_versions", "packages", "modules", "knowledge", "research", "content_projects")
+        required = ("generated_at", "contract_versions", "packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects")
         if any(key not in payload for key in required) or set(payload) != {"schema_version", *required}:
             raise ValueError("Catalog is missing a required collection")
         if not isinstance(payload["generated_at"], str) or not payload["generated_at"].strip():
@@ -64,7 +80,7 @@ class CatalogExportService:
             version = payload["contract_versions"].get(key)
             if not isinstance(version, int) or isinstance(version, bool) or version < 1:
                 raise ValueError(f"Catalog contract version is missing: {key}")
-        for collection in ("packages", "modules", "knowledge", "research", "content_projects"):
+        for collection in ("packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects"):
             if not isinstance(payload[collection], list):
                 raise ValueError(f"Catalog collection is not an array: {collection}")
         for collection in ("packages", "modules"):
@@ -73,6 +89,16 @@ class CatalogExportService:
                     raise ValueError(f"{collection.title()} catalog records must contain an id")
                 if collection == "modules" and item.get("process_mode") not in {"embedded", "separate"}:
                     raise ValueError("Module catalog records must declare embedded or separate process_mode")
+        for item in payload["tuning_adapters"]:
+            required_fields = {"id", "name", "version", "loader", "game_build", "supported_setting_keys", "feature_state", "process_mode", "evidence_state"}
+            if not isinstance(item, dict) or set(item) != required_fields:
+                raise ValueError("Tuning adapter catalog records must match the public contract")
+            if any(not isinstance(item[key], str) or not item[key].strip() for key in ("id", "name", "version", "loader", "game_build", "feature_state", "evidence_state")):
+                raise ValueError("Tuning adapter catalog records must contain non-empty fields")
+            if not isinstance(item["supported_setting_keys"], list) or not all(isinstance(key, str) and key.strip() for key in item["supported_setting_keys"]):
+                raise ValueError("Tuning adapter supported keys must be strings")
+            if item["process_mode"] not in {"embedded", "separate"}:
+                raise ValueError("Tuning adapter records must declare embedded or separate process_mode")
         for item in payload["knowledge"]:
             if not isinstance(item, dict) or set(item) != {"id", "title", "category", "summary", "content", "published_at"}:
                 raise ValueError("Knowledge catalog records must match the public contract")

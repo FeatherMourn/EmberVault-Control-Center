@@ -8,7 +8,7 @@ from pathlib import Path
 
 def validate_catalog(payload: dict) -> None:
     """Validate only the public catalog contract; no desktop imports required."""
-    required = ("generated_at", "contract_versions", "packages", "modules", "knowledge", "research", "content_projects")
+    required = ("generated_at", "contract_versions", "packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects")
     if not isinstance(payload, dict) or payload.get("schema_version") != 1:
         raise ValueError("Catalog schema version must be 1")
     if any(key not in payload for key in required) or set(payload) != {"schema_version", *required}:
@@ -22,7 +22,7 @@ def validate_catalog(payload: dict) -> None:
         version = versions.get(key)
         if not isinstance(version, int) or isinstance(version, bool) or version < 1:
             raise ValueError(f"Catalog contract version is missing: {key}")
-    for collection in ("packages", "modules", "knowledge", "research", "content_projects"):
+    for collection in ("packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects"):
         if not isinstance(payload[collection], list):
             raise ValueError(f"Catalog collection is not an array: {collection}")
     for collection in ("packages", "modules"):
@@ -31,6 +31,12 @@ def validate_catalog(payload: dict) -> None:
                 raise ValueError(f"{collection.title()} catalog records must contain an id")
             if collection == "modules" and item.get("process_mode") not in {"embedded", "separate"}:
                 raise ValueError("Module catalog records must declare embedded or separate process_mode")
+    for item in payload["tuning_adapters"]:
+        required_fields = {"id", "name", "version", "loader", "game_build", "supported_setting_keys", "feature_state", "process_mode", "evidence_state"}
+        if not isinstance(item, dict) or set(item) != required_fields:
+            raise ValueError("Tuning adapter catalog records must match the public contract")
+        if item.get("process_mode") not in {"embedded", "separate"}:
+            raise ValueError("Tuning adapter records must declare embedded or separate process_mode")
     for item in payload["knowledge"]:
         if not isinstance(item, dict) or set(item) != {"id", "title", "category", "summary", "content", "published_at"}:
             raise ValueError("Knowledge catalog records must match the public contract")
