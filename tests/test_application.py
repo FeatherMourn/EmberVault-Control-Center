@@ -20,6 +20,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             evidence = PromotionEvidence("embervault.eml", "1076226", True, True, True, True, "EmberVault", True)
             decision = runtime.promotion.promote(evidence, "verified")
             self.assertEqual(decision["target_state"], "verified")
+            self.assertEqual(runtime.catalog.build()["promotions"][0]["target_state"], "verified")
             with self.assertRaises(ValueError):
                 runtime.promotion.promote(PromotionEvidence("x", "1076226", True, False, True, True, "owner", True), "stable")
     def test_runtime_composes_services_and_reports_health(self):

@@ -8,7 +8,7 @@ from pathlib import Path
 
 def validate_catalog(payload: dict) -> None:
     """Validate only the public catalog contract; no desktop imports required."""
-    required = ("generated_at", "contract_versions", "packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects")
+    required = ("generated_at", "contract_versions", "packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects", "promotions")
     if not isinstance(payload, dict) or payload.get("schema_version") != 1:
         raise ValueError("Catalog schema version must be 1")
     if any(key not in payload for key in required) or set(payload) != {"schema_version", *required}:

@@ -96,7 +96,7 @@ class EmbervaultRuntime:
         runtime.launcher = ModuleLaunchService(runtime.modules, runtime.risk)
         runtime.tuning_adapter = TuningAdapterService(root)
         runtime.promotion = PromotionService(root)
-        runtime.catalog = CatalogExportService(root, runtime.modules, runtime.packages, runtime.knowledge, runtime.research, runtime.tuning_adapter)
+        runtime.catalog = CatalogExportService(root, runtime.modules, runtime.packages, runtime.knowledge, runtime.research, runtime.tuning_adapter, runtime.promotion)
         runtime.content = ContentProjectService(root)
         runtime.trainer = TrainerPlanService(root, runtime.saves)
         runtime.catalog.set_content(runtime.content)

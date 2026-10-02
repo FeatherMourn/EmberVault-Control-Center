@@ -55,3 +55,12 @@ class PromotionService:
         records.append(decision)
         self.path.write_text(json.dumps(records, indent=2) + "\n", encoding="utf-8")
         return decision
+
+    def decisions(self) -> list[dict]:
+        if not self.path.exists():
+            return []
+        try:
+            raw = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            return []
+        return [item for item in raw if isinstance(item, dict) and isinstance(item.get("evidence"), dict)] if isinstance(raw, list) else []

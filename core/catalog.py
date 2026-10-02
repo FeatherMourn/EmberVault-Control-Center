@@ -15,13 +15,14 @@ from .storage import write_json_atomic
 
 class CatalogExportService:
     def __init__(self, root: Path, modules: ModuleRegistry, packages: PackageService,
-                 knowledge: KnowledgeService, research: ResearchService, tuning_adapter=None):
+                 knowledge: KnowledgeService, research: ResearchService, tuning_adapter=None, promotion=None):
         self.root = Path(root)
         self.modules = modules
         self.packages = packages
         self.knowledge = knowledge
         self.research = research
         self.tuning_adapter = tuning_adapter
+        self.promotion = promotion
         self.content = None
 
     def set_content(self, content: ContentProjectService) -> None:
@@ -33,6 +34,11 @@ class CatalogExportService:
         knowledge = sorted((item for item in self.knowledge.entries() if item.published), key=lambda item: item.id)
         research = sorted((item for item in self.research.list() if item.published), key=lambda item: item.id)
         content = sorted((item for item in (self.content.list() if self.content else []) if item.published), key=lambda item: item.id)
+        promotions = []
+        if self.promotion:
+            for item in self.promotion.decisions():
+                evidence = item["evidence"]
+                promotions.append({"capability_id": evidence.get("capability_id"), "target_state": item.get("target_state"), "current_build": evidence.get("current_build"), "source_research_id": evidence.get("source_research_id", "")})
         tuning_adapters = []
         if self.tuning_adapter:
             try:
@@ -80,6 +86,7 @@ class CatalogExportService:
                           "linked_knowledge_count": len(item.linked_knowledge_ids)} for item in research],
             "content_projects": [{"id": item.id, "name": item.name, "status": item.status,
                                   "published_at": item.published_at} for item in content],
+            "promotions": promotions,
         }
 
     @staticmethod
@@ -87,7 +94,7 @@ class CatalogExportService:
         """Validate the public handoff without requiring a web runtime."""
         if not isinstance(payload, dict) or payload.get("schema_version") != 1:
             raise ValueError("Catalog schema version must be 1")
-        required = ("generated_at", "contract_versions", "packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects")
+        required = ("generated_at", "contract_versions", "packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects", "promotions")
         if any(key not in payload for key in required) or set(payload) != {"schema_version", *required}:
             raise ValueError("Catalog is missing a required collection")
         if not isinstance(payload["generated_at"], str) or not payload["generated_at"].strip():
@@ -98,7 +105,7 @@ class CatalogExportService:
             version = payload["contract_versions"].get(key)
             if not isinstance(version, int) or isinstance(version, bool) or version < 1:
                 raise ValueError(f"Catalog contract version is missing: {key}")
-        for collection in ("packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects"):
+        for collection in ("packages", "modules", "tuning_adapters", "knowledge", "research", "content_projects", "promotions"):
             if not isinstance(payload[collection], list):
                 raise ValueError(f"Catalog collection is not an array: {collection}")
         for collection in ("packages", "modules"):
@@ -144,6 +151,11 @@ class CatalogExportService:
                 raise ValueError("Content catalog records must remain sanitized")
             if item["status"] != "ready":
                 raise ValueError("Only ready content projects may be public")
+        for item in payload["promotions"]:
+            if not isinstance(item, dict) or set(item) != {"capability_id", "target_state", "current_build", "source_research_id"}:
+                raise ValueError("Promotion catalog records must remain sanitized")
+            if item["target_state"] not in {"research-only", "experimental", "verified", "stable"}:
+                raise ValueError("Promotion catalog state is invalid")
 
     def export(self, destination: Path) -> Path:
         destination = Path(destination)
