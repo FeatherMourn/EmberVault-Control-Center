@@ -69,6 +69,14 @@ deliberately non-mutating; Research includes a
 - Runtime adapter availability and compatibility evidence remain explicit rather
   than being inferred as stable capability.
 
+## Stage 19 Mods Management status
+
+- Mods Management includes dependency graphs, profile comparison, batch package
+  actions, compatibility-aware deployment, managed/external distinction, profile
+  portability, update detection, and reviewable upgrade staging.
+- Upgrade staging never replaces an installed package automatically; the staged
+  manifest remains subject to explicit review and existing ownership gates.
+
 ## Release evidence
 
 - Python unit suite currently covers the Core services, workflows, module gates,
