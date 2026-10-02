@@ -95,6 +95,7 @@ class PackagingContractTests(unittest.TestCase):
         schema = json.loads((root / "contracts/catalog.schema.json").read_text(encoding="utf-8"))
         self.assertIn("tuning_adapters", schema["required"])
         self.assertIn("tuning_adapters", schema["properties"])
+        self.assertFalse(schema["properties"]["contract_versions"]["additionalProperties"])
 
     def test_tuning_adapter_contract_declares_safety_boundaries(self):
         root = Path(__file__).resolve().parents[1]

@@ -16,7 +16,8 @@
         "research_record": {"type": "integer", "minimum": 1},
         "content_project": {"type": "integer", "minimum": 1},
         "tuning_adapter": {"type": "integer", "minimum": 1}
-      }
+      },
+      "additionalProperties": false
     },
     "packages": {"type": "array", "items": {"type": "object"}},
     "modules": {
