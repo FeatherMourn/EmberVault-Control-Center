@@ -522,6 +522,12 @@ class ControlCenterBackend(QObject):
             for module in self.modules.embedded()
         ]
 
+    @Property("QStringList", notify=stateChanged)
+    def embeddedModuleIds(self):
+        if not self.modules:
+            return []
+        return [module.id for module in self.modules.embedded()]
+
     @Slot()
     def inspectEmbeddedModules(self):
         if not self.modules:
@@ -545,6 +551,24 @@ class ControlCenterBackend(QObject):
         except (ImportError, OSError, ValueError) as exc:
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot(str)
+    def loadEmbeddedModule(self, module_id: str):
+        """Load one trusted embedded module through the central authority."""
+        if not self.modules or not module_id:
+            return
+        try:
+            loaded = self.modules.load_embedded(module_id)
+            describe = getattr(loaded, "describe", None)
+            if not callable(describe):
+                raise ValueError(f"Embedded module has no describe contract: {module_id}")
+            description = describe()
+            if not isinstance(description, dict) or description.get("id") != module_id:
+                raise ValueError(f"Embedded module returned an invalid description: {module_id}")
+            self._last_save_message = f"Loaded embedded module {module_id} in plan-only mode"
+        except (ImportError, OSError, ValueError) as exc:
             self._last_save_message = str(exc)
         self.stateChanged.emit()
 

@@ -243,6 +243,8 @@ ApplicationWindow {
             Text { text: controlCenter.moduleOptions.length === 0 ? "No modules discovered yet." : "Discovered modules"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Button { text: "Inspect embedded modules"; onClicked: controlCenter.inspectEmbeddedModules() }
             Button { text: "Install module folder"; onClicked: controlCenter.installModuleFolder() }
+            ComboBox { id: embeddedModulePicker; model: controlCenter.embeddedModuleIds; Layout.fillWidth: true }
+            Button { text: "Load selected embedded module"; enabled: embeddedModulePicker.currentText.length > 0; onClicked: controlCenter.loadEmbeddedModule(embeddedModulePicker.currentText) }
             Repeater {
                 model: controlCenter.embeddedModuleOptions
                 delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true }
