@@ -48,6 +48,18 @@ deliberately non-mutating; Research includes a
   bounded review of staged settings without applying them to the game. Worker
   launch paths are covered by success, denial, and timeout tests.
 
+## Stage 14 integration status
+
+- Cross-module handoffs use the versioned integration context carrying
+  operation ID, profile ID, capability state, and recovery expectation.
+- Mods deployment actions carry profile and compatibility state; incompatible
+  builds are blocked before deployment.
+- Research records accept operation-bound sanitized runtime adapter evidence,
+  and content projects can reference stable research IDs.
+- Save Manager exposes the shared verified-backup handoff used by Trainer and
+  optionally by Character Tools; direct save mutation remains unsupported.
+- Catalog and release verifiers enforce the integration-context contract.
+
 ## Release evidence
 
 - Python unit suite currently covers the Core services, workflows, module gates,
@@ -71,7 +83,7 @@ deliberately non-mutating; Research includes a
   five modules and eight knowledge entries. The package-manifest schema is
   present in the installed wheel data.
 - Save Manager remains inspection/backup/verification/restore-only.
-- A fresh wheel build has passed release-asset verification with all 24 required
+- A fresh wheel build has passed release-asset verification with all 28 required
   packaged assets, and the offscreen launcher smoke test passes. The default
   catalog sync command includes the reviewed adapter and seeded knowledge assets;
   isolated exports can still provide `--data-root` explicitly.
