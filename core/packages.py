@@ -16,6 +16,7 @@ from .compatibility import CompatibilityState, evaluate
 MAX_ARCHIVE_ENTRIES = 2048
 MAX_ARCHIVE_BYTES = 256 * 1024 * 1024
 DEPLOYMENT_MARKER = ".embervault-managed.json"
+DEPLOYMENT_MARKER_VERSION = 1
 
 
 @dataclass(frozen=True)
@@ -323,7 +324,9 @@ class PackageService:
                 shutil.copytree(item.source, item.destination)
                 created.append(item.destination)
                 (item.destination / DEPLOYMENT_MARKER).write_text(json.dumps({
-                    "package_id": item.package_id, "managed_by": "embervault-control-center",
+                    "marker_version": DEPLOYMENT_MARKER_VERSION,
+                    "package_id": item.package_id, "package_version": self._packages[item.package_id].version,
+                    "managed_by": "embervault-control-center",
                 }, indent=2) + "\n", encoding="utf-8")
             return plan
         except (OSError, shutil.Error) as exc:
@@ -335,6 +338,36 @@ class PackageService:
                     shutil.rmtree(destination, ignore_errors=True)
             raise OSError("Package deployment failed; new destinations were removed") from exc
 
+    def inspect_deployments(self, game_directory: Path) -> list[DeploymentAction]:
+        """Inspect game mod folders without changing managed or external content."""
+        mods = Path(game_directory) / "mods"
+        if not mods.is_dir():
+            return []
+        findings: list[DeploymentAction] = []
+        for destination in sorted(mods.iterdir()):
+            if not destination.is_dir() or destination.is_symlink():
+                continue
+            marker = destination / DEPLOYMENT_MARKER
+            if not marker.is_file():
+                findings.append(DeploymentAction(destination.name, Path(), destination, "external",
+                                                 "No EmberVault ownership marker"))
+                continue
+            try:
+                metadata = json.loads(marker.read_text(encoding="utf-8"))
+            except (OSError, ValueError, TypeError, json.JSONDecodeError):
+                findings.append(DeploymentAction(destination.name, Path(), destination, "unsafe",
+                                                 "Ownership marker is unreadable"))
+                continue
+            if (metadata.get("marker_version") != DEPLOYMENT_MARKER_VERSION
+                    or metadata.get("package_id") != destination.name
+                    or metadata.get("managed_by") != "embervault-control-center"):
+                findings.append(DeploymentAction(destination.name, Path(), destination, "unsafe",
+                                                 "Ownership marker is invalid"))
+                continue
+            findings.append(DeploymentAction(destination.name, Path(), destination, "managed",
+                                             f"EmberVault deployment v{metadata.get('package_version', 'unknown')}"))
+        return findings
+
     def undeploy(self, package_id: str, game_directory: Path) -> None:
         """Remove only a destination bearing EmberVault's ownership marker."""
         destination = Path(game_directory) / "mods" / package_id
@@ -345,6 +378,8 @@ class PackageService:
             metadata = json.loads(marker.read_text(encoding="utf-8"))
         except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
             raise ValueError("Refusing to remove an unmarked mod destination") from exc
-        if metadata.get("package_id") != package_id or metadata.get("managed_by") != "embervault-control-center":
+        if (metadata.get("marker_version") != DEPLOYMENT_MARKER_VERSION
+                or metadata.get("package_id") != package_id
+                or metadata.get("managed_by") != "embervault-control-center"):
             raise ValueError("Refusing to remove a destination not owned by EmberVault")
         shutil.rmtree(destination)

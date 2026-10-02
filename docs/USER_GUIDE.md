@@ -35,7 +35,9 @@ directory. Deployment is allowed only when every action is `ready`; existing
 destinations block the operation, and partial failures remove newly created
 destinations. Successful deployments carry an EmberVault ownership marker so
 future removal can refuse unmarked or foreign destinations.
-The Mods page exposes the same ownership-protected undeploy action.
+The Mods page exposes the same ownership-protected undeploy action. Deployment
+records carry a versioned ownership marker, and the service can inspect managed,
+external, and invalid destinations without changing them.
 Deployment also refuses package sources containing symlinks.
 The configured game directory must already exist; deployment will not create a
 new game tree.

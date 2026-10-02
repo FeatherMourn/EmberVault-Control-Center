@@ -52,7 +52,7 @@ deliberately non-mutating; Research includes a
 - Python unit suite currently covers the Core services, workflows, module gates,
   profile isolation, package contracts, packaging assets, and installed-process
   contracts, strict manifest validation, and interrupted deployment cleanup
-  (225 tests).
+  ownership inspection, and interrupted deployment cleanup (226 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
   packaged launcher passes its offscreen smoke test, which asserts discovery of

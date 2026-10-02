@@ -413,6 +413,9 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(deployed[0].status, "ready")
             self.assertTrue((game / "mods" / package.id / "mod.lua").exists())
             self.assertTrue((game / "mods" / package.id / ".embervault-managed.json").exists())
+            marker = json.loads((game / "mods" / package.id / ".embervault-managed.json").read_text())
+            self.assertEqual(marker["marker_version"], 1)
+            self.assertEqual(marker["package_version"], package.version)
             service.undeploy(package.id, game)
             self.assertFalse((game / "mods" / package.id).exists())
             service.deploy_ready(profile, game)
@@ -420,6 +423,24 @@ class CoreServiceTests(unittest.TestCase):
             (game / "mods" / package.id / ".embervault-managed.json").write_text(json.dumps({"package_id": "other"}))
             with self.assertRaises(ValueError):
                 service.undeploy(package.id, game)
+
+    def test_deployment_inspection_distinguishes_managed_external_and_invalid(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            mods = root / "game" / "mods"
+            (mods / "external.mod").mkdir(parents=True)
+            invalid = mods / "invalid.mod"
+            invalid.mkdir()
+            (invalid / ".embervault-managed.json").write_text(json.dumps({"package_id": "invalid.mod"}))
+            managed = mods / "managed.mod"
+            managed.mkdir()
+            (managed / ".embervault-managed.json").write_text(json.dumps({
+                "marker_version": 1, "package_id": "managed.mod", "package_version": "1.0",
+                "managed_by": "embervault-control-center",
+            }))
+            service = PackageService(root, ProfileService(root))
+            findings = service.inspect_deployments(root / "game")
+            self.assertEqual({item.status for item in findings}, {"external", "unsafe", "managed"})
 
     def test_failed_copy_removes_partial_current_destination(self):
         with tempfile.TemporaryDirectory() as temp:
