@@ -195,12 +195,18 @@ class TuningAdapterService:
                 "readback_verified": True}
 
     def verify_log_file(self, log_path: Path, operation_id: str,
-                        expected_value: float) -> dict[str, Any]:
+                        expected_value: float, minimum_mtime: float | None = None) -> dict[str, Any]:
         """Verify one fresh EML log readback for the requested operation."""
         try:
             text = Path(log_path).read_text(encoding="utf-8")
         except (OSError, UnicodeError) as exc:
             raise ValueError("Unable to read the EML runtime log") from exc
+        if minimum_mtime is not None:
+            try:
+                if Path(log_path).stat().st_mtime < float(minimum_mtime):
+                    raise ValueError("The EML runtime log predates adapter deployment")
+            except OSError as exc:
+                raise ValueError("Unable to inspect the EML runtime log timestamp") from exc
         result = self.parse_runtime_readback(text, operation_id)
         if abs(result["new_value"] - float(expected_value)) > 1e-9:
             raise ValueError("EML readback value does not match the staged value")

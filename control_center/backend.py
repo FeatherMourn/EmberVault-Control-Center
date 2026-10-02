@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 import subprocess
 import re
+from datetime import datetime
 
 from core.application import EmbervaultRuntime
 from core.game_detection import GameDetector
@@ -75,6 +76,7 @@ class ControlCenterBackend(QObject):
         self._staged_adapter_operation_id = None
         self._adapter_deployed = False
         self._adapter_verified = False
+        self._adapter_deployed_at = None
         self._restore_adapter_operation_state()
 
     def _restore_adapter_operation_state(self) -> None:
@@ -96,6 +98,10 @@ class ControlCenterBackend(QObject):
                 continue
             if operation.operation_type == "tuning-adapter-deploy":
                 self._adapter_deployed = True
+                try:
+                    self._adapter_deployed_at = datetime.fromisoformat(operation.started_at).timestamp()
+                except ValueError:
+                    self._adapter_deployed_at = None
                 continue
             if operation.operation_type == "tuning-adapter-stage":
                 match = re.search(r" at (.+)$", operation.message)
@@ -269,7 +275,8 @@ class ControlCenterBackend(QObject):
             if not logs:
                 raise ValueError("No EML runtime log was found")
             result = self.tuning_adapter.verify_log_file(
-                logs[0], self._staged_adapter_operation_id, values["base_crit_chance"]
+                logs[0], self._staged_adapter_operation_id, values["base_crit_chance"],
+                minimum_mtime=self._adapter_deployed_at,
             )
             self._last_save_message = f"Verified EML readback for {result['field']} = {result['new_value']}"
             self._adapter_verified = True
@@ -286,6 +293,7 @@ class ControlCenterBackend(QObject):
                     self.tuning_adapter.undeploy_adapter(Path(self.settings.game_path))
                     self._adapter_deployed = False
                     self._adapter_verified = False
+                    self._adapter_deployed_at = None
                     rollback_note = " EmberVault adapter was rolled back."
                 except (OSError, ValueError, PermissionError) as rollback_exc:
                     rollback_note = f" Rollback also failed: {rollback_exc}."
@@ -305,6 +313,7 @@ class ControlCenterBackend(QObject):
             self._last_save_message = f"Deployed owned EML adapter to {destination}; launch verification pending"
             self._adapter_deployed = True
             self._adapter_verified = False
+            self._adapter_deployed_at = datetime.now().timestamp()
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, self._last_save_message)
             self.stateChanged.emit()
@@ -327,6 +336,7 @@ class ControlCenterBackend(QObject):
             self.tuning_adapter.undeploy_adapter(Path(self.settings.game_path))
             self._adapter_deployed = False
             self._adapter_verified = False
+            self._adapter_deployed_at = None
             self._last_save_message = "Removed the EmberVault-owned EML adapter; existing mods were not changed"
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, self._last_save_message)

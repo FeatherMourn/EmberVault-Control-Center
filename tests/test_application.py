@@ -524,6 +524,20 @@ class ApplicationCompositionTests(unittest.TestCase):
             result = TuningAdapterService(root).verify_log_file(log, "EV-OP-4", 0.2)
             self.assertEqual(result["status"], "verified")
 
+    def test_eml_tuning_adapter_rejects_log_older_than_deployment(self):
+        with tempfile.TemporaryDirectory() as temp:
+            from core.tuning_adapter import TuningAdapterService
+            log = Path(temp) / "runtime.eml.log"
+            log.write_text(
+                "[EMBERVAULT-EML-TUNING] context|loader=EML|api=1.3|build=1076226|operation=EV-OP-OLD\n"
+                "[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.425|new=0.2|operation=EV-OP-OLD\n",
+                encoding="utf-8",
+            )
+            import os
+            os.utime(log, (100.0, 100.0))
+            with self.assertRaises(ValueError):
+                TuningAdapterService(Path(temp)).verify_log_file(log, "EV-OP-OLD", 0.2, minimum_mtime=200.0)
+
     def test_eml_tuning_adapter_deploys_only_owned_staged_package(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
