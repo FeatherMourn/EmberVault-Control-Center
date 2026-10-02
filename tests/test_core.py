@@ -9,6 +9,7 @@ from pathlib import Path
 from core.compatibility import CompatibilityState, evaluate
 from core.logging_service import StructuredLogService
 from core.operations import OperationService, OperationStatus
+from core.integration import IntegrationContext
 from core.profiles import Profile, ProfileService
 from core.packages import PackageManifest, PackageService
 from core.game_settings import GameSettingsService
@@ -18,6 +19,27 @@ from core.save_manager import SaveManagerService
 
 
 class CoreServiceTests(unittest.TestCase):
+    def test_integration_context_preserves_cross_module_safety_metadata(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = OperationService(Path(temp) / "operations.jsonl")
+            operation = service.start(
+                "research-evidence", profile_id="research", capability="research",
+                capability_state="read-only", recovery_expectation="no live mutation")
+            context = IntegrationContext.from_operation(
+                operation, capability="research", capability_state="read-only",
+                recovery_expectation="no live mutation")
+            self.assertEqual(context.operation_id, operation.id)
+            self.assertEqual(context.profile_id, "research")
+            self.assertEqual(context.as_dict()["recovery_expectation"], "no live mutation")
+            saved = service.list_recent()[0]
+            self.assertEqual(saved.capability_state, "read-only")
+            self.assertEqual(saved.recovery_expectation, "no live mutation")
+
+    def test_integration_context_rejects_missing_identity_or_unknown_state(self):
+        with self.assertRaises(ValueError):
+            IntegrationContext("", "research", "research", "read-only", "safe")
+        with self.assertRaises(ValueError):
+            IntegrationContext("op", "research", "research", "unsafe", "safe")
     def test_settings_round_trip_is_atomic_and_typed(self):
         with tempfile.TemporaryDirectory() as temp:
             service = SettingsService(Path(temp))

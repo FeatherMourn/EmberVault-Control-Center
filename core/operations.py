@@ -26,6 +26,9 @@ class Operation:
     profile_id: str | None = None
     package_id: str | None = None
     backup_id: str | None = None
+    capability: str | None = None
+    capability_state: str | None = None
+    recovery_expectation: str | None = None
     message: str = ""
 
 
@@ -40,6 +43,9 @@ class OperationService:
             operation_type=operation_type,
             started_at=datetime.now(timezone.utc).isoformat(),
             profile_id=context.get("profile_id"), package_id=context.get("package_id"),
+            capability=context.get("capability"),
+            capability_state=context.get("capability_state"),
+            recovery_expectation=context.get("recovery_expectation"),
         )
         self._append(operation)
         return operation
