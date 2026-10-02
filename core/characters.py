@@ -22,6 +22,9 @@ class CharacterRecord:
     equipment_notes: list[str] = field(default_factory=list)
     skill_notes: list[str] = field(default_factory=list)
     verified_backup_id: str = ""
+    build_template: str = "general"
+    version: int = 1
+    history: list[dict] = field(default_factory=list)
 
 
 class CharacterService:
@@ -54,6 +57,12 @@ class CharacterService:
                     setattr(record, field_name, [value.strip() for value in values if isinstance(value, str) and value.strip()])
                 if not isinstance(record.verified_backup_id, str):
                     record.verified_backup_id = ""
+                if not isinstance(record.build_template, str) or not record.build_template.strip():
+                    record.build_template = "general"
+                if not isinstance(record.version, int) or record.version < 1:
+                    record.version = 1
+                if not isinstance(record.history, list):
+                    record.history = []
                 records.append(record)
             return records
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
@@ -92,9 +101,29 @@ class CharacterService:
                 record.equipment_notes = self._normalize_list(equipment_notes)
                 record.skill_notes = self._normalize_list(skill_notes)
                 record.verified_backup_id = verified_backup_id.strip()
+                record.version += 1
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
+
+    def simulate_progression(self, record_id: str, target_level: int) -> dict:
+        if isinstance(target_level, bool) or not isinstance(target_level, int) or not 1 <= target_level <= 50:
+            raise ValueError("Target level must be between 1 and 50")
+        record = next((item for item in self.list() if item.id == record_id), None)
+        if record is None:
+            raise KeyError(record_id)
+        return {"character_id": record.id, "from_level": record.planned_level,
+                "target_level": target_level, "levels_to_gain": max(0, target_level - record.planned_level),
+                "planned_steps": list(record.progression_plan), "application_state": "plan-only"}
+
+    def compare_equipment(self, left_id: str, right_id: str) -> dict:
+        records = {item.id: item for item in self.list()}
+        if left_id not in records or right_id not in records:
+            raise KeyError("Character comparison record not found")
+        left, right = records[left_id], records[right_id]
+        return {"left": {"id": left.id, "equipment": list(left.equipment_notes)},
+                "right": {"id": right.id, "equipment": list(right.equipment_notes)},
+                "application_state": "plan-only"}
 
     def validate_plan(self, record_id: str) -> list[str]:
         for record in self.list():

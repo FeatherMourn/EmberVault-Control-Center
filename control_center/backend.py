@@ -1140,6 +1140,59 @@ class ControlCenterBackend(QObject):
                 for item in self.characters.list() if item.profile_id == self._selected_profile_id]
 
     @Property("QStringList", notify=stateChanged)
+    def characterPlanningOptions(self):
+        if not self.characters:
+            return []
+        return [f"{item.name} · template {item.build_template} · v{item.version} · goals {len(item.build_goals)} · steps {len(item.progression_plan)}"
+                for item in self.characters.list() if item.profile_id == self._selected_profile_id]
+
+    @Property("QStringList", notify=stateChanged)
+    def trainerPlanOptions(self):
+        if not self.trainer:
+            return []
+        return [f"{item.target} · tests {len(item.test_steps)} · recovery {item.recovery_simulation} · evidence {item.evidence_gate}"
+                for item in self.trainer.list() if item.profile_id == self._selected_profile_id]
+
+    @Slot(str)
+    def addLatestTrainerTestStep(self, step: str):
+        plans = [item for item in self.trainer.list() if item.profile_id == self._selected_profile_id] if self.trainer else []
+        if plans:
+            try:
+                self.trainer.add_test_step(plans[-1].id, step)
+                self._last_save_message = "Added Trainer test step"
+            except (KeyError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        else:
+            self._last_save_message = "Create a Trainer plan first"
+        self.stateChanged.emit()
+
+    @Slot(bool)
+    def simulateLatestTrainerRecovery(self, verified: bool):
+        plans = [item for item in self.trainer.list() if item.profile_id == self._selected_profile_id] if self.trainer else []
+        if plans:
+            try:
+                plan = self.trainer.simulate_recovery(plans[-1].id, verified)
+                self._last_save_message = f"Trainer recovery simulation: {plan.recovery_simulation}"
+            except KeyError as exc:
+                self._last_save_message = str(exc)
+        else:
+            self._last_save_message = "Create a Trainer plan first"
+        self.stateChanged.emit()
+
+    @Slot(int)
+    def simulateLatestCharacterProgression(self, level: int):
+        records = [item for item in self.characters.list() if item.profile_id == self._selected_profile_id] if self.characters else []
+        if records:
+            try:
+                result = self.characters.simulate_progression(records[-1].id, level)
+                self._last_save_message = f"Progression simulation: {result['levels_to_gain']} level(s), plan-only"
+            except (KeyError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        else:
+            self._last_save_message = "Create a character project first"
+        self.stateChanged.emit()
+
+    @Property("QStringList", notify=stateChanged)
     def riskOptions(self):
         if not self.risk:
             return []

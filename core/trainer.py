@@ -20,6 +20,9 @@ class TrainerPlan:
     notes: str
     backup_id: str
     created_at: str
+    test_steps: list[str] = None
+    recovery_simulation: str = "not-run"
+    evidence_gate: str = "pending"
 
 
 class TrainerPlanService:
@@ -40,7 +43,14 @@ class TrainerPlanService:
                 if not isinstance(item, dict):
                     continue
                 try:
-                    result.append(TrainerPlan(**item))
+                    plan = TrainerPlan(**item)
+                    if not isinstance(plan.test_steps, list):
+                        plan.test_steps = []
+                    if plan.recovery_simulation not in {"not-run", "passed", "failed"}:
+                        plan.recovery_simulation = "not-run"
+                    if plan.evidence_gate not in {"pending", "ready", "blocked"}:
+                        plan.evidence_gate = "pending"
+                    result.append(plan)
                 except (TypeError, ValueError):
                     continue
             return result
@@ -66,6 +76,28 @@ class TrainerPlanService:
         records.append(plan)
         write_json_atomic(self.path, [asdict(item) for item in records])
         return plan
+
+    def add_test_step(self, plan_id: str, step: str) -> TrainerPlan:
+        if not step.strip():
+            raise ValueError("Trainer test step is required")
+        records = self.list()
+        for plan in records:
+            if plan.id == plan_id:
+                plan.test_steps.append(step.strip())
+                plan.evidence_gate = "pending"
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return plan
+        raise KeyError(plan_id)
+
+    def simulate_recovery(self, plan_id: str, verified: bool) -> TrainerPlan:
+        records = self.list()
+        for plan in records:
+            if plan.id == plan_id:
+                plan.recovery_simulation = "passed" if verified else "failed"
+                plan.evidence_gate = "ready" if verified and plan.test_steps else "blocked"
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return plan
+        raise KeyError(plan_id)
 
     def export(self, plan: TrainerPlan) -> Path:
         destination = self.path.parent.parent / "exports" / "trainer" / f"{plan.id}.json"

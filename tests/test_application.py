@@ -1110,6 +1110,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(runtime.research.list()[-1].experiment_template, "compatibility")
             self.assertFalse(runtime.knowledge.entries()[-1].published)
 
+    def test_character_and_trainer_expansion_remains_plan_only(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            character = runtime.characters.create("Ashen", "research")
+            runtime.characters.update_plan(character.id, ["Tank"], ["Level armor"], ["Oak shield"], ["Guard"])
+            simulation = runtime.characters.simulate_progression(character.id, 20)
+            self.assertEqual(simulation["application_state"], "plan-only")
+            self.assertEqual(runtime.characters.list()[-1].version, 2)
+
     def test_content_project_export_is_design_only(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

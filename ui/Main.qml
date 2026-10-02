@@ -533,12 +533,14 @@ ApplicationWindow {
             Button { text: "Update structured character plan"; onClicked: controlCenter.updateLatestCharacterPlan(characterGoals.text, characterProgression.text, characterEquipment.text, characterSkills.text, characterBackup.text) }
             SpinBox { id: characterLevel; from: 1; to: 50; value: 1; Layout.fillWidth: true }
             Button { text: "Stage level for latest project"; onClicked: controlCenter.stageLatestCharacterLevel(characterLevel.value) }
+            Button { text: "Simulate progression"; onClicked: controlCenter.simulateLatestCharacterProgression(characterLevel.value) }
             Button { text: "Export latest character plan"; onClicked: controlCenter.exportLatestCharacterPlan() }
             Text { text: controlCenter.characterOptions.length === 0 ? "No character projects yet." : "Character projects"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
                 model: controlCenter.characterOptions
                 delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true }
             }
+            Repeater { model: controlCenter.characterPlanningOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; Layout.fillWidth: true } }
         }
     }
 
@@ -555,11 +557,15 @@ ApplicationWindow {
             Text { text: "Safety gates"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             TextField { id: trainerTarget; visible: capability === "trainer"; placeholderText: "Trainer target or test objective"; Layout.fillWidth: true }
             TextField { id: trainerNotes; visible: capability === "trainer"; placeholderText: "Trainer plan notes"; Layout.fillWidth: true }
+            TextField { id: trainerStep; visible: capability === "trainer"; placeholderText: "Trainer test step"; Layout.fillWidth: true }
             RowLayout {
                 visible: capability === "trainer"
                 Button { text: "Create plan"; onClicked: controlCenter.createTrainerPlan(trainerTarget.text, trainerNotes.text) }
+                Button { text: "Add test step"; onClicked: controlCenter.addLatestTrainerTestStep(trainerStep.text) }
+                Button { text: "Simulate recovery"; onClicked: controlCenter.simulateLatestTrainerRecovery(true) }
                 Button { text: "Export latest plan"; onClicked: controlCenter.exportLatestTrainerPlan() }
             }
+            Repeater { visible: capability === "trainer"; model: controlCenter.trainerPlanOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; Layout.fillWidth: true } }
             TextField { id: contentName; visible: capability === "content-creator"; placeholderText: "Content project name"; Layout.fillWidth: true }
             TextField { id: contentDescription; visible: capability === "content-creator"; placeholderText: "Development brief or intended outcome"; Layout.fillWidth: true }
             TextField { id: contentDesignNotes; visible: capability === "content-creator"; placeholderText: "Design notes, dimensions, materials, or recipe details"; Layout.fillWidth: true }
