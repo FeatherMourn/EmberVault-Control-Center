@@ -457,6 +457,31 @@ Goal: connect Control Center to the broader EmberVault community and research hu
 
 - Add Windows and Linux distribution packages, update checking, release channels,
   backup-before-update, migration previews, repair installation, and data-preserving uninstall.
+- Publish a signed update manifest through GitHub Releases or EmberVault-Web.
+- Track Control Center and independently packaged modules as separate update targets.
+- Show version, compatibility range, changelog, download URL, hash, signature,
+  restart requirements, and migration requirements before installation.
+- Download updates into a staging area, verify hashes and signatures, and require
+  explicit user approval before applying them.
+- Use a separate `EmberVaultUpdater` process so the running executable is never
+  asked to replace itself.
+- Back up application state before updates, preserve profiles and research data,
+  and roll back automatically when the updated build fails its startup check.
+- Refuse incompatible, unsigned, corrupted, or unsafe module updates and keep
+  experimental modules isolated from stable release channels.
+- Record update history, failures, recovery actions, and the resulting installed
+  versions in the Control Center activity log.
+
+#### Stage 25 update-system sequence
+
+1. Define the signed release-manifest and component-version schemas.
+2. Add Control Center and module update discovery.
+3. Add compatibility, hash, and signature verification.
+4. Add staged downloads and explicit review UI.
+5. Build the external updater process.
+6. Add backup, rollback, repair, and migration handling.
+7. Add notifications, update history, and recovery guidance.
+8. Add automated update, interruption, rollback, and failed-startup tests.
 
 Goal: move from developer installation to a user-friendly product release.
 

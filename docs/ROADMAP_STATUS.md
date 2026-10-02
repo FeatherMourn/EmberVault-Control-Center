@@ -86,6 +86,15 @@ deliberately non-mutating; Research includes a
 
 ## Release evidence
 
+## Stage 25 update-system roadmap
+
+The next distribution milestone includes a signed, review-first updater for the
+Control Center and independently packaged modules. Updates must be staged outside
+the running application, verified for compatibility, hashes, and signatures, and
+applied by a separate `EmberVaultUpdater` process. Application state and profiles
+must be backed up before update, failed startup must trigger rollback, and
+experimental modules must remain isolated from stable update channels.
+
 - Python unit suite currently covers the Core services, workflows, module gates,
   profile isolation, package contracts, packaging assets, and installed-process
   contracts, strict manifest validation, and interrupted deployment cleanup
