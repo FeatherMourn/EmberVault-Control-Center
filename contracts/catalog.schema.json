@@ -60,7 +60,7 @@
         "additionalProperties": false
       }
     },
-    "knowledge": {"type": "array", "items": {"type": "object"}},
+    "knowledge": {"type": "array", "items": {"type": "object", "required": ["id", "title", "category", "summary", "content", "published_at", "tags", "related_ids", "evidence_refs", "version"], "properties": {"id": {"type": "string"}, "title": {"type": "string"}, "category": {"type": "string"}, "summary": {"type": "string"}, "content": {"type": "string"}, "published_at": {"type": "string"}, "tags": {"type": "array", "items": {"type": "string"}}, "related_ids": {"type": "array", "items": {"type": "string"}}, "evidence_refs": {"type": "array", "items": {"type": "string"}}, "version": {"type": "integer", "minimum": 1}}, "additionalProperties": false}},
     "research": {
       "type": "array",
       "items": {

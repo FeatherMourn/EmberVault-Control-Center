@@ -66,7 +66,9 @@ class CatalogExportService:
             "tuning_adapters": tuning_adapters,
             "knowledge": [{"id": item.id, "title": item.title, "category": item.category,
                            "summary": item.summary, "content": item.content,
-                           "published_at": item.published_at or "seeded"} for item in knowledge],
+                           "published_at": item.published_at or "seeded", "tags": list(item.tags),
+                           "related_ids": list(item.related_ids), "evidence_refs": list(item.evidence_refs),
+                           "version": item.version} for item in knowledge],
             "research": [{"id": item.id, "title": item.title, "hypothesis": item.hypothesis,
                           "status": item.status, "evidence_count": len(item.evidence),
                           "created_at": item.created_at, "published_at": item.published_at,
@@ -116,11 +118,14 @@ class CatalogExportService:
             if item["process_mode"] not in {"embedded", "separate"}:
                 raise ValueError("Tuning adapter records must declare embedded or separate process_mode")
         for item in payload["knowledge"]:
-            if not isinstance(item, dict) or set(item) != {"id", "title", "category", "summary", "content", "published_at"}:
+            if not isinstance(item, dict) or set(item) != {"id", "title", "category", "summary", "content", "published_at", "tags", "related_ids", "evidence_refs", "version"}:
                 raise ValueError("Knowledge catalog records must match the public contract")
             if any(not isinstance(item[key], str) or not item[key].strip()
                    for key in ("id", "title", "category", "summary", "content", "published_at")):
                 raise ValueError("Knowledge catalog records must contain non-empty fields")
+            if any(not isinstance(item[key], list) or not all(isinstance(value, str) and value.strip() for value in item[key])
+                   for key in ("tags", "related_ids", "evidence_refs")) or not isinstance(item["version"], int) or item["version"] < 1:
+                raise ValueError("Knowledge catalog metadata is invalid")
         for item in payload["research"]:
             required_fields = {"id", "title", "hypothesis", "status", "evidence_count", "created_at", "published_at",
                                "game_build", "game_version", "reproduction_step_count", "failure_count", "promotion_status",

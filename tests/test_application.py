@@ -267,6 +267,25 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(len(runtime.knowledge.entries()), seeded_count + 1)
             self.assertEqual(runtime.knowledge.search("safe probe")[0].id, entry.id)
 
+    def test_knowledge_entry_supports_metadata_and_private_version_history(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            entry = runtime.knowledge.create("Linked finding", "Research", "A finding", "First draft",
+                                              ["safety", "research"], ["save-safety"], ["EV-RES-1"])
+            updated = runtime.knowledge.update(entry.id, "Linked finding", "Research", "A revised finding", "Second draft",
+                                                ["research"], ["save-safety", "profiles"], ["EV-RES-2"])
+            self.assertEqual(updated.version, 2)
+            self.assertEqual(updated.tags, ("research",))
+            self.assertEqual(len(updated.history), 1)
+            self.assertFalse(updated.published)
+            runtime.knowledge.publish(updated.id)
+            public = runtime.catalog.build()["knowledge"]
+            record = next(item for item in public if item["id"] == entry.id)
+            self.assertEqual(record["version"], 2)
+            self.assertEqual(record["related_ids"], ["profiles", "save-safety"])
+            self.assertNotIn("First draft", json.dumps(public))
+            self.assertNotIn("history", json.dumps(public))
+
     def test_local_knowledge_requires_explicit_publication(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
