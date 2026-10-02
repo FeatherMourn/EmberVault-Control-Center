@@ -207,6 +207,7 @@ ApplicationWindow {
                 }
             }
             Text { text: "Promotion history"; color: ember; font.bold: true; font.pixelSize: 16; Layout.topMargin: 12 }
+            Button { text: "Review selected capability"; onClicked: controlCenter.reviewCapability("embervault.eml") }
             Repeater {
                 model: controlCenter.promotionSummary
                 delegate: Text { text: modelData; color: muted; font.pixelSize: 12 }

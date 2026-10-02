@@ -69,3 +69,12 @@ class PromotionService:
         states = {item.get("target_state") for item in self.decisions()
                   if item.get("evidence", {}).get("capability_id") == capability_id}
         return max(states, key=STATES.index) if states else "research-only"
+
+    @staticmethod
+    def missing_requirements(evidence: PromotionEvidence | None) -> list[str]:
+        if evidence is None:
+            return ["current build", "reproducibility", "runtime confirmation", "recovery testing", "compatibility documentation", "owner", "rollback testing"]
+        checks = (("reproducibility", evidence.reproducible), ("runtime confirmation", evidence.runtime_confirmed),
+                  ("recovery testing", evidence.recovery_tested), ("compatibility documentation", evidence.compatibility_documented),
+                  ("owner", bool(evidence.owner.strip())), ("rollback testing", evidence.rollback_tested))
+        return [name for name, valid in checks if not valid]

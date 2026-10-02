@@ -153,6 +153,26 @@ class ControlCenterBackend(QObject):
         return [f"{item['evidence'].get('capability_id', 'unknown')} → {item.get('target_state', 'unknown')}"
                 for item in self.promotion.decisions()[-20:]]
 
+    @Slot(str, result=str)
+    def reviewCapability(self, capability_id):
+        """Return a read-only governance explanation for the selected capability."""
+        if not self.promotion:
+            return "Promotion service unavailable"
+        decisions = [item for item in self.promotion.decisions()
+                     if item.get("evidence", {}).get("capability_id") == capability_id]
+        if not decisions:
+            missing = self.promotion.missing_requirements(None)
+            return f"{capability_id}: no promotion decision; missing: {', '.join(missing)}"
+        latest = decisions[-1]
+        evidence = latest.get("evidence", {})
+        missing = self.promotion.missing_requirements(PromotionEvidence(
+            evidence.get("capability_id", capability_id), evidence.get("current_build", ""),
+            bool(evidence.get("reproducible")), bool(evidence.get("runtime_confirmed")),
+            bool(evidence.get("recovery_tested")), bool(evidence.get("compatibility_documented")),
+            evidence.get("owner", ""), bool(evidence.get("rollback_tested")),
+            evidence.get("source_research_id", "")))
+        return f"{capability_id}: {latest.get('target_state', 'unknown')}; " + ("all requirements met" if not missing else "missing: " + ", ".join(missing))
+
     @Property("QStringList", notify=stateChanged)
     def capabilityGovernance(self):
         """Sanitized capability readiness rows for the governance workspace."""
