@@ -1,0 +1,11 @@
+{
+  "id": "embervault.eml-balancing-table",
+  "name": "EmberVault EML Tuning Adapter",
+  "version": "0.1.0",
+  "author": "EmberVault",
+  "feature_state": "research-only",
+  "capabilities": ["patch"],
+  "entrypoint": "mod.lua",
+  "required_builds": ["1076226"],
+  "required_loader_api_version": ">=1.3"
+}

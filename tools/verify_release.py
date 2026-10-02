@@ -30,6 +30,7 @@ REQUIRED = (
     "packages/example-mod/package.json",
     "adapters/eml-balancing-table.json",
     "packages/eml-tuning-adapter/package.json",
+    "packages/eml-tuning-adapter/mod.json",
     "packages/eml-tuning-adapter/mod.lua",
 )
 

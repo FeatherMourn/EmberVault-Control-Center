@@ -139,7 +139,7 @@ class TuningAdapterService:
             raise FileExistsError("Adapter staging destination already exists")
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(source_package, destination)
-        (destination / "src" / "mod.lua").write_text(
+        (destination / "mod.lua").write_text(
             self.render_payload(staged_value, operation_id), encoding="utf-8"
         )
         return destination

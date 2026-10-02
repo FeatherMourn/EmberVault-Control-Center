@@ -343,7 +343,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             from core.tuning_adapter import TuningAdapterService
             package = Path(__file__).parents[1] / "packages" / "eml-tuning-adapter"
             staged = TuningAdapterService(root).stage_package(package, root / "staging", 0.2, "EV-OP-2")
-            self.assertIn("resource.data.baseCritChance = 0.2", (staged / "src" / "mod.lua").read_text())
+            self.assertIn("resource.data.baseCritChance = 0.2", (staged / "mod.lua").read_text())
             result = TuningAdapterService.parse_runtime_readback(
                 "[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.425|new=0.2 operation=EV-OP-2",
                 "EV-OP-2",
