@@ -204,6 +204,29 @@ class ModuleRegistry:
         self.discover()
         return self._modules[manifest.id]
 
+    def stage_upgrade(self, source: Path) -> dict:
+        """Validate and copy a newer module without replacing the installed copy."""
+        source = Path(source)
+        manifest_path = source / "module.json"
+        if not source.is_dir() or not manifest_path.is_file():
+            raise ValueError("Module upgrade directory must contain module.json")
+        if source.is_symlink() or any(item.is_symlink() for item in source.rglob("*")):
+            raise ValueError("Module upgrade contains an unsafe symlink")
+        incoming = self._with_compatibility(ModuleManifest.from_file(manifest_path))
+        current = self.get(incoming.id)
+        if not current:
+            raise ValueError(f"Module is not installed: {incoming.id}")
+        if self._version_key(incoming.version) <= self._version_key(current.version):
+            raise ValueError("Module upgrade version must be newer than the installed version")
+        staging = self.directory.parent / "module-upgrades" / incoming.id / incoming.version
+        if staging.exists():
+            raise ValueError("Module upgrade is already staged")
+        staging.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(source, staging)
+        return {"module_id": incoming.id, "installed_version": current.version,
+                "staged_version": incoming.version, "staged_path": str(staging),
+                "requires_review": True, "replacement_performed": False}
+
     def get(self, module_id: str) -> ModuleManifest | None:
         return self._modules.get(module_id)
 

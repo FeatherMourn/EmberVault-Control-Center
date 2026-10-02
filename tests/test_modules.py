@@ -71,6 +71,30 @@ class ModuleRegistryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Missing module dependencies"):
                 registry.load_embedded(manifest.id)
 
+    def test_module_upgrade_is_staged_without_replacing_installed_copy(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            installed = root / "modules" / "demo"
+            installed.mkdir(parents=True)
+            (installed / "module.json").write_text(json.dumps({
+                "id": "embervault.demo", "name": "Demo", "version": "1.0.0", "publisher": "Test",
+                "process_mode": "embedded", "entrypoint": "module.py", "capabilities": [], "safety": {}, "recovery": {}
+            }))
+            (installed / "module.py").write_text("def describe(): return {'id': 'embervault.demo'}\n")
+            incoming = root / "incoming"
+            incoming.mkdir()
+            (incoming / "module.json").write_text(json.dumps({
+                "id": "embervault.demo", "name": "Demo", "version": "1.1.0", "publisher": "Test",
+                "process_mode": "embedded", "entrypoint": "module.py", "capabilities": [], "safety": {}, "recovery": {}
+            }))
+            (incoming / "module.py").write_text("def describe(): return {'id': 'embervault.demo', 'version': '1.1'}\n")
+            registry = ModuleRegistry(root / "modules")
+            registry.discover()
+            staged = registry.stage_upgrade(incoming)
+            self.assertEqual(staged["staged_version"], "1.1.0")
+            self.assertEqual(registry.get("embervault.demo").version, "1.0.0")
+            self.assertFalse(staged["replacement_performed"])
+
     def test_discovery_ignores_malformed_manifests(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "broken"
