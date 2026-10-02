@@ -64,3 +64,8 @@ class PromotionService:
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             return []
         return [item for item in raw if isinstance(item, dict) and isinstance(item.get("evidence"), dict)] if isinstance(raw, list) else []
+
+    def approved_state(self, capability_id: str) -> str:
+        states = {item.get("target_state") for item in self.decisions()
+                  if item.get("evidence", {}).get("capability_id") == capability_id}
+        return max(states, key=STATES.index) if states else "research-only"

@@ -23,6 +23,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(runtime.catalog.build()["promotions"][0]["target_state"], "verified")
             with self.assertRaises(ValueError):
                 runtime.promotion.promote(PromotionEvidence("x", "1076226", True, False, True, True, "owner", True), "stable")
+            self.assertEqual(runtime.promotion.approved_state("embervault.eml"), "verified")
     def test_runtime_composes_services_and_reports_health(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

@@ -16,9 +16,10 @@ class LaunchDecision:
 
 
 class ModuleLaunchService:
-    def __init__(self, registry: ModuleRegistry, risk: RiskGateService):
+    def __init__(self, registry: ModuleRegistry, risk: RiskGateService, promotion=None):
         self.registry = registry
         self.risk = risk
+        self.promotion = promotion
 
     def check(self, module_id: str, capability: str, profile: Profile, backup_id: str | None = None) -> LaunchDecision:
         risk = self.risk.evaluate(capability, profile, verified_backup_id=backup_id)
@@ -29,6 +30,10 @@ class ModuleLaunchService:
             return LaunchDecision(False, (f"Module is not installed: {module_id}",))
         if capability not in manifest.capabilities:
             return LaunchDecision(False, (f"Module does not declare the '{capability}' capability.",))
+        if self.promotion and manifest.feature_state in {"verified", "stable"}:
+            approved = self.promotion.approved_state(capability)
+            if approved not in {"verified", "stable"}:
+                return LaunchDecision(False, (f"Capability '{capability}' lacks a promotion decision.",))
         if not manifest.executable:
             return LaunchDecision(False, ("Module does not declare a separate-process executable.",))
         return LaunchDecision(True)
