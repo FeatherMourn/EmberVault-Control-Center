@@ -918,6 +918,25 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Disable dependent"):
                 packages.set_enabled(profile, "base.mod", False)
 
+    def test_deployment_plan_carries_profile_and_blocks_incompatible_build(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            package = root / "packages" / "build.mod"
+            package.mkdir(parents=True)
+            (package / "package.json").write_text(json.dumps({
+                "id": "build.mod", "name": "Build Mod", "version": "1.0",
+                "required_builds": ["old-build"],
+            }))
+            service = PackageService(root, profiles)
+            service.discover()
+            profile = service.set_enabled(profiles.list()[0], "build.mod", True)
+            plan = service.deployment_plan(profile, root / "game", detected_build="new-build")
+            self.assertEqual(plan[0].profile_id, profile.id)
+            self.assertEqual(plan[0].compatibility_state, "incompatible")
+            self.assertEqual(plan[0].status, "incompatible")
+
 
 if __name__ == "__main__":
     unittest.main()

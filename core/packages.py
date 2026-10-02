@@ -87,6 +87,8 @@ class DeploymentAction:
     destination: Path
     status: str
     reason: str = ""
+    profile_id: str = ""
+    compatibility_state: str = "unknown"
 
 
 class PackageService:
@@ -282,30 +284,38 @@ class PackageService:
         shutil.rmtree(managed_path)
         self._packages.pop(package_id, None)
 
-    def deployment_plan(self, profile: Profile, game_directory: Path) -> list[DeploymentAction]:
+    def deployment_plan(self, profile: Profile, game_directory: Path, *, detected_build: str | None = None, context=None) -> list[DeploymentAction]:
         """Describe enabled package destinations without changing the game."""
+        if context is not None and context.profile_id != profile.id:
+            raise ValueError("Package deployment profile does not match integration context")
         destination_root = Path(game_directory) / "mods"
         actions: list[DeploymentAction] = []
         for package_id in profile.enabled_packages:
             package = self._packages.get(package_id)
             if not package or not package.path or not package.path.is_dir():
                 actions.append(DeploymentAction(package_id, Path(), destination_root / package_id,
-                                                "missing", "Package is not installed"))
+                                                "missing", "Package is not installed", profile.id))
+                continue
+            compatibility = evaluate(required_builds=list(package.required_builds), detected_build=detected_build)
+            if compatibility.state == CompatibilityState.INCOMPATIBLE:
+                actions.append(DeploymentAction(package_id, package.path, destination_root / package_id,
+                                                "incompatible", "; ".join(compatibility.reasons), profile.id,
+                                                compatibility.state.value))
                 continue
             if package.path.is_symlink() or any(item.is_symlink() for item in package.path.rglob("*")):
                 actions.append(DeploymentAction(package_id, package.path, destination_root / package_id,
-                                                "unsafe", "Package source contains a symlink"))
+                                                "unsafe", "Package source contains a symlink", profile.id, compatibility.state.value))
                 continue
             if package.package_type != "mod":
                 actions.append(DeploymentAction(package_id, package.path, destination_root / package_id,
-                                                "unsupported", "Only package_type 'mod' can deploy to game mods"))
+                                                "unsupported", "Only package_type 'mod' can deploy to game mods", profile.id, compatibility.state.value))
                 continue
             target = destination_root / package_id
             if target.exists():
                 actions.append(DeploymentAction(package_id, package.path, target, "conflict",
-                                                "Destination already exists"))
+                                                "Destination already exists", profile.id, compatibility.state.value))
             else:
-                actions.append(DeploymentAction(package_id, package.path, target, "ready"))
+                actions.append(DeploymentAction(package_id, package.path, target, "ready", "", profile.id, compatibility.state.value))
         return actions
 
     def deploy_ready(self, profile: Profile, game_directory: Path) -> list[DeploymentAction]:
