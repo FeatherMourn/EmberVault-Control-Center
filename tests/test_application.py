@@ -450,6 +450,21 @@ class ApplicationCompositionTests(unittest.TestCase):
                 "[EMBERVAULT-EML-TUNING] context|loader=EML|api=1.2|build=1076226|operation=EV-OP-5\n" + write,
                 "EV-OP-5",
             )
+        with self.assertRaises(ValueError):
+            TuningAdapterService.parse_runtime_readback(
+                "[EMBERVAULT-EML-TUNING] context|loader=EML|api=1.3|build=1076226|operation=EV-OP-6\n"
+                "[EMBERVAULT-EML-TUNING] write|field=otherField|old=0.3|new=0.425|operation=EV-OP-6",
+                "EV-OP-6",
+            )
+
+    def test_eml_tuning_adapter_rejects_operation_id_prefix_collisions(self):
+        from core.tuning_adapter import TuningAdapterService
+        with self.assertRaises(ValueError):
+            TuningAdapterService.parse_runtime_readback(
+                "[EMBERVAULT-EML-TUNING] context|loader=EML|api=1.3|build=1076226|operation=EV-OP-7X\n"
+                "[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.3|new=0.425|operation=EV-OP-7X",
+                "EV-OP-7",
+            )
 
     def test_eml_tuning_adapter_write_gate_remains_closed(self):
         with tempfile.TemporaryDirectory() as temp:

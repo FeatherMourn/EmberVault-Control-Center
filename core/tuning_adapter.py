@@ -170,10 +170,13 @@ class TuningAdapterService:
     @staticmethod
     def parse_runtime_readback(log_text: str, operation_id: str) -> dict[str, Any]:
         """Parse one operation-bound context and readback pair."""
-        marker = f"operation={operation_id}"
+        marker = re.escape(f"operation={operation_id}")
         context_lines = [line for line in log_text.splitlines()
-                         if marker in line and "[EMBERVAULT-EML-TUNING] context|" in line]
-        lines = [line for line in log_text.splitlines() if marker in line and "[EMBERVAULT-EML-TUNING] write|" in line]
+                         if re.search(rf"(?:^|[|\s]){marker}(?:$|\s)", line)
+                         and "[EMBERVAULT-EML-TUNING] context|" in line]
+        lines = [line for line in log_text.splitlines()
+                 if re.search(rf"(?:^|[|\s]){marker}(?:$|\s)", line)
+                 and "[EMBERVAULT-EML-TUNING] write|" in line]
         if len(context_lines) != 1:
             raise ValueError("Expected exactly one EML adapter runtime context line")
         if len(lines) != 1:
@@ -181,12 +184,14 @@ class TuningAdapterService:
         context = re.search(r"loader=([^|\s]+)\|api=([^|\s]+)\|build=([^|\s]+)", context_lines[0])
         if not context or (context.group(1), context.group(2), context.group(3)) != ("EML", "1.3", "1076226"):
             raise ValueError("EML adapter runtime context does not match reviewed evidence")
-        match = re.search(r"old=([^|\s]+)\|new=([^|\s]+)", lines[0])
+        match = re.search(r"field=([^|\s]+)\|old=([^|\s]+)\|new=([^|\s]+)", lines[0])
         if not match:
             raise ValueError("EML adapter readback is malformed")
-        return {"operation_id": operation_id, "field": "baseCritChance", "loader": "EML",
+        if match.group(1) != "baseCritChance":
+            raise ValueError("EML adapter readback field is outside the reviewed scope")
+        return {"operation_id": operation_id, "field": match.group(1), "loader": "EML",
                 "loader_api_version": "1.3", "game_build": "1076226",
-                "old_value": float(match.group(1)), "new_value": float(match.group(2)),
+                "old_value": float(match.group(2)), "new_value": float(match.group(3)),
                 "readback_verified": True}
 
     def verify_log_file(self, log_path: Path, operation_id: str,
