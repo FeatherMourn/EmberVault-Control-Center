@@ -35,6 +35,7 @@ class ModuleManifest:
     safety: dict = field(default_factory=dict, compare=False)
     recovery: dict = field(default_factory=dict, compare=False)
     operation_types: tuple[str, ...] = ()
+    dependencies: tuple[str, ...] = ()
     path: Path | None = field(default=None, compare=False)
     compatibility_state: str = field(default="compatible", compare=False)
     compatibility_reason: str = field(default="", compare=False)
@@ -93,6 +94,12 @@ class ModuleManifest:
         operation_types = data.get("operation_types", [])
         if not isinstance(operation_types, list) or any(not isinstance(item, str) or not item.strip() for item in operation_types):
             raise ValueError("Module operation_types must be a string array")
+        dependencies = data.get("dependencies", [])
+        if not isinstance(dependencies, list) or any(not isinstance(item, str) or not item.strip() for item in dependencies):
+            raise ValueError("Module dependencies must be a string array")
+        dependencies = tuple(item.strip() for item in dependencies)
+        if len(set(dependencies)) != len(dependencies) or module_id in dependencies:
+            raise ValueError("Module dependencies must be unique and cannot include the module itself")
         if explicit_process_mode and process_mode == "embedded":
             if not entrypoint or executable:
                 raise ValueError("Embedded modules must declare only an entrypoint")
@@ -107,7 +114,7 @@ class ModuleManifest:
             feature_state=feature_state,
             entrypoint=entrypoint, process_mode=process_mode, path=path.parent,
             contract_version=contract_version, safety=dict(safety), recovery=dict(recovery),
-            operation_types=tuple(operation_types),
+            operation_types=tuple(operation_types), dependencies=dependencies,
         )
 
 
@@ -159,6 +166,16 @@ class ModuleRegistry:
                                      compatibility_reason=f"Requires Control Center {manifest.minimum_core_version} or newer.")
         return manifest
 
+    def _dependency_issue(self, manifest: ModuleManifest) -> str:
+        missing = [dependency for dependency in manifest.dependencies if dependency not in self._modules]
+        incompatible = [dependency for dependency in manifest.dependencies
+                        if dependency in self._modules and self._modules[dependency].compatibility_state != "compatible"]
+        if missing:
+            return f"Missing module dependencies: {', '.join(missing)}"
+        if incompatible:
+            return f"Incompatible module dependencies: {', '.join(incompatible)}"
+        return ""
+
     @staticmethod
     def _version_key(version: str) -> tuple[int, int, int]:
         parts = []
@@ -204,6 +221,9 @@ class ModuleRegistry:
             raise ValueError(f"Module '{module_id}' is not an embedded module.")
         if manifest.compatibility_state != "compatible":
             raise ValueError(manifest.compatibility_reason or "Module is incompatible with this Control Center.")
+        dependency_issue = self._dependency_issue(manifest)
+        if dependency_issue:
+            raise ValueError(dependency_issue)
         root = manifest.path.resolve()
         entrypoint = (root / manifest.entrypoint).resolve()
         if root not in entrypoint.parents or not entrypoint.is_file():
@@ -222,6 +242,9 @@ class ModuleRegistry:
             raise ValueError(f"Module '{module_id}' is not a separate-process module.")
         if manifest.compatibility_state != "compatible":
             raise ValueError(manifest.compatibility_reason or "Module is incompatible with this Control Center.")
+        dependency_issue = self._dependency_issue(manifest)
+        if dependency_issue:
+            raise ValueError(dependency_issue)
         module_root = manifest.path.resolve()
         executable = (module_root / manifest.executable).resolve()
         if module_root not in executable.parents:

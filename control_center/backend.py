@@ -553,9 +553,10 @@ class ControlCenterBackend(QObject):
             safety_state = "read-only" if safety.get("read_only") else "backup-gated"
             recovery_state = "recovery declared" if module.recovery else "recovery metadata missing"
             compatibility = module.compatibility_state.upper()
+            dependencies = f" · depends on: {', '.join(module.dependencies)}" if module.dependencies else ""
             result.append(
                 f"{module.name} · {compatibility} · {module.feature_state.upper()} · {module.process_mode} · "
-                f"{safety_state} · {recovery_state} · capabilities: {', '.join(module.capabilities) or 'none'}"
+                f"{safety_state} · {recovery_state}{dependencies} · capabilities: {', '.join(module.capabilities) or 'none'}"
             )
         return result
 

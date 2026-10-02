@@ -54,6 +54,23 @@ class ModuleRegistryTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 registry.load_embedded(manifest.id)
 
+    def test_module_with_missing_dependency_is_visible_but_cannot_load(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "dependent"
+            root.mkdir()
+            (root / "module.json").write_text(json.dumps({
+                "id": "embervault.dependent", "name": "Dependent", "version": "1.0.0",
+                "publisher": "Test", "dependencies": ["embervault.missing"],
+                "process_mode": "embedded", "entrypoint": "module.py", "contract_version": 1,
+                "capabilities": [], "safety": {}, "recovery": {}
+            }))
+            (root / "module.py").write_text("def describe(): return {'id': 'embervault.dependent'}\n")
+            registry = ModuleRegistry(Path(temp))
+            manifest = registry.discover()["embervault.dependent"]
+            self.assertEqual(manifest.dependencies, ("embervault.missing",))
+            with self.assertRaisesRegex(ValueError, "Missing module dependencies"):
+                registry.load_embedded(manifest.id)
+
     def test_discovery_ignores_malformed_manifests(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "broken"
