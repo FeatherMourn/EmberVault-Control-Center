@@ -18,7 +18,12 @@ mod-owned source files as part of Game Settings. Staged values can be exported
 as a portable tuning manifest and consumed later by an explicitly identified
 mod or tuning module. Such a module must declare its input contract, backup
 requirements, mutation scope, and verification procedure before live
-application is enabled. The portable handoff is defined by
+application is enabled. The first reviewed exception is the experimental EML
+adapter: it stages and deploys an EmberVault-owned separate-process package
+for the single evidenced `baseCritChance` field, then requires runtime
+readback verification. This does not promote general gameplay tuning to a
+supported capability and does not permit arbitrary adapter targets. The
+portable handoff is defined by
 `contracts/game-settings.schema.json`. Any future adapter must declare its
 process mode, supported keys, backup requirements, mutation scope, and
 verification steps in `contracts/tuning-adapter.schema.json`.
