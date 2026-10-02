@@ -38,17 +38,49 @@ class OperationService:
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
     def start(self, operation_type: str, **context) -> Operation:
+        capability = context.get("capability") or self._capability_for(operation_type)
+        capability_state = context.get("capability_state") or self._state_for(operation_type)
+        recovery_expectation = context.get("recovery_expectation") or self._recovery_for(operation_type)
         operation = Operation(
             id=f"EV-OP-{uuid.uuid4().hex[:8].upper()}",
             operation_type=operation_type,
             started_at=datetime.now(timezone.utc).isoformat(),
             profile_id=context.get("profile_id"), package_id=context.get("package_id"),
-            capability=context.get("capability"),
-            capability_state=context.get("capability_state"),
-            recovery_expectation=context.get("recovery_expectation"),
+            capability=capability,
+            capability_state=capability_state,
+            recovery_expectation=recovery_expectation,
         )
         self._append(operation)
         return operation
+
+    @staticmethod
+    def _capability_for(operation_type: str) -> str:
+        prefix = operation_type.split("-", 1)[0]
+        return {
+            "package": "mods", "module": "mods", "tuning": "tuning",
+            "research": "research", "knowledge": "knowledge",
+            "content": "content-creator", "character": "character-tools",
+            "trainer": "trainer", "save": "save-manager",
+            "catalog": "catalog", "troubleshooter": "operations",
+        }.get(prefix, "operations")
+
+    @staticmethod
+    def _state_for(operation_type: str) -> str:
+        if any(token in operation_type for token in ("deploy", "restore", "rollback")):
+            return "staged"
+        if any(token in operation_type for token in ("research", "trainer", "content", "character")):
+            return "plan-only"
+        if any(token in operation_type for token in ("inspection", "verify", "scan", "export", "catalog")):
+            return "read-only"
+        return "ready"
+
+    @staticmethod
+    def _recovery_for(operation_type: str) -> str:
+        if any(token in operation_type for token in ("deploy", "restore", "rollback", "tuning")):
+            return "verified backup or rollback required"
+        if any(token in operation_type for token in ("research", "trainer", "content", "character")):
+            return "no live mutation; preserve source record"
+        return "retain operation record for review"
 
     def finish(self, operation: Operation, status: OperationStatus, message: str = "", backup_id: str | None = None) -> Operation:
         operation.status = status
