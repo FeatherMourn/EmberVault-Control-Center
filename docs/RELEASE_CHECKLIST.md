@@ -14,6 +14,8 @@
 - [x] Confirm Save Manager never performs direct save editing.
 - [x] Confirm stable and research profiles remain separate.
 - [x] Confirm malformed manifests and corrupt local records fail safely.
+- [x] Confirm the Mods workspace exposes read-only managed/external/unsafe
+      destination inspection without modifying game content.
 - [x] Review operation and structured-log output for a backup and restore preview.
 - [x] Confirm staged Game Settings schema is included in the wheel data.
 - [x] Confirm gameplay tuning adapter schema is included in the wheel data.

@@ -14,7 +14,8 @@
   Knowledge, Modules, and Activity workspaces.
 - Profile-scoped package discovery, folder/ZIP import, enablement, compatibility
   reporting, safe removal, conflict-free deployment, and ownership-protected
-  undeploy, plus read-only inspection of existing external `mod.json` mods.
+  undeploy, plus read-only inspection of existing external `mod.json` mods and
+  managed, external, or invalid game destinations in the Mods workspace.
 - Isolated research records/evidence, character projects, content projects, and
   backup-bound Trainer plans, plus versioned public catalog export.
 - Public catalog module records now preserve the validated embedded/separate

@@ -459,6 +459,14 @@ class ControlCenterBackend(QObject):
                 [f"{item.status.upper()} · {item.package_id} · {item.reason or item.destination}"
                  for item in plan])
 
+    @Property("QStringList", notify=stateChanged)
+    def managedDeploymentOptions(self):
+        if not self.packages or not self.settings.game_path:
+            return []
+        findings = self.packages.inspect_deployments(Path(self.settings.game_path))
+        return [f"{item.status.upper()} · {item.package_id} · {item.reason}"
+                for item in findings]
+
     @Slot()
     def inspectDeploymentPlan(self):
         if not self.packages or not self.settings.game_path:
