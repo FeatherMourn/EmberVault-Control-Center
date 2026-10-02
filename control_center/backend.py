@@ -706,6 +706,63 @@ class ControlCenterBackend(QObject):
                 for item in self.research.list() if item.profile_id == self._selected_profile_id]
 
     @Property("QStringList", notify=stateChanged)
+    def researchCollaborationOptions(self):
+        if not self.research:
+            return []
+        result = []
+        for item in self.research.list():
+            if item.profile_id != self._selected_profile_id:
+                continue
+            score = self.research.reproducibility_score(item.id)["score"]
+            result.append(f"{item.title} · reproducibility {score}% · {len(item.comparison_runs)} comparisons · {len(item.discussion_notes)} discussion note(s)")
+        return result
+
+    @Slot(str)
+    def addLatestResearchDiscussion(self, note: str):
+        if not self.research:
+            return
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
+        if records:
+            try:
+                self.research.add_discussion_note(records[-1].id, note)
+                self._last_save_message = "Added research discussion note"
+            except (KeyError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        else:
+            self._last_save_message = "Create a research record first"
+        self.stateChanged.emit()
+
+    @Slot(str, str, str)
+    def addLatestResearchComparison(self, label: str, outcome: str, build: str = ""):
+        if not self.research:
+            return
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
+        if records:
+            try:
+                self.research.add_comparison(records[-1].id, label, outcome, build)
+                self._last_save_message = "Added comparison run"
+            except (KeyError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        else:
+            self._last_save_message = "Create a research record first"
+        self.stateChanged.emit()
+
+    @Slot()
+    def exportLatestResearchReport(self):
+        if not self.research:
+            return
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
+        if records:
+            try:
+                destination = self.research.export_report(records[-1].id)
+                self._last_save_message = f"Exported research report to {destination}"
+            except (KeyError, OSError) as exc:
+                self._last_save_message = str(exc)
+        else:
+            self._last_save_message = "Create a research record first"
+        self.stateChanged.emit()
+
+    @Property("QStringList", notify=stateChanged)
     def knowledgeOptions(self):
         if not self.knowledge:
             return []

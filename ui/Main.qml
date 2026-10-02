@@ -449,10 +449,21 @@ ApplicationWindow {
             }
             Button { text: "Unpublish latest research"; onClicked: controlCenter.unpublishLatestResearch() }
             Button { text: "Export latest research summary"; onClicked: controlCenter.exportLatestResearchSummary() }
+            Button { text: "Export reproducibility report"; onClicked: controlCenter.exportLatestResearchReport() }
+            TextField { id: discussionNoteField; placeholderText: "Discussion note for latest experiment"; Layout.fillWidth: true }
+            Button { text: "Add discussion note"; onClicked: controlCenter.addLatestResearchDiscussion(discussionNoteField.text) }
+            TextField { id: comparisonLabelField; placeholderText: "Comparison label"; Layout.fillWidth: true }
+            TextField { id: comparisonOutcomeField; placeholderText: "Comparison outcome"; Layout.fillWidth: true }
+            TextField { id: comparisonBuildField; placeholderText: "Comparison game build"; Layout.fillWidth: true }
+            Button { text: "Add comparison run"; onClicked: controlCenter.addLatestResearchComparison(comparisonLabelField.text, comparisonOutcomeField.text, comparisonBuildField.text) }
             Text { text: controlCenter.researchOptions.length === 0 ? "No research records yet." : "Research records"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
                 model: controlCenter.researchOptions
                 delegate: Text { text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            }
+            Repeater {
+                model: controlCenter.researchCollaborationOptions
+                delegate: Text { text: modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             }
         }
     }
