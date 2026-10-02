@@ -1147,6 +1147,33 @@ class ControlCenterBackend(QObject):
                 for item in self.characters.list() if item.profile_id == self._selected_profile_id]
 
     @Property("QStringList", notify=stateChanged)
+    def characterTemplateOptions(self):
+        return ["general", "tank", "damage", "support", "gatherer"]
+
+    @Slot(str)
+    def setLatestCharacterTemplate(self, template: str):
+        records = [item for item in self.characters.list() if item.profile_id == self._selected_profile_id] if self.characters else []
+        if records:
+            try:
+                record = self.characters.set_template(records[-1].id, template)
+                self._last_save_message = f"Set {record.name} template to {record.build_template}"
+            except (KeyError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        else:
+            self._last_save_message = "Create a character project first"
+        self.stateChanged.emit()
+
+    @Slot()
+    def compareLatestCharacterEquipment(self):
+        records = [item for item in self.characters.list() if item.profile_id == self._selected_profile_id] if self.characters else []
+        if len(records) < 2:
+            self._last_save_message = "Create two character projects to compare equipment"
+        else:
+            result = self.characters.compare_equipment(records[-2].id, records[-1].id)
+            self._last_save_message = f"Compared equipment for {result['left']['id']} and {result['right']['id']} (plan-only)"
+        self.stateChanged.emit()
+
+    @Property("QStringList", notify=stateChanged)
     def trainerPlanOptions(self):
         if not self.trainer:
             return []

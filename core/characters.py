@@ -160,6 +160,18 @@ class CharacterService:
                 return record
         raise KeyError(record_id)
 
+    def set_template(self, record_id: str, template: str) -> CharacterRecord:
+        if template not in {"general", "tank", "damage", "support", "gatherer"}:
+            raise ValueError("Unknown character build template")
+        records = self.list()
+        for record in records:
+            if record.id == record_id:
+                record.build_template = template
+                record.version += 1
+                write_json_atomic(self.path, [asdict(item) for item in records])
+                return record
+        raise KeyError(record_id)
+
     def export(self, record: CharacterRecord) -> Path:
         """Export a character plan without modifying save data."""
         destination = self.path.parent.parent / "exports" / "character-plans" / f"{record.id}.json"

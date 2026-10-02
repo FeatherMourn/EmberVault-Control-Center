@@ -529,11 +529,14 @@ ApplicationWindow {
             TextField { id: characterSkills; placeholderText: "Skill notes (semicolon-separated)"; Layout.fillWidth: true }
             TextField { id: characterBackup; placeholderText: "Verified backup ID (optional)"; Layout.fillWidth: true }
             Button { text: "Create character project"; onClicked: controlCenter.createCharacter(characterName.text, characterNotes.text) }
+            ComboBox { id: characterTemplate; model: controlCenter.characterTemplateOptions; Layout.fillWidth: true }
+            Button { text: "Set latest build template"; onClicked: controlCenter.setLatestCharacterTemplate(characterTemplate.currentText) }
             Button { text: "Update latest plan notes"; onClicked: controlCenter.updateLatestCharacterNotes(characterNotes.text) }
             Button { text: "Update structured character plan"; onClicked: controlCenter.updateLatestCharacterPlan(characterGoals.text, characterProgression.text, characterEquipment.text, characterSkills.text, characterBackup.text) }
             SpinBox { id: characterLevel; from: 1; to: 50; value: 1; Layout.fillWidth: true }
             Button { text: "Stage level for latest project"; onClicked: controlCenter.stageLatestCharacterLevel(characterLevel.value) }
             Button { text: "Simulate progression"; onClicked: controlCenter.simulateLatestCharacterProgression(characterLevel.value) }
+            Button { text: "Compare latest equipment plans"; onClicked: controlCenter.compareLatestCharacterEquipment() }
             Button { text: "Export latest character plan"; onClicked: controlCenter.exportLatestCharacterPlan() }
             Text { text: controlCenter.characterOptions.length === 0 ? "No character projects yet." : "Character projects"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {

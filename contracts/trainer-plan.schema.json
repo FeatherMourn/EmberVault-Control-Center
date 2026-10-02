@@ -8,14 +8,17 @@
     "schema_version": {"const": 1},
     "plan": {
       "type": "object",
-      "required": ["id", "profile_id", "target", "notes", "backup_id", "created_at"],
+      "required": ["id", "profile_id", "target", "notes", "backup_id", "created_at", "test_steps", "recovery_simulation", "evidence_gate"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "profile_id": {"type": "string", "minLength": 1},
         "target": {"type": "string", "minLength": 1},
         "notes": {"type": "string"},
         "backup_id": {"type": "string", "minLength": 1},
-        "created_at": {"type": "string", "minLength": 1}
+        "created_at": {"type": "string", "minLength": 1},
+        "test_steps": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "recovery_simulation": {"enum": ["not-run", "passed", "failed"]},
+        "evidence_gate": {"enum": ["pending", "ready", "blocked"]}
       },
       "additionalProperties": false
     },

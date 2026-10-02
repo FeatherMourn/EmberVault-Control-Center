@@ -1115,9 +1115,11 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             character = runtime.characters.create("Ashen", "research")
             runtime.characters.update_plan(character.id, ["Tank"], ["Level armor"], ["Oak shield"], ["Guard"])
+            runtime.characters.set_template(character.id, "tank")
             simulation = runtime.characters.simulate_progression(character.id, 20)
             self.assertEqual(simulation["application_state"], "plan-only")
-            self.assertEqual(runtime.characters.list()[-1].version, 2)
+            self.assertEqual(runtime.characters.list()[-1].version, 3)
+            self.assertEqual(runtime.characters.list()[-1].build_template, "tank")
 
     def test_content_project_export_is_design_only(self):
         with tempfile.TemporaryDirectory() as temp:
