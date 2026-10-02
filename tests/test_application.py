@@ -108,6 +108,16 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertTrue(recovered._adapter_verified)
             self.assertIn("verified", recovered.tuningAdapterStatus)
 
+    def test_backend_requires_deployment_before_adapter_verification(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            backend = ControlCenterBackend(root, runtime=runtime)
+            backend._staged_adapter_operation_id = "EV-OP-STAGED"
+            backend.settings.game_path = str(root / "game")
+            self.assertFalse(backend.canVerifyTuningAdapter)
+            self.assertEqual(backend.verifyTuningAdapter(), "Deploy the staged EML adapter first")
+
     def test_backend_exposes_selected_profile_index(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
