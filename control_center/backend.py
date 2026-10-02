@@ -283,6 +283,7 @@ class ControlCenterBackend(QObject):
                 try:
                     self.tuning_adapter.undeploy_adapter(Path(self.settings.game_path))
                     self._adapter_deployed = False
+                    self._adapter_verified = False
                     rollback_note = " EmberVault adapter was rolled back."
                 except (OSError, ValueError, PermissionError) as rollback_exc:
                     rollback_note = f" Rollback also failed: {rollback_exc}."
