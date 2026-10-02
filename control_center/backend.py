@@ -1837,6 +1837,17 @@ class ControlCenterBackend(QObject):
                 value = definition.minimum or 0.0
         operation = self.operations.start("game-setting-stage", profile_id=profile.id) if self.operations else None
         try:
+            tuning_module = self.modules.get("embervault.game-tuning") if self.modules else None
+            if tuning_module:
+                loaded = self.modules.load_embedded(tuning_module.id)
+                planner = getattr(loaded, "plan_setting_change", None)
+                if not callable(planner):
+                    raise ValueError("Game Tuning does not provide staged setting planning")
+                from embervault_sdk import ModuleContext
+                plan = planner(ModuleContext(tuning_module.id, profile.id, operation.id if operation else None, "plan-only"),
+                               definition.key, value, profile.id)
+                if plan.status != "ready":
+                    raise ValueError(plan.message)
             updated = self.game_settings.stage(profile, definition.key, value)
             if operation and self.operations:
                 self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Staged {definition.key}")
