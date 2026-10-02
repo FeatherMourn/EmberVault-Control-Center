@@ -322,6 +322,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(preview["field"], "baseCritChance")
             self.assertFalse(preview["mutation_performed"])
 
+    def test_eml_tuning_adapter_readback_includes_verified_field_name(self):
+        from core.tuning_adapter import TuningAdapterService
+        result = TuningAdapterService.parse_runtime_readback(
+            "[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.3|new=0.425|operation=EV-OP-4",
+            "EV-OP-4",
+        )
+        self.assertEqual(result["field"], "baseCritChance")
+        self.assertEqual(result["new_value"], 0.425)
+
     def test_eml_tuning_adapter_write_gate_remains_closed(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

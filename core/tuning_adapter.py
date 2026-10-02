@@ -154,8 +154,9 @@ class TuningAdapterService:
         match = re.search(r"old=([^|\s]+)\|new=([^|\s]+)", lines[0])
         if not match:
             raise ValueError("EML adapter readback is malformed")
-        return {"operation_id": operation_id, "old_value": float(match.group(1)),
-                "new_value": float(match.group(2)), "readback_verified": True}
+        return {"operation_id": operation_id, "field": "baseCritChance",
+                "old_value": float(match.group(1)), "new_value": float(match.group(2)),
+                "readback_verified": True}
 
     def verify_log_file(self, log_path: Path, operation_id: str,
                         expected_value: float) -> dict[str, Any]:
