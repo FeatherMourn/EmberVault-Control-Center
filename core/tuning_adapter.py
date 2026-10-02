@@ -7,6 +7,8 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+MAX_RUNTIME_LOG_BYTES = 4 * 1024 * 1024
+
 
 class TuningAdapterService:
     """Loads reviewed evidence without granting mutation authority by itself."""
@@ -197,20 +199,26 @@ class TuningAdapterService:
     def verify_log_file(self, log_path: Path, operation_id: str,
                         expected_value: float, minimum_mtime: float | None = None) -> dict[str, Any]:
         """Verify one fresh EML log readback for the requested operation."""
+        log_path = Path(log_path)
+        if log_path.is_symlink():
+            raise ValueError("Refusing to verify a symlinked EML runtime log")
         try:
-            text = Path(log_path).read_text(encoding="utf-8")
+            stat = log_path.stat()
+            if stat.st_size > MAX_RUNTIME_LOG_BYTES:
+                raise ValueError("The EML runtime log exceeds the verification size limit")
+            text = log_path.read_text(encoding="utf-8")
         except (OSError, UnicodeError) as exc:
             raise ValueError("Unable to read the EML runtime log") from exc
         if minimum_mtime is not None:
             try:
-                if Path(log_path).stat().st_mtime < float(minimum_mtime):
+                if stat.st_mtime < float(minimum_mtime):
                     raise ValueError("The EML runtime log predates adapter deployment")
             except OSError as exc:
                 raise ValueError("Unable to inspect the EML runtime log timestamp") from exc
         result = self.parse_runtime_readback(text, operation_id)
         if abs(result["new_value"] - float(expected_value)) > 1e-9:
             raise ValueError("EML readback value does not match the staged value")
-        return result | {"log_path": str(Path(log_path)), "status": "verified"}
+        return result | {"log_path": str(log_path), "status": "verified"}
 
     def deploy_staged_package(self, staged_package: Path, game_directory: Path,
                               *, game_running: bool) -> Path:

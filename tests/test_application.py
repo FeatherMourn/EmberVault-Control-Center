@@ -559,6 +559,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 TuningAdapterService(Path(temp)).verify_log_file(log, "EV-OP-OLD", 0.2, minimum_mtime=200.0)
 
+    def test_eml_tuning_adapter_rejects_symlinked_runtime_log(self):
+        with tempfile.TemporaryDirectory() as temp:
+            from core.tuning_adapter import TuningAdapterService
+            target = Path(temp) / "real.eml.log"
+            target.write_text("runtime", encoding="utf-8")
+            link = Path(temp) / "linked.eml.log"
+            try:
+                link.symlink_to(target)
+            except (OSError, NotImplementedError):
+                self.skipTest("Symlinks are unavailable in this environment")
+            with self.assertRaises(ValueError):
+                TuningAdapterService(Path(temp)).verify_log_file(link, "EV-OP-LINK", 0.2)
+
     def test_eml_tuning_adapter_deploys_only_owned_staged_package(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
