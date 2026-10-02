@@ -377,6 +377,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             game = root / "game"
             destination = service.deploy_staged_package(staged, game, game_running=False)
             self.assertTrue((destination / ".embervault-managed.json").exists())
+            self.assertEqual(json.loads((destination / "mod.json").read_text())["entrypoint"], "mod.lua")
             service.undeploy_adapter(game)
             self.assertFalse(destination.exists())
 

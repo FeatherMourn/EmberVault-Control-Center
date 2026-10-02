@@ -179,6 +179,15 @@ class TuningAdapterService:
         if manifest.get("id") != "embervault.eml-tuning-adapter" \
                 or manifest.get("ownership") != "embervault-control-center":
             raise PermissionError("Staged package ownership is not recognized")
+        loader_manifest_path = staged_package / "mod.json"
+        if not loader_manifest_path.is_file():
+            raise ValueError("Staged adapter is missing its EML mod manifest")
+        loader_manifest = json.loads(loader_manifest_path.read_text(encoding="utf-8"))
+        if loader_manifest.get("id") != "embervault.eml-balancing-table" \
+                or loader_manifest.get("entrypoint") != "mod.lua":
+            raise ValueError("Staged EML manifest does not match the adapter contract")
+        if not (staged_package / "mod.lua").is_file():
+            raise ValueError("Staged adapter is missing its EML entrypoint")
         destination = Path(game_directory) / "mods" / manifest["id"]
         if destination.exists():
             raise FileExistsError("Adapter destination already exists; refusing to overwrite")
