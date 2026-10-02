@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from enum import StrEnum
 from pathlib import Path
 
+from .integration import IntegrationContext
+
 
 class OperationStatus(StrEnum):
     STARTED = "started"
@@ -89,6 +91,18 @@ class OperationService:
         operation.finished_at = datetime.now(timezone.utc).isoformat()
         self._append(operation)
         return operation
+
+    @staticmethod
+    def integration_context(operation: Operation) -> IntegrationContext:
+        """Return the validated handoff context carried by an operation."""
+        if not all((operation.capability, operation.capability_state, operation.recovery_expectation)):
+            raise ValueError("Operation is missing cross-module integration metadata")
+        return IntegrationContext.from_operation(
+            operation,
+            capability=operation.capability,
+            capability_state=operation.capability_state,
+            recovery_expectation=operation.recovery_expectation,
+        )
 
     def list_recent(self, limit: int = 20) -> list[Operation]:
         """Return the latest operation records, newest first."""

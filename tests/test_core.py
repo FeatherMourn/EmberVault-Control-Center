@@ -31,6 +31,7 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(context.operation_id, operation.id)
             self.assertEqual(context.profile_id, "research")
             self.assertEqual(context.as_dict()["recovery_expectation"], "no live mutation")
+            self.assertEqual(service.integration_context(operation), context)
             saved = service.list_recent()[0]
             self.assertEqual(saved.capability_state, "read-only")
             self.assertEqual(saved.recovery_expectation, "no live mutation")
