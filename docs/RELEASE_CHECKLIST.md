@@ -3,6 +3,8 @@
 ## Before packaging
 
 - [x] Run the complete Python test suite (231 tests passing).
+- [x] Confirm Trainer remains read-only/plan-only with research-profile,
+      verified-backup, timeout, crash, and recovery safeguards.
 - [x] Confirm Character Tools remains plan-only and requires existing verified
       backups for backup associations.
 - [x] Confirm Content Creator remains design-only and validates structured

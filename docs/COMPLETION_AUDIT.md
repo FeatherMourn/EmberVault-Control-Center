@@ -27,6 +27,8 @@ outside the first-release mutation boundary.
 - 231 unit tests pass.
 - Stage 11 Character Tools supports structured plans, verified-backup
   associations, validation, operation-tracked UI editing, and save-safe export.
+- Stage 12 Trainer is guarded, backup-bound, separate-process, operation-tracked,
+  and read-only/plan-only with timeout and recovery coverage.
 - Stage 10 Content Creator projects support structured design data, validation,
   operation-tracked UI editing, and design-only exports without game mutation.
 - Stage 9 knowledge records support metadata, references, local version history,

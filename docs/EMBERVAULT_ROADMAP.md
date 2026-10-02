@@ -272,7 +272,8 @@ from live save contents.
 
 ## Stage 12 — Trainer
 
-Status: guarded, plan-oriented implementation.
+Status: complete for the planned first-release scope; future live trainer
+mutation requires a separate evidence and safety review.
 
 - Trainer targets.
 - Backup-bound sessions.
@@ -283,6 +284,10 @@ Status: guarded, plan-oriented implementation.
 - Recovery instructions.
 
 The first release remains read-only or plan-only.
+
+Verification: 231 tests pass, the offscreen launcher smoke test passes, the
+fresh wheel contains all required assets, and trainer plans remain bound to
+verified backups without mutating saves or live game data.
 
 ## Stage 13 — EmberVault website and community platform
 
