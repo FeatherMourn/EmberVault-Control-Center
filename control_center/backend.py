@@ -16,6 +16,7 @@ from core.settings import SettingsService
 from core.operations import OperationStatus
 from core.compatibility import evaluate
 from core.modules import LaunchContext
+from core.promotion import PromotionEvidence
 
 MAX_WORKER_OUTPUT = 1024 * 1024
 
@@ -59,6 +60,7 @@ class ControlCenterBackend(QObject):
         self.characters = runtime.characters if runtime else None
         self.risk = runtime.risk if runtime else None
         self.launcher = runtime.launcher if runtime else None
+        self.promotion = runtime.promotion if runtime else None
         self.detector = runtime.game if runtime else GameDetector()
         self._game_status = "Not configured"
         self._build = "Unknown build"
@@ -141,7 +143,38 @@ class ControlCenterBackend(QObject):
             f"Knowledge · {len(self.knowledge.entries()) if self.knowledge else 0} entries",
             f"Content · {len(self.content.list()) if self.content else 0} projects",
             f"Trainer · {len(self.trainer.list()) if self.trainer else 0} plans",
+            f"Promotions · {len(self.promotion.decisions()) if self.promotion else 0} decisions",
         ]
+
+    @Property("QStringList", notify=stateChanged)
+    def promotionSummary(self):
+        if not self.promotion:
+            return []
+        return [f"{item['evidence'].get('capability_id', 'unknown')} → {item.get('target_state', 'unknown')}"
+                for item in self.promotion.decisions()[-20:]]
+
+    @Slot(str, str, str, str, bool, bool, bool, bool, str, bool, result=str)
+    def promoteCapability(self, capability_id, target_state, current_build, source_research_id,
+                          reproducible, runtime_confirmed, recovery_tested,
+                          compatibility_documented, owner, rollback_tested):
+        if not self.promotion:
+            return "Promotion service unavailable"
+        operation = self.operations.start("capability-promotion", profile_id=self._selected_profile_id,
+                                          capability="promotion", capability_state="plan-only",
+                                          recovery_expectation="rollback evidence required") if self.operations else None
+        try:
+            decision = self.promotion.promote(PromotionEvidence(
+                capability_id, current_build, reproducible, runtime_confirmed,
+                recovery_tested, compatibility_documented, owner, rollback_tested,
+                source_research_id), target_state)
+            if operation:
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Promoted {capability_id} to {target_state}")
+            self.stateChanged.emit()
+            return f"Promoted {capability_id} to {target_state}"
+        except Exception as exc:
+            if operation:
+                self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+            return str(exc)
 
     @Property(bool, notify=stateChanged)
     def canBackup(self):
