@@ -114,6 +114,13 @@ class PackagingContractTests(unittest.TestCase):
         self.assertIn("shell: pwsh", windows_section)
         self.assertIn("control_center.app --smoke-test", windows_section)
 
+    def test_ci_verifies_catalog_handoff(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = (root / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        self.assertIn("Verify catalog handoff", workflow)
+        self.assertIn("tools/sync_catalog.py", workflow)
+        self.assertIn("tools/verify_catalog.py", workflow)
+
     def test_terminology_contract_freezes_public_vocabulary(self):
         root = Path(__file__).resolve().parents[1]
         terminology = (root / "docs" / "TERMINOLOGY.md").read_text(encoding="utf-8")

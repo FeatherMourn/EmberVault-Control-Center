@@ -39,6 +39,11 @@ jobs:
         shell: bash
         run: python tools/verify_release.py "$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
 
+      - name: Verify catalog handoff
+        run: |
+          python tools/sync_catalog.py "$RUNNER_TEMP/embervault-catalog"
+          python tools/verify_catalog.py "$RUNNER_TEMP/embervault-catalog/embervault-catalog.json"
+
       - name: Smoke-test installed wheel
         shell: bash
         env:
