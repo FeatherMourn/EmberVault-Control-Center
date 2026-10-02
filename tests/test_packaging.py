@@ -84,6 +84,12 @@ class PackagingContractTests(unittest.TestCase):
             self.assertIn("recovery", manifest, path)
             self.assertIn("operation_types", manifest, path)
 
+    def test_distribution_audit_checks_hash_and_safety_flags(self):
+        audit = (Path(__file__).parents[1] / "tools" / "audit_distribution.py").read_text(encoding="utf-8")
+        self.assertIn("sha256", audit)
+        self.assertIn("live_mutation_supported", audit)
+        self.assertIn("data_preserving_uninstall", audit)
+
     def test_release_verifier_lists_tuning_adapter_contract(self):
         root = Path(__file__).resolve().parents[1]
         verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
