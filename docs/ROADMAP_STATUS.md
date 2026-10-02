@@ -105,6 +105,11 @@ experience modes, the Home command center, shared capability services, Mod
 Manager priority, event system, and module maturity model:
 [`PRODUCT_EVOLUTION_ROADMAP.md`](PRODUCT_EVOLUTION_ROADMAP.md).
 
+The platform evolution roadmap records the unified operation engine, capability
+model, compatibility graph, recovery center, provenance system, test laboratory,
+marketplace contract, and promotion lifecycle:
+[`PLATFORM_EVOLUTION_ROADMAP.md`](PLATFORM_EVOLUTION_ROADMAP.md).
+
 The next distribution milestone includes a signed, review-first updater for the
 Control Center and independently packaged modules. Updates must be staged outside
 the running application, verified for compatibility, hashes, and signatures, and

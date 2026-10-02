@@ -461,6 +461,9 @@ The complete repository-module map and development order are maintained in
 The usability, advanced-capability, and product-maturity plan is maintained in
 [`PRODUCT_EVOLUTION_ROADMAP.md`](PRODUCT_EVOLUTION_ROADMAP.md).
 
+The longer-term platform architecture and capability evolution plan is maintained
+in [`PLATFORM_EVOLUTION_ROADMAP.md`](PLATFORM_EVOLUTION_ROADMAP.md).
+
 - Add Windows and Linux distribution packages, update checking, release channels,
   backup-before-update, migration previews, repair installation, and data-preserving uninstall.
 
