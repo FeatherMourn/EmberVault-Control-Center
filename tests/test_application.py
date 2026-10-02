@@ -433,11 +433,23 @@ class ApplicationCompositionTests(unittest.TestCase):
     def test_eml_tuning_adapter_readback_includes_verified_field_name(self):
         from core.tuning_adapter import TuningAdapterService
         result = TuningAdapterService.parse_runtime_readback(
+            "[EMBERVAULT-EML-TUNING] context|loader=EML|api=1.3|build=1076226|operation=EV-OP-4\n"
             "[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.3|new=0.425|operation=EV-OP-4",
             "EV-OP-4",
         )
         self.assertEqual(result["field"], "baseCritChance")
         self.assertEqual(result["new_value"], 0.425)
+
+    def test_eml_tuning_adapter_readback_rejects_missing_or_mismatched_context(self):
+        from core.tuning_adapter import TuningAdapterService
+        write = "[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.3|new=0.425|operation=EV-OP-5"
+        with self.assertRaises(ValueError):
+            TuningAdapterService.parse_runtime_readback(write, "EV-OP-5")
+        with self.assertRaises(ValueError):
+            TuningAdapterService.parse_runtime_readback(
+                "[EMBERVAULT-EML-TUNING] context|loader=EML|api=1.2|build=1076226|operation=EV-OP-5\n" + write,
+                "EV-OP-5",
+            )
 
     def test_eml_tuning_adapter_write_gate_remains_closed(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -477,6 +489,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             staged = TuningAdapterService(root).stage_package(package, root / "staging", 0.2, "EV-OP-2")
             self.assertIn("resource.data.baseCritChance = 0.2", (staged / "mod.lua").read_text())
             result = TuningAdapterService.parse_runtime_readback(
+                "[EMBERVAULT-EML-TUNING] context|loader=EML|api=1.3|build=1076226|operation=EV-OP-2\n"
                 "[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.425|new=0.2 operation=EV-OP-2",
                 "EV-OP-2",
             )
@@ -491,7 +504,8 @@ class ApplicationCompositionTests(unittest.TestCase):
             (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
             from core.tuning_adapter import TuningAdapterService
             log = root / "runtime.eml.log"
-            log.write_text("[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.425|new=0.2|operation=EV-OP-4\n", encoding="utf-8")
+            log.write_text("[EMBERVAULT-EML-TUNING] context|loader=EML|api=1.3|build=1076226|operation=EV-OP-4\n"
+                           "[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.425|new=0.2|operation=EV-OP-4\n", encoding="utf-8")
             result = TuningAdapterService(root).verify_log_file(log, "EV-OP-4", 0.2)
             self.assertEqual(result["status"], "verified")
 
