@@ -15,7 +15,10 @@ from core.application import EmbervaultRuntime
 def main() -> int:
     parser = argparse.ArgumentParser(description="Write a validated EmberVault catalog snapshot")
     parser.add_argument("destination", type=Path, help="Repository folder that will receive embervault-catalog.json")
-    parser.add_argument("--data-root", type=Path, default=ROOT / "runtime-data")
+    # The repository root contains the reviewed adapter and seeded knowledge
+    # assets. Using it by default makes the documented handoff complete; a
+    # separate data root remains available for isolated/test exports.
+    parser.add_argument("--data-root", type=Path, default=ROOT)
     args = parser.parse_args()
     runtime = EmbervaultRuntime.create(args.data_root)
     destination = runtime.catalog.sync_to_directory(args.destination)
