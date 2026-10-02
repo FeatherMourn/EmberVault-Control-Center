@@ -377,3 +377,106 @@ and rollback behavior.
 10. Add cross-module integration.
 11. Perform final release hardening.
 12. Promote proven capabilities.
+
+## Forward roadmap: post-Stage 16
+
+The foundational roadmap is complete through Stage 16. The next stages shift
+from architecture and release hardening toward product expansion and ecosystem
+integration.
+
+### Stage 17 — Capability Governance
+
+- Capability dashboard.
+- Research-only, Experimental, Verified, and Stable status display.
+- Promotion evidence checklist.
+- Owner, compatibility, rollback, and promotion history views.
+- Missing-evidence and rejection explanations.
+- UI controls for reviewing promotion readiness.
+
+Goal: make capability status understandable and auditable inside Control Center.
+
+### Stage 18 — Runtime Adapter Expansion
+
+- Expand beyond the current narrow EML adapter.
+- Add supported gameplay settings and current-build compatibility matrices.
+- Add adapter-specific evidence, failure-session, recovery, and rollback reports.
+- Add adapter version management and future Shroudtopia adapter boundaries.
+
+Goal: support more gameplay tuning without weakening evidence requirements.
+
+### Stage 19 — Mods Management 2.0
+
+- Improve the mod library, dependencies, compatibility matrix, and load-order planning.
+- Add profile comparison, batch actions, update detection, profile import/export,
+  and safer package upgrades.
+
+Goal: make mod installation and profile management practical for daily use.
+
+### Stage 20 — Schema Migration and Data Recovery
+
+- Version every local record schema.
+- Add migration handlers, previews, reports, and rollback.
+- Back up data before migration and quarantine corrupt records.
+- Add upgrade tests across historical versions.
+
+Goal: allow users to update EmberVault without losing work or configuration.
+
+### Stage 21 — Content Creator 2.0
+
+- Expand furniture, building, recipe, asset, material, dimension, and registration workflows.
+- Add research-linked design decisions, exportable design packages, and previews.
+- Preserve the separation between design output and live installation.
+
+Goal: make content development productive while retaining design-only safety boundaries.
+
+### Stage 22 — Research and Knowledge Collaboration
+
+- Add experiment templates, evidence attachments, runtime log imports, comparison runs,
+  build tracking, reproducibility scoring, and research reports.
+- Improve research-to-knowledge promotion, discussion notes, search, and filtering.
+
+Goal: make research repeatable, discoverable, and useful to the modding community.
+
+### Stage 23 — Character Tools and Trainer Expansion
+
+- Add character build templates, equipment comparison, progression simulation,
+  build versioning, and save-linked planning.
+- Expand Trainer test plans, process isolation, recovery simulation, and evidence gates.
+
+Goal: improve planning tools without prematurely enabling unsafe mutation.
+
+### Stage 24 — Website and Community Integration
+
+- Connect catalog publishing, research submissions, project publishing, knowledge
+  synchronization, discussion links, versioned records, and conflict handling.
+- Keep authentication, moderation, and remote community authority in the EmberVault website.
+
+Goal: connect Control Center to the broader EmberVault community and research hub.
+
+### Stage 25 — Distribution and Updates
+
+- Add Windows and Linux distribution packages, update checking, release channels,
+  backup-before-update, migration previews, repair installation, and data-preserving uninstall.
+
+Goal: move from developer installation to a user-friendly product release.
+
+### Stage 26 — Stable Capability Release
+
+- Promote only evidence-backed capabilities to Stable.
+- Finalize compatibility, recovery, user, and release documentation.
+- Prepare a public version 1.0 release candidate.
+
+Goal: release a dependable first public version without claiming unsupported live mutation.
+
+### Recommended forward execution order
+
+1. Capability Governance.
+2. Runtime Adapter Expansion.
+3. Mods Management 2.0.
+4. Schema Migration and Data Recovery.
+5. Content Creator 2.0.
+6. Research and Knowledge Collaboration.
+7. Character Tools and Trainer Expansion.
+8. Website and Community Integration.
+9. Distribution and Updates.
+10. Stable Capability Release.
