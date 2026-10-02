@@ -41,6 +41,8 @@
 - [x] Review the security and recovery audit in `docs/SECURITY_AUDIT.md`.
 - [ ] Complete the human user-acceptance checklist in `docs/USER_ACCEPTANCE.md`
       against a clean installed build.
+- [ ] Complete the release handoff in `docs/RELEASE_HANDOFF.md`, including
+      GitHub Pages deployment confirmation and bundle hashes.
 
 ## Packaging
 
