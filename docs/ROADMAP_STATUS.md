@@ -77,6 +77,13 @@ deliberately non-mutating; Research includes a
 - Upgrade staging never replaces an installed package automatically; the staged
   manifest remains subject to explicit review and existing ownership gates.
 
+## Stage 20 migration status
+
+- Local JSON data can be previewed, version-stamped, backed up, migrated,
+  quarantined when corrupt, and rolled back from a migration backup.
+- Migration is exposed through a preview-first, operation-tracked Control Center
+  workflow and remains separate from game/save mutation.
+
 ## Release evidence
 
 - Python unit suite currently covers the Core services, workflows, module gates,
