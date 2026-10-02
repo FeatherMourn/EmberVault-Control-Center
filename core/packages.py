@@ -308,8 +308,10 @@ class PackageService:
         if any(item.status != "ready" for item in plan):
             raise ValueError("Resolve deployment conflicts before installing packages")
         created: list[Path] = []
+        current_destination: Path | None = None
         try:
             for item in plan:
+                current_destination = item.destination
                 item.destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copytree(item.source, item.destination)
                 created.append(item.destination)
@@ -318,7 +320,10 @@ class PackageService:
                 }, indent=2) + "\n", encoding="utf-8")
             return plan
         except (OSError, shutil.Error) as exc:
-            for destination in reversed(created):
+            cleanup = list(created)
+            if current_destination is not None and current_destination not in cleanup:
+                cleanup.append(current_destination)
+            for destination in reversed(cleanup):
                 if destination.is_dir() and not destination.is_symlink():
                     shutil.rmtree(destination, ignore_errors=True)
             raise OSError("Package deployment failed; new destinations were removed") from exc

@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import unittest
 import zipfile
+from unittest import mock
 from pathlib import Path
 
 from core.compatibility import CompatibilityState, evaluate
@@ -419,6 +420,32 @@ class CoreServiceTests(unittest.TestCase):
             (game / "mods" / package.id / ".embervault-managed.json").write_text(json.dumps({"package_id": "other"}))
             with self.assertRaises(ValueError):
                 service.undeploy(package.id, game)
+
+    def test_failed_copy_removes_partial_current_destination(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            profiles = ProfileService(root)
+            profiles.ensure_defaults()
+            incoming = root / "incoming"
+            incoming.mkdir()
+            (incoming / "package.json").write_text(json.dumps({"id": "partial.mod", "name": "Partial", "version": "1.0"}))
+            (incoming / "mod.lua").write_text("return {}")
+            service = PackageService(root, profiles)
+            package = service.install_from_directory(incoming)
+            profile = service.set_enabled(profiles.list()[0], package.id, True)
+            game = root / "game"
+            game.mkdir()
+            destination = game / "mods" / package.id
+
+            def partial_copy(_source, target):
+                Path(target).mkdir(parents=True)
+                (Path(target) / "partial.txt").write_text("incomplete")
+                raise OSError("simulated interrupted copy")
+
+            with mock.patch("core.packages.shutil.copytree", side_effect=partial_copy):
+                with self.assertRaises(OSError):
+                    service.deploy_ready(profile, game)
+            self.assertFalse(destination.exists())
 
     def test_deployment_plan_marks_missing_source_as_missing(self):
         with tempfile.TemporaryDirectory() as temp:
