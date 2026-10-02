@@ -7,6 +7,7 @@ from unittest.mock import Mock
 from pathlib import Path
 
 from core.application import EmbervaultRuntime
+from core.operations import OperationStatus
 from control_center.backend import ControlCenterBackend
 
 
@@ -43,6 +44,18 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(root)
             backend = ControlCenterBackend(root, runtime=runtime)
             self.assertIn("not staged", backend.tuningAdapterStatus)
+
+    def test_backend_recovers_staged_adapter_from_operation_history(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            package = root / "staging" / "EV-OP-RECOVER-eml-tuning-adapter"
+            package.mkdir(parents=True)
+            operation = runtime.operations.start("tuning-adapter-stage", profile_id="research")
+            runtime.operations.finish(operation, OperationStatus.SUCCEEDED, f"Staged EML adapter payload at {package}")
+            recovered = ControlCenterBackend(root, runtime=EmbervaultRuntime.create(root))
+            self.assertEqual(recovered._staged_adapter_package, package)
+            self.assertEqual(recovered._staged_adapter_operation_id, operation.id)
 
     def test_backend_exposes_selected_profile_index(self):
         with tempfile.TemporaryDirectory() as temp:

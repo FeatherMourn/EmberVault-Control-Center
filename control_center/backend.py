@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 import json
 import subprocess
+import re
 
 from core.application import EmbervaultRuntime
 from core.game_detection import GameDetector
@@ -73,6 +74,31 @@ class ControlCenterBackend(QObject):
         self._staged_adapter_package = None
         self._staged_adapter_operation_id = None
         self._adapter_deployed = False
+        self._restore_adapter_operation_state()
+
+    def _restore_adapter_operation_state(self) -> None:
+        """Recover adapter lifecycle state from durable operation history."""
+        if not self.operations:
+            return
+        for operation in self.operations.list_recent(limit=200):
+            if operation.status != OperationStatus.SUCCEEDED:
+                continue
+            if operation.operation_type == "tuning-adapter-rollback":
+                self._staged_adapter_package = None
+                self._staged_adapter_operation_id = None
+                self._adapter_deployed = False
+                return
+            if operation.operation_type == "tuning-adapter-deploy":
+                self._adapter_deployed = True
+                continue
+            if operation.operation_type == "tuning-adapter-stage":
+                match = re.search(r" at (.+)$", operation.message)
+                if match:
+                    staged = Path(match.group(1))
+                    if staged.is_dir():
+                        self._staged_adapter_package = staged
+                        self._staged_adapter_operation_id = operation.id
+                return
 
     @Property(str, notify=stateChanged)
     def gameStatus(self):
@@ -205,7 +231,7 @@ class ControlCenterBackend(QObject):
             self._staged_adapter_package = staged
             self._staged_adapter_operation_id = operation_id
             if operation and self.operations:
-                self.operations.finish(operation, OperationStatus.SUCCEEDED, "Staged EML adapter payload")
+                self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Staged EML adapter payload at {staged}")
             self._last_save_message = f"Staged owned EML adapter for {values['base_crit_chance']} — ready for confirmation"
             self.stateChanged.emit()
             return self._last_save_message
