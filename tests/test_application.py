@@ -350,6 +350,23 @@ class ApplicationCompositionTests(unittest.TestCase):
             )
             self.assertTrue(result["readback_verified"])
 
+    def test_eml_tuning_adapter_deploys_only_owned_staged_package(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            service = TuningAdapterService(root)
+            package = Path(__file__).parents[1] / "packages" / "eml-tuning-adapter"
+            staged = service.stage_package(package, root / "staging", 0.2, "EV-OP-3")
+            game = root / "game"
+            destination = service.deploy_staged_package(staged, game, game_running=False)
+            self.assertTrue((destination / ".embervault-managed.json").exists())
+            service.undeploy_adapter(game)
+            self.assertFalse(destination.exists())
+
     def test_catalog_sync_writes_repository_ready_snapshot(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

@@ -157,3 +157,43 @@ class TuningAdapterService:
         return {"operation_id": operation_id, "old_value": float(match.group(1)),
                 "new_value": float(match.group(2)), "readback_verified": True}
 
+    def deploy_staged_package(self, staged_package: Path, game_directory: Path,
+                              *, game_running: bool) -> Path:
+        """Deploy only the owned staged adapter to an empty mods destination."""
+        if game_running:
+            raise PermissionError("Close Enshrouded before deploying the adapter")
+        staged_package = Path(staged_package)
+        manifest = json.loads((staged_package / "package.json").read_text(encoding="utf-8"))
+        if manifest.get("id") != "embervault.eml-tuning-adapter" \
+                or manifest.get("ownership") != "embervault-control-center":
+            raise PermissionError("Staged package ownership is not recognized")
+        destination = Path(game_directory) / "mods" / manifest["id"]
+        if destination.exists():
+            raise FileExistsError("Adapter destination already exists; refusing to overwrite")
+        created = False
+        try:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(staged_package, destination)
+            (destination / ".embervault-managed.json").write_text(json.dumps({
+                "package_id": manifest["id"],
+                "managed_by": "embervault-control-center",
+            }, indent=2) + "\n", encoding="utf-8")
+            created = True
+            return destination
+        except (OSError, shutil.Error):
+            if created or destination.exists():
+                shutil.rmtree(destination, ignore_errors=True)
+            raise
+
+    def undeploy_adapter(self, game_directory: Path) -> None:
+        """Remove only the adapter destination bearing EmberVault ownership."""
+        destination = Path(game_directory) / "mods" / "embervault.eml-tuning-adapter"
+        marker = destination / ".embervault-managed.json"
+        if not destination.is_dir() or destination.is_symlink():
+            raise ValueError("Managed adapter destination does not exist")
+        metadata = json.loads(marker.read_text(encoding="utf-8"))
+        if metadata.get("package_id") != "embervault.eml-tuning-adapter" \
+                or metadata.get("managed_by") != "embervault-control-center":
+            raise PermissionError("Refusing to remove an unowned adapter")
+        shutil.rmtree(destination)
+
