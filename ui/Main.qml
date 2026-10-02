@@ -338,9 +338,9 @@ ApplicationWindow {
             Button { text: "Audit staged settings safely"; onClicked: controlCenter.launchTuningAudit() }
             Button { text: "Prepare EML operation (no write)"; onClicked: controlCenter.prepareTuningOperation() }
             Button { text: "Stage EML adapter payload"; onClicked: controlCenter.stageTuningAdapter() }
-            Button { text: "Deploy staged EML adapter"; onClicked: adapterDeployDialog.open() }
-            Button { text: "Verify latest EML readback"; onClicked: controlCenter.verifyTuningAdapter() }
-            Button { text: "Rollback EmberVault EML adapter"; onClicked: adapterRollbackDialog.open() }
+            Button { text: "Deploy staged EML adapter"; enabled: controlCenter.canDeployTuningAdapter; onClicked: adapterDeployDialog.open() }
+            Button { text: "Verify latest EML readback"; enabled: controlCenter.canVerifyTuningAdapter; onClicked: controlCenter.verifyTuningAdapter() }
+            Button { text: "Rollback EmberVault EML adapter"; enabled: controlCenter.canRollbackTuningAdapter; onClicked: adapterRollbackDialog.open() }
             Dialog {
                 id: adapterDeployDialog
                 title: "Deploy EmberVault EML adapter?"

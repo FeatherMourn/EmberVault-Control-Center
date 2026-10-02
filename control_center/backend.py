@@ -142,6 +142,19 @@ class ControlCenterBackend(QObject):
         except ValueError as exc:
             return f"EML adapter blocked · {exc}"
 
+    @Property(bool, notify=stateChanged)
+    def canDeployTuningAdapter(self):
+        return bool(self._staged_adapter_package and self.settings.game_path
+                    and not self.detector.is_running())
+
+    @Property(bool, notify=stateChanged)
+    def canVerifyTuningAdapter(self):
+        return bool(self._staged_adapter_operation_id and self.settings.game_path)
+
+    @Property(bool, notify=stateChanged)
+    def canRollbackTuningAdapter(self):
+        return bool(self.settings.game_path and not self.detector.is_running())
+
     @Slot(result=str)
     def prepareTuningOperation(self):
         if not self.tuning_adapter or not self.game_settings:
