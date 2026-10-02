@@ -43,4 +43,7 @@ class ModuleLaunchService:
         decision = self.check(module_id, capability, profile, backup_id)
         if not decision.allowed:
             raise PermissionError(" ".join(decision.reasons))
+        if backup_id and not context.backup_id:
+            context = LaunchContext(context.profile_id, context.game_path, context.operation_id,
+                                    backup_id, context.settings_manifest)
         return self.registry.launch(module_id, context)
