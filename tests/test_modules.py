@@ -109,6 +109,19 @@ class ModuleRegistryTests(unittest.TestCase):
             loaded = registry.load_embedded(manifest.id)
             self.assertEqual(loaded.describe()["id"], manifest.id)
 
+    def test_save_manager_installs_and_loads_embedded_contract(self):
+        module_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault_Save_Manager")
+        sdk_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Module-SDK")
+        if not (module_root / "module.json").is_file():
+            self.skipTest("Save Manager checkout is not available")
+        if sdk_root.is_dir() and str(sdk_root) not in sys.path:
+            sys.path.insert(0, str(sdk_root))
+        with tempfile.TemporaryDirectory() as temp:
+            registry = ModuleRegistry(Path(temp) / "modules")
+            manifest = registry.install_from_directory(module_root)
+            loaded = registry.load_embedded(manifest.id)
+            self.assertEqual(loaded.describe()["id"], manifest.id)
+
     def test_guarded_content_launch_requires_recovery_token(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

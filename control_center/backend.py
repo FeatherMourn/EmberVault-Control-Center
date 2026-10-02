@@ -2195,7 +2195,29 @@ class ControlCenterBackend(QObject):
             self._last_save_message = "Preview the selected restore before restoring"
         else:
             try:
-                if self.save_workflow:
+                save_module = self.modules.get("embervault.save-manager") if self.modules else None
+                if save_module:
+                    current = self.save_manager.backup(Path(self._save_directory), "automatic-before-restore")
+                    if not self.save_manager.verify_backup(self._selected_backup_id):
+                        raise SaveManagerError("Selected source backup is not verified")
+                    operation = self.operations.start("save-restore", profile_id=self._selected_profile_id,
+                                                      backup_id=current.id) if self.operations else None
+                    loaded = self.modules.load_embedded(save_module.id)
+                    planner = getattr(loaded, "plan_restore", None)
+                    if not callable(planner):
+                        raise ValueError("Save Manager does not provide restore planning")
+                    from embervault_sdk import ModuleContext
+                    plan = planner(ModuleContext(
+                        save_module.id, self._selected_profile_id, operation.id if operation else None,
+                        "approved", current.id,
+                    ), self._selected_backup_id, self.save_manager.verify_backup(current.id))
+                    if plan.status != "ready":
+                        raise ValueError(plan.message)
+                    self.save_manager.restore(self._selected_backup_id, Path(self._save_directory), current_backup=current)
+                    if operation and self.operations:
+                        self.operations.finish(operation, OperationStatus.SUCCEEDED, "Save restored and verified", current.id)
+                    operation_id = operation.id if operation else "legacy"
+                elif self.save_workflow:
                     result = self.save_workflow.restore(
                         self._selected_backup_id, Path(self._save_directory), self._selected_profile_id
                     )
