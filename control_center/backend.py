@@ -214,7 +214,15 @@ class ControlCenterBackend(QObject):
             self.stateChanged.emit()
             return self._last_save_message
         except (OSError, ValueError, KeyError) as exc:
-            self._last_save_message = f"EML verification failed: {exc}"
+            rollback_note = ""
+            if self._adapter_deployed:
+                try:
+                    self.tuning_adapter.undeploy_adapter(Path(self.settings.game_path))
+                    self._adapter_deployed = False
+                    rollback_note = " EmberVault adapter was rolled back."
+                except (OSError, ValueError, PermissionError) as rollback_exc:
+                    rollback_note = f" Rollback also failed: {rollback_exc}."
+            self._last_save_message = f"EML verification failed: {exc}.{rollback_note}"
             self.stateChanged.emit()
             return self._last_save_message
     @Slot(result=str)
