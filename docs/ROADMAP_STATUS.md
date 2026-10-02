@@ -49,10 +49,14 @@ deliberately non-mutating; Research includes a
 
 - Python unit suite currently covers the Core services, workflows, module gates,
   profile isolation, package contracts, packaging assets, and installed-process
-  contracts (204 tests).
+  contracts (205 tests).
 - QML is smoke-tested through an offscreen Qt application.
 - Wheels have been built and installed into isolated temporary targets; the
   packaged launcher passes its offscreen smoke test, which asserts discovery of
   five modules and eight knowledge entries. The package-manifest schema is
   present in the installed wheel data.
 - Save Manager remains inspection/backup/verification/restore-only.
+- A fresh wheel build has passed release-asset verification with all 24 required
+  packaged assets, and the offscreen launcher smoke test passes. The default
+  catalog sync command includes the reviewed adapter and seeded knowledge assets;
+  isolated exports can still provide `--data-root` explicitly.
