@@ -72,6 +72,7 @@ class ControlCenterBackend(QObject):
         self._knowledge_query = ""
         self._staged_adapter_package = None
         self._staged_adapter_operation_id = None
+        self._adapter_deployed = False
 
     @Property(str, notify=stateChanged)
     def gameStatus(self):
@@ -226,10 +227,26 @@ class ControlCenterBackend(QObject):
                 game_running=self._game_status == "Running",
             )
             self._last_save_message = f"Deployed owned EML adapter to {destination}; launch verification pending"
+            self._adapter_deployed = True
             self.stateChanged.emit()
             return self._last_save_message
         except (OSError, ValueError, PermissionError) as exc:
             self._last_save_message = str(exc)
+            self.stateChanged.emit()
+            return self._last_save_message
+
+    @Slot(result=str)
+    def rollbackTuningAdapter(self):
+        if not self.tuning_adapter or not self.settings.game_path:
+            return "Configure the game folder first"
+        try:
+            self.tuning_adapter.undeploy_adapter(Path(self.settings.game_path))
+            self._adapter_deployed = False
+            self._last_save_message = "Removed the EmberVault-owned EML adapter; existing mods were not changed"
+            self.stateChanged.emit()
+            return self._last_save_message
+        except (OSError, ValueError, PermissionError) as exc:
+            self._last_save_message = f"EML adapter rollback failed: {exc}"
             self.stateChanged.emit()
             return self._last_save_message
 

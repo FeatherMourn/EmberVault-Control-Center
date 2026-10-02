@@ -380,6 +380,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             service.undeploy_adapter(game)
             self.assertFalse(destination.exists())
 
+    def test_eml_tuning_adapter_refuses_unowned_rollback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            from core.tuning_adapter import TuningAdapterService
+            game = Path(temp) / "game" / "mods" / "embervault.eml-tuning-adapter"
+            game.mkdir(parents=True)
+            (game / ".embervault-managed.json").write_text(json.dumps({"package_id": "other.mod", "managed_by": "other"}), encoding="utf-8")
+            with self.assertRaises(PermissionError):
+                TuningAdapterService(Path(temp)).undeploy_adapter(Path(temp) / "game")
+
     def test_catalog_sync_writes_repository_ready_snapshot(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
