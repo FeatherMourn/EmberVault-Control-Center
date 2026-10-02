@@ -240,6 +240,19 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertEqual(payload["record"]["linked_module_count"], 1)
             self.assertNotIn("clean research profile", exported.read_text(encoding="utf-8"))
 
+    def test_research_context_changes_retract_publication(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            record = runtime.research.create("Public study", "Documented", "research")
+            runtime.research.add_reproduction_step(record.id, "Repeat the observation")
+            runtime.research.add_evidence(record.id, "Observed")
+            runtime.research.set_status(record.id, "completed")
+            published = runtime.research.publish(record.id)
+            self.assertTrue(published.published)
+            changed = runtime.research.link_context(record.id, modules=["embervault.research"])
+            self.assertFalse(changed.published)
+            self.assertEqual(runtime.catalog.build()["research"], [])
+
     def test_knowledge_catalog_searches_seeded_entries(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

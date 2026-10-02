@@ -144,6 +144,9 @@ class ResearchService:
                     raise ValueError("Approved research requires evidence and reproduction steps")
                 record.promotion_status = status
                 record.promotion_note = note.strip()
+                if record.published:
+                    record.published = False
+                    record.published_at = ""
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
@@ -161,6 +164,9 @@ class ResearchService:
                         if not isinstance(values, list) or any(not isinstance(value, str) or not value.strip() for value in values):
                             raise ValueError("Research links must be non-empty string IDs")
                         setattr(record, field_name, sorted(set(value.strip() for value in values)))
+                if record.published:
+                    record.published = False
+                    record.published_at = ""
                 write_json_atomic(self.path, [asdict(item) for item in records])
                 return record
         raise KeyError(record_id)
