@@ -54,6 +54,7 @@ class ControlCenterBackend(QObject):
         self.research = runtime.research if runtime else None
         self.knowledge = runtime.knowledge if runtime else None
         self.catalog = runtime.catalog if runtime else None
+        self.community_sync = runtime.community_sync if runtime else None
         self.content = runtime.content if runtime else None
         self.trainer = runtime.trainer if runtime else None
         self.tuning_adapter = runtime.tuning_adapter if runtime else None
@@ -913,6 +914,17 @@ class ControlCenterBackend(QObject):
                     self.operations.finish(operation, OperationStatus.FAILED, str(exc))
                 self._last_save_message = str(exc)
             self.stateChanged.emit()
+
+    @Slot()
+    def stageCommunityHandoff(self):
+        if not self.community_sync:
+            return
+        try:
+            destination = self.community_sync.stage()
+            self._last_save_message = f"Staged website handoff at {destination}"
+        except (OSError, ValueError) as exc:
+            self._last_save_message = str(exc)
+        self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
     def contentOptions(self):

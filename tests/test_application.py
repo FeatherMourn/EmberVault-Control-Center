@@ -1079,6 +1079,20 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIn("Oak frame", project.design_notes)
             self.assertEqual(runtime.saves.list_backups(), [])
 
+    def test_community_handoff_is_validated_and_conflicts_are_not_overwritten(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            staged = runtime.community_sync.stage()
+            payload = json.loads(staged.read_text(encoding="utf-8"))
+            self.assertEqual(payload["authority"], "website")
+            self.assertEqual(runtime.community_sync.compare(payload, payload)["status"], "identical")
+            remote = json.loads(json.dumps(payload))
+            remote["catalog"]["generated_at"] = "remote-version"
+            result = runtime.community_sync.import_remote(remote)
+            self.assertEqual(result["status"], "conflict")
+            self.assertTrue(result["review_required"])
+            self.assertFalse(result["automatic_overwrite"])
+
     def test_research_collaboration_records_evidence_comparisons_and_report(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

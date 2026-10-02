@@ -484,6 +484,7 @@ ApplicationWindow {
             Text { text: "A local knowledge catalog explains safety rules, profile isolation, and module boundaries. PUBLIC entries are safe for catalog export; PRIVATE entries remain local."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Button { text: "Export website catalog"; onClicked: controlCenter.exportCatalog() }
             Button { text: "Publish catalog to repository folder"; onClicked: controlCenter.syncCatalogFolder() }
+            Button { text: "Stage conflict-safe website handoff"; onClicked: controlCenter.stageCommunityHandoff() }
             TextField { placeholderText: "Search knowledge"; Layout.fillWidth: true; onTextChanged: controlCenter.searchKnowledge(text) }
             TextField { id: knowledgeTitle; placeholderText: "Knowledge title"; Layout.fillWidth: true }
             TextField { id: knowledgeCategory; placeholderText: "Category"; Layout.fillWidth: true }
