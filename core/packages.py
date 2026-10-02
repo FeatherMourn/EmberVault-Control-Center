@@ -51,11 +51,18 @@ class PackageManifest:
             raise ValueError("Package required_builds and dependencies must be arrays")
         if any(not isinstance(value, str) for value in [*raw_required_builds, *raw_dependencies]):
             raise ValueError("Package build and dependency entries must be strings")
+        for field_name in ("author", "description"):
+            if field_name in data and not isinstance(data[field_name], str):
+                raise ValueError(f"Package {field_name} must be a string")
         package_type = data.get("package_type", "mod")
         if not isinstance(package_type, str) or not package_type.strip():
             raise ValueError("Package type must be a non-empty string")
-        required_builds = tuple(str(value).strip() for value in raw_required_builds if str(value).strip())
-        dependencies = tuple(str(value) for value in raw_dependencies)
+        required_builds = tuple(value.strip() for value in raw_required_builds)
+        if any(not value for value in required_builds):
+            raise ValueError("Package required_builds entries must be non-empty strings")
+        if len(set(required_builds)) != len(required_builds):
+            raise ValueError("Package required_builds must be unique")
+        dependencies = tuple(value.strip() for value in raw_dependencies)
         if any(not dependency or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for char in dependency) for dependency in dependencies):
             raise ValueError("Package dependency contains invalid characters")
         if len(set(dependencies)) != len(dependencies):

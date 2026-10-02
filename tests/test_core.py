@@ -764,7 +764,7 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PackageService(root, profiles).install_from_directory(incoming)
 
-    def test_package_manifest_normalizes_blank_required_builds(self):
+    def test_package_manifest_rejects_blank_required_builds(self):
         with tempfile.TemporaryDirectory() as temp:
             package = Path(temp) / "package"
             package.mkdir()
@@ -772,7 +772,23 @@ class CoreServiceTests(unittest.TestCase):
                 "id": "test.mod", "name": "Test", "version": "1.0",
                 "required_builds": [" 123 ", "", "  "],
             }))
-            self.assertEqual(PackageManifest.from_file(package / "package.json").required_builds, ("123",))
+            with self.assertRaises(ValueError):
+                PackageManifest.from_file(package / "package.json")
+
+    def test_package_manifest_rejects_weak_optional_types_and_duplicate_builds(self):
+        with tempfile.TemporaryDirectory() as temp:
+            package = Path(temp) / "package"
+            package.mkdir()
+            cases = [
+                {"id": "typed.mod", "name": "Typed", "version": "1.0", "author": 7},
+                {"id": "typed.mod", "name": "Typed", "version": "1.0", "description": None},
+                {"id": "typed.mod", "name": "Typed", "version": "1.0", "required_builds": ["1", "1"]},
+            ]
+            for index, payload in enumerate(cases):
+                manifest = package / f"manifest-{index}.json"
+                manifest.write_text(json.dumps(payload))
+                with self.assertRaises(ValueError):
+                    PackageManifest.from_file(manifest)
 
     def test_package_manifest_rejects_non_string_build_or_dependency_entries(self):
         with tempfile.TemporaryDirectory() as temp:
