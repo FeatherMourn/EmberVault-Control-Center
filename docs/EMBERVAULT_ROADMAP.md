@@ -105,7 +105,7 @@ Exit criteria:
 
 ## Stage 5 — Module framework standardization
 
-Status: substantially complete; maintain through module work.
+Status: complete; maintain through module work.
 
 - Standard module manifest.
 - Standard module lifecycle.

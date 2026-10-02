@@ -384,6 +384,14 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertNotIn("source", record)
             self.assertNotIn("mutation_scope", record)
 
+    def test_catalog_sanitizes_internal_module_metadata(self):
+        with tempfile.TemporaryDirectory() as temp:
+            catalog = EmbervaultRuntime.create(Path(temp)).catalog.build()
+            module = next(item for item in catalog["modules"] if item["id"] == "embervault.example")
+            self.assertNotIn("safety", module)
+            self.assertNotIn("recovery", module)
+            self.assertNotIn("operation_types", module)
+
     def test_eml_tuning_adapter_loads_existing_reversible_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

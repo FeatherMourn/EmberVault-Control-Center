@@ -47,12 +47,22 @@ class CatalogExportService:
                     "feature_state": manifest["feature_state"], "process_mode": manifest["process_mode"],
                     "evidence_state": "reversible-runtime-evidence",
                 })
+        public_modules = []
+        for item in modules:
+            public_modules.append({
+                "id": item.id, "name": item.name, "version": item.version,
+                "publisher": item.publisher, "executable": item.executable,
+                "minimum_core_version": item.minimum_core_version,
+                "capabilities": list(item.capabilities), "feature_state": item.feature_state,
+                "entrypoint": item.entrypoint, "process_mode": item.process_mode,
+                "path": None,
+            })
         return {
             "schema_version": 1,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "contract_versions": {"module_manifest": 1, "package_manifest": 1, "research_record": 1, "content_project": 1, "tuning_adapter": 1},
             "packages": [asdict(item) | {"path": None} for item in packages],
-            "modules": [asdict(item) | {"path": None} for item in modules],
+            "modules": public_modules,
             "tuning_adapters": tuning_adapters,
             "knowledge": [{"id": item.id, "title": item.title, "category": item.category,
                            "summary": item.summary, "content": item.content,
