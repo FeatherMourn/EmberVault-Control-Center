@@ -333,6 +333,23 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertIn("resource.data.baseCritChance = 0.2", payload)
             self.assertNotIn("enshrouded_local.json", payload)
 
+    def test_eml_tuning_adapter_stages_owned_package_and_parses_readback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            package = Path(__file__).parents[1] / "packages" / "eml-tuning-adapter"
+            staged = TuningAdapterService(root).stage_package(package, root / "staging", 0.2, "EV-OP-2")
+            self.assertIn("resource.data.baseCritChance = 0.2", (staged / "src" / "mod.lua").read_text())
+            result = TuningAdapterService.parse_runtime_readback(
+                "[EMBERVAULT-EML-TUNING] write|field=baseCritChance|old=0.425|new=0.2 operation=EV-OP-2",
+                "EV-OP-2",
+            )
+            self.assertTrue(result["readback_verified"])
+
     def test_catalog_sync_writes_repository_ready_snapshot(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

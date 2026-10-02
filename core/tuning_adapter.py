@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import re
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -118,8 +120,40 @@ class TuningAdapterService:
             "local original = resource.data.baseCritChance",
             f"resource.data.baseCritChance = {value}",
             "local readback = resource.data.baseCritChance",
-            "print(PREFIX .. 'write|field=baseCritChance|old=' .. tostring(original) .. '|new=' .. tostring(readback))",
+            f"print(PREFIX .. 'write|field=baseCritChance|old=' .. tostring(original) .. '|new=' .. tostring(readback) .. '|operation={operation_id}')",
             "return {}",
             "",
         ])
+
+    def stage_package(self, source_package: Path, staging_root: Path,
+                      staged_value: float, operation_id: str) -> Path:
+        """Create an isolated adapter package copy with a generated payload."""
+        source_package = Path(source_package)
+        if source_package.name != "eml-tuning-adapter" or not source_package.is_dir():
+            raise ValueError("Only the owned EML adapter package may be staged")
+        manifest = json.loads((source_package / "package.json").read_text(encoding="utf-8"))
+        if manifest.get("ownership") != "embervault-control-center":
+            raise PermissionError("Adapter package ownership is not recognized")
+        destination = Path(staging_root) / f"{operation_id}-eml-tuning-adapter"
+        if destination.exists():
+            raise FileExistsError("Adapter staging destination already exists")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(source_package, destination)
+        (destination / "src" / "mod.lua").write_text(
+            self.render_payload(staged_value, operation_id), encoding="utf-8"
+        )
+        return destination
+
+    @staticmethod
+    def parse_runtime_readback(log_text: str, operation_id: str) -> dict[str, Any]:
+        """Parse one EML adapter line without treating registration as success."""
+        marker = f"operation={operation_id}"
+        lines = [line for line in log_text.splitlines() if marker in line and "[EMBERVAULT-EML-TUNING] write|" in line]
+        if len(lines) != 1:
+            raise ValueError("Expected exactly one EML adapter readback line")
+        match = re.search(r"old=([^|]+)\|new=([^|]+)", lines[0])
+        if not match:
+            raise ValueError("EML adapter readback is malformed")
+        return {"operation_id": operation_id, "old_value": float(match.group(1)),
+                "new_value": float(match.group(2)), "readback_verified": True}
 
