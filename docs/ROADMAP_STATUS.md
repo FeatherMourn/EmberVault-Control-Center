@@ -110,6 +110,11 @@ model, compatibility graph, recovery center, provenance system, test laboratory,
 marketplace contract, and promotion lifecycle:
 [`PLATFORM_EVOLUTION_ROADMAP.md`](PLATFORM_EVOLUTION_ROADMAP.md).
 
+Additional advanced capabilities are tracked in
+[`ADVANCED_CAPABILITIES_ROADMAP.md`](ADVANCED_CAPABILITIES_ROADMAP.md), including
+the local-first database, workspaces, simulation mode, support bundles, CLI/API,
+recovery rehearsal, release channels, trust scoring, and offline collaboration.
+
 The next distribution milestone includes a signed, review-first updater for the
 Control Center and independently packaged modules. Updates must be staged outside
 the running application, verified for compatibility, hashes, and signatures, and
