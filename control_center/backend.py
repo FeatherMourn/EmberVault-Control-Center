@@ -189,7 +189,7 @@ class ControlCenterBackend(QObject):
 
     @Property(bool, notify=stateChanged)
     def canVerifyTuningAdapter(self):
-        return bool(self._staged_adapter_operation_id and self.settings.game_path)
+        return bool(self._staged_adapter_operation_id and self._adapter_deployed and self.settings.game_path)
 
     @Property(bool, notify=stateChanged)
     def canRollbackTuningAdapter(self):
@@ -256,6 +256,8 @@ class ControlCenterBackend(QObject):
             return "Configure the game folder first"
         if not self._staged_adapter_operation_id:
             return "Stage an EML adapter payload first"
+        if not self._adapter_deployed:
+            return "Deploy the staged EML adapter first"
         profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
         if not profile:
             return "Select a profile first"
