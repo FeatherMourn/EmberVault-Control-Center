@@ -532,6 +532,26 @@ class ControlCenterBackend(QObject):
         ]
 
     @Property("QStringList", notify=stateChanged)
+    def dependencyGraph(self):
+        if not self.packages:
+            return []
+        return [f"{package_id} → {', '.join(dependencies) if dependencies else 'no dependencies'}"
+                for package_id, dependencies in sorted(self.packages.dependency_graph().items())]
+
+    @Property("QStringList", notify=stateChanged)
+    def profileComparison(self):
+        if not self.packages:
+            return []
+        current = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+        others = [item for item in self.profiles if item.id != self._selected_profile_id]
+        if not current or not others:
+            return ["No second profile available for comparison."]
+        comparison = self.packages.compare_profiles(current, others[0])
+        return [f"Compared with {others[0].name}", f"Only in {current.name}: {', '.join(comparison['only_left']) or 'none'}",
+                f"Only in {others[0].name}: {', '.join(comparison['only_right']) or 'none'}",
+                f"Shared: {', '.join(comparison['shared']) or 'none'}"]
+
+    @Property("QStringList", notify=stateChanged)
     def externalPackageOptions(self):
         if not self.packages or not self.settings.game_path:
             return []

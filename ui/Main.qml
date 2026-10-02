@@ -251,6 +251,10 @@ ApplicationWindow {
             Text { text: "MY MODS"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
             Text { text: "Choose what this profile carries."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "Packages are enabled per profile. This first release only manages package state; it does not alter gameplay tuning or edit save contents."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Text { text: "Dependency graph"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater { model: controlCenter.dependencyGraph; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
+            Text { text: "Profile comparison"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater { model: controlCenter.profileComparison; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
             Text { text: controlCenter.packageOptions.length === 0 ? "No packages discovered yet." : "Available packages"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Text { text: controlCenter.externalPackageOptions.length === 0 ? "No unmanaged external mods detected." : "External mods already in the game folder"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater { model: controlCenter.externalPackageOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true } }
