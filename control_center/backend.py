@@ -1331,9 +1331,28 @@ class ControlCenterBackend(QObject):
         records = [item for item in self.characters.list() if item.profile_id == self._selected_profile_id] if self.characters else []
         if records:
             try:
-                result = self.characters.simulate_progression(records[-1].id, level)
-                self._last_save_message = f"Progression simulation: {result['levels_to_gain']} level(s), plan-only"
-            except (KeyError, ValueError) as exc:
+                record = records[-1]
+                if not self.modules or not self.modules.get("embervault.character-tools"):
+                    raise ValueError("Character Tools module is not installed")
+                loaded = self.modules.load_embedded("embervault.character-tools")
+                simulate = getattr(loaded, "simulate_progression", None)
+                if not callable(simulate):
+                    raise ValueError("Character Tools does not provide progression simulation")
+                from embervault_sdk import ModuleContext
+                operation = self.operations.start("character-progression-simulation", profile_id=record.profile_id) if self.operations else None
+                result = simulate(ModuleContext(
+                    module_id="embervault.character-tools",
+                    profile_id=record.profile_id,
+                    operation_id=operation.id if operation else None,
+                    capability_state="plan-only",
+                    backup_id=record.backup_id or None,
+                ), record.planned_level, level, list(record.progression_plan))
+                if result.status != "ready":
+                    raise ValueError(result.message)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, result.message)
+                self._last_save_message = f"Progression simulation: {result.data['levels_to_gain']} level(s), plan-only"
+            except (ImportError, KeyError, OSError, ValueError) as exc:
                 self._last_save_message = str(exc)
         else:
             self._last_save_message = "Create a character project first"
