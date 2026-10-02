@@ -9,10 +9,19 @@ from pathlib import Path
 from core.application import EmbervaultRuntime
 from core.operations import OperationStatus
 from core.integration import IntegrationContext
+from core.promotion import PromotionEvidence
 from control_center.backend import ControlCenterBackend
 
 
 class ApplicationCompositionTests(unittest.TestCase):
+    def test_promotion_requires_all_lifecycle_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = EmbervaultRuntime.create(Path(temp))
+            evidence = PromotionEvidence("embervault.eml", "1076226", True, True, True, True, "EmberVault", True)
+            decision = runtime.promotion.promote(evidence, "verified")
+            self.assertEqual(decision["target_state"], "verified")
+            with self.assertRaises(ValueError):
+                runtime.promotion.promote(PromotionEvidence("x", "1076226", True, False, True, True, "owner", True), "stable")
     def test_runtime_composes_services_and_reports_health(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))

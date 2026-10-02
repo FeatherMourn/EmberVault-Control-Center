@@ -24,6 +24,7 @@ from .settings import SettingsService
 from .troubleshooter import TroubleshooterService
 from .trainer import TrainerPlanService
 from .tuning_adapter import TuningAdapterService
+from .promotion import PromotionService
 
 
 @dataclass
@@ -49,6 +50,7 @@ class EmbervaultRuntime:
     content: ContentProjectService
     trainer: TrainerPlanService
     tuning_adapter: TuningAdapterService
+    promotion: PromotionService
 
     @classmethod
     def create(cls, root: Path) -> "EmbervaultRuntime":
@@ -75,6 +77,7 @@ class EmbervaultRuntime:
             content=None,
             trainer=None,
             tuning_adapter=None,
+            promotion=None,
         )
         runtime.save_workflow = SaveWorkflowService(runtime.saves, runtime.operations, runtime.logs)
         runtime.profiles.ensure_defaults()
@@ -92,6 +95,7 @@ class EmbervaultRuntime:
         runtime.risk = RiskGateService(runtime.saves)
         runtime.launcher = ModuleLaunchService(runtime.modules, runtime.risk)
         runtime.tuning_adapter = TuningAdapterService(root)
+        runtime.promotion = PromotionService(root)
         runtime.catalog = CatalogExportService(root, runtime.modules, runtime.packages, runtime.knowledge, runtime.research, runtime.tuning_adapter)
         runtime.content = ContentProjectService(root)
         runtime.trainer = TrainerPlanService(root, runtime.saves)
