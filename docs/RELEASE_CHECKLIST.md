@@ -39,6 +39,8 @@
 - [x] Review embedded and separate-process boundaries in
       `docs/MODULE_BOUNDARIES.md`.
 - [x] Review the security and recovery audit in `docs/SECURITY_AUDIT.md`.
+- [ ] Complete the human user-acceptance checklist in `docs/USER_ACCEPTANCE.md`
+      against a clean installed build.
 
 ## Packaging
 
