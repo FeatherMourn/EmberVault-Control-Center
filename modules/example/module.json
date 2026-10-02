@@ -7,5 +7,9 @@
   "capabilities": ["example.inspect"],
   "feature_state": "experimental",
   "process_mode": "embedded",
-  "entrypoint": "module.py"
+  "entrypoint": "module.py",
+  "contract_version": 1,
+  "safety": {"read_only": true, "requires_backup": false, "allowed_profiles": ["default", "research"]},
+  "recovery": {"rollback": "No mutation is performed.", "verification": "Inspect the returned descriptor."},
+  "operation_types": ["example-inspection"]
 }

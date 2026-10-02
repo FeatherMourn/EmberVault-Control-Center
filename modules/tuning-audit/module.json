@@ -7,5 +7,9 @@
   "capabilities": ["tuning-audit"],
   "feature_state": "experimental",
   "process_mode": "separate",
-  "executable": "tuning_stub.py"
+  "executable": "tuning_stub.py",
+  "contract_version": 1,
+  "safety": {"read_only": true, "requires_backup": true, "allowed_profiles": ["research"]},
+  "recovery": {"rollback": "Remove only the staged adapter package.", "verification": "Verify staged settings and adapter evidence."},
+  "operation_types": ["tuning-audit"]
 }

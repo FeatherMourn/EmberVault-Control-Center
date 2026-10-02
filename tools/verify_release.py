@@ -66,6 +66,17 @@ def main() -> int:
         if not isinstance(knowledge, list) or not knowledge:
             print("Packaged knowledge catalog must contain at least one entry")
             return 1
+        for relative in REQUIRED:
+            if not relative.startswith("modules/") or not relative.endswith("module.json"):
+                continue
+            manifest = json.loads(archive.read(packaged_path(relative)).decode("utf-8"))
+            required = ("contract_version", "safety", "recovery", "operation_types")
+            if any(key not in manifest for key in required):
+                print(f"Module manifest is missing contract safety fields: {relative}")
+                return 1
+            if not isinstance(manifest["safety"], dict) or not isinstance(manifest["recovery"], dict):
+                print(f"Module manifest safety/recovery fields are invalid: {relative}")
+                return 1
     print(f"Release asset verification passed: {len(REQUIRED)} assets")
     return 0
 

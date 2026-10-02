@@ -7,5 +7,9 @@
   "capabilities": ["content-creator"],
   "feature_state": "experimental",
   "process_mode": "separate",
-  "executable": "content_stub.py"
+  "executable": "content_stub.py",
+  "contract_version": 1,
+  "safety": {"read_only": true, "requires_backup": false, "allowed_profiles": ["default", "research"]},
+  "recovery": {"rollback": "Terminate the worker; design records remain with Control Center.", "verification": "Worker performs no live game mutation."},
+  "operation_types": ["content-audit"]
 }

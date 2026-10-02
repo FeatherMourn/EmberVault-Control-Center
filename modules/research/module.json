@@ -7,5 +7,9 @@
   "capabilities": ["research"],
   "feature_state": "experimental",
   "process_mode": "separate",
-  "executable": "research_stub.py"
+  "executable": "research_stub.py",
+  "contract_version": 1,
+  "safety": {"read_only": true, "requires_backup": false, "allowed_profiles": ["research"]},
+  "recovery": {"rollback": "Terminate the worker; records remain with Control Center.", "verification": "Worker output is evidence only."},
+  "operation_types": ["research-evidence"]
 }

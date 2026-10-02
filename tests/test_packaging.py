@@ -77,6 +77,13 @@ class PackagingContractTests(unittest.TestCase):
         verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
         self.assertIn('"contracts/trainer-plan.schema.json"', verifier)
 
+    def test_seed_module_manifests_declare_safety_and_recovery(self):
+        for path in (Path(__file__).parents[1] / "modules").glob("*/module.json"):
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+            self.assertIn("safety", manifest, path)
+            self.assertIn("recovery", manifest, path)
+            self.assertIn("operation_types", manifest, path)
+
     def test_release_verifier_lists_tuning_adapter_contract(self):
         root = Path(__file__).resolve().parents[1]
         verifier = (root / "tools" / "verify_release.py").read_text(encoding="utf-8")
