@@ -160,6 +160,28 @@ class PackageService:
         """Return a stable package-to-dependency graph for UI and tooling."""
         return {package.id: sorted(package.dependencies) for package in self.list()}
 
+    def update_candidates(self, available: list[dict] | None = None) -> list[dict]:
+        """Compare installed package versions with a trusted metadata list."""
+        available = available or []
+        remote = {item.get("id"): item for item in available if isinstance(item, dict) and isinstance(item.get("id"), str)}
+        result = []
+        for package in self.list():
+            candidate = remote.get(package.id)
+            if not candidate or not isinstance(candidate.get("version"), str):
+                continue
+            if self._version_key(candidate["version"]) > self._version_key(package.version):
+                result.append({"id": package.id, "installed": package.version,
+                               "available": candidate["version"], "managed": bool(package.path)})
+        return result
+
+    @staticmethod
+    def _version_key(version: str) -> tuple:
+        parts = []
+        for value in str(version).split("."):
+            digits = "".join(char for char in value if char.isdigit())
+            parts.append(int(digits or 0))
+        return tuple((parts + [0, 0, 0])[:3])
+
     def compare_profiles(self, left: Profile, right: Profile) -> dict[str, list[str]]:
         left_ids, right_ids = set(left.enabled_packages), set(right.enabled_packages)
         return {"only_left": sorted(left_ids - right_ids),

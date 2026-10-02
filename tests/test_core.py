@@ -950,6 +950,17 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(service.dependency_graph()["addon.mod"], ["base.mod"])
             self.assertEqual(comparison["only_left"], ["addon.mod"])
 
+    def test_package_update_detection_and_profile_portability(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); profiles = ProfileService(root); profiles.ensure_defaults()
+            folder = root / "packages" / "demo.mod"; folder.mkdir(parents=True)
+            (folder / "package.json").write_text(json.dumps({"id": "demo.mod", "name": "Demo", "version": "1.0.0"}))
+            packages = PackageService(root, profiles); packages.discover()
+            self.assertEqual(packages.update_candidates([{"id": "demo.mod", "version": "1.1.0"}])[0]["available"], "1.1.0")
+            exported = profiles.export_profile("default", root / "default.json")
+            imported = profiles.import_profile(exported, new_id="copied")
+            self.assertEqual(imported.id, "copied")
+
 
 if __name__ == "__main__":
     unittest.main()

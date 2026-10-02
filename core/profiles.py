@@ -101,3 +101,24 @@ class ProfileService:
         if not target.is_file():
             raise ValueError(f"Unknown profile: {profile_id}")
         target.unlink()
+
+    def export_profile(self, profile_id: str, destination: Path) -> Path:
+        profile = next((item for item in self.list() if item.id == profile_id), None)
+        if not profile:
+            raise ValueError(f"Unknown profile: {profile_id}")
+        destination = Path(destination)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(json.dumps({"schema_version": 1, "profile": asdict(profile)}, indent=2) + "\n", encoding="utf-8")
+        return destination
+
+    def import_profile(self, source: Path, *, new_id: str | None = None) -> Profile:
+        raw = json.loads(Path(source).read_text(encoding="utf-8"))
+        if not isinstance(raw, dict) or raw.get("schema_version") != 1 or not isinstance(raw.get("profile"), dict):
+            raise ValueError("Invalid profile export")
+        data = dict(raw["profile"])
+        data["id"] = new_id or data.get("id")
+        if not isinstance(data.get("id"), str) or any(item.id == data["id"] for item in self.list()):
+            raise ValueError("Imported profile ID is missing or already exists")
+        profile = Profile(**data)
+        self.save(profile)
+        return profile
