@@ -75,6 +75,23 @@ class ApplicationCompositionTests(unittest.TestCase):
             self.assertTrue(recovered._adapter_deployed)
             self.assertIn("deployed; launch verification pending", recovered.tuningAdapterStatus)
 
+    def test_backend_honors_adapter_rollback_as_terminal_recovery_state(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            runtime = EmbervaultRuntime.create(root)
+            staged = root / "staging" / "EV-OP-ROLLBACK-eml-tuning-adapter"
+            staged.mkdir(parents=True)
+            stage = runtime.operations.start("tuning-adapter-stage", profile_id="research")
+            runtime.operations.finish(stage, OperationStatus.SUCCEEDED, f"Staged EML adapter payload at {staged}")
+            deploy = runtime.operations.start("tuning-adapter-deploy", profile_id="research")
+            runtime.operations.finish(deploy, OperationStatus.SUCCEEDED, "Deployed owned EML adapter")
+            rollback = runtime.operations.start("tuning-adapter-rollback", profile_id="research")
+            runtime.operations.finish(rollback, OperationStatus.SUCCEEDED, "Removed owned EML adapter")
+            recovered = ControlCenterBackend(root, runtime=EmbervaultRuntime.create(root))
+            self.assertIsNone(recovered._staged_adapter_package)
+            self.assertIsNone(recovered._staged_adapter_operation_id)
+            self.assertFalse(recovered._adapter_deployed)
+
     def test_backend_exposes_selected_profile_index(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
