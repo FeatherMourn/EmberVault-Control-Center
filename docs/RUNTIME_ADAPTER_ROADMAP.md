@@ -15,8 +15,9 @@ Before live mutation is enabled, the EML review packet must contain:
 - in-game readback or behavior evidence;
 - clean-session and failure-session logs.
 
-The first candidate remains one visible progression setting such as
-`player_level_cap`, tested in a disposable world/profile.
+The first completed candidate is the evidenced `baseCritChance` field on
+`keen::BalancingTable`, tested through the disposable Research-profile
+workflow. Additional settings require their own evidence packet.
 
 ## Shroudtopia — future adapter
 

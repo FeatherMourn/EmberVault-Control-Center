@@ -121,7 +121,7 @@ Exit criteria:
 
 ## Stage 6 — EML runtime adapter
 
-Status: in progress.
+Status: complete for the experimental EML milestone; promotion work remains.
 
 - EML manifest and build compatibility.
 - Explicit EML API version compatibility (`1.3` for the reviewed evidence).
