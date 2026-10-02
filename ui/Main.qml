@@ -245,6 +245,18 @@ ApplicationWindow {
             Button { text: "Install module folder"; onClicked: controlCenter.installModuleFolder() }
             ComboBox { id: embeddedModulePicker; model: controlCenter.embeddedModuleIds; Layout.fillWidth: true }
             Button { text: "Load selected embedded module"; enabled: embeddedModulePicker.currentText.length > 0; onClicked: controlCenter.loadEmbeddedModule(embeddedModulePicker.currentText) }
+            Text { text: "Module safety and capability status"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Repeater {
+                model: controlCenter.moduleHealthOptions
+                delegate: Rectangle {
+                    Layout.fillWidth: true
+                    height: 58
+                    radius: 7
+                    color: panel
+                    border.color: line
+                    Text { anchors.fill: parent; anchors.margins: 14; text: modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; verticalAlignment: Text.AlignVCenter }
+                }
+            }
             Repeater {
                 model: controlCenter.embeddedModuleOptions
                 delegate: Text { text: modelData; color: muted; font.pixelSize: 13; Layout.fillWidth: true }

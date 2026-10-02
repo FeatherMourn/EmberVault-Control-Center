@@ -22,6 +22,21 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertEqual(modules["embervault.demo"].name, "Demo")
             self.assertEqual([m.id for m in registry.by_capability("demo.read")], ["embervault.demo"])
 
+    def test_manifest_safety_and_recovery_metadata_are_available_for_dashboard(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "demo"
+            root.mkdir()
+            (root / "module.json").write_text(json.dumps({
+                "id": "embervault.dashboard", "name": "Dashboard", "version": "1.0.0",
+                "publisher": "Test", "capabilities": ["demo.read"], "feature_state": "experimental",
+                "process_mode": "embedded", "entrypoint": "module.py", "contract_version": 1,
+                "safety": {"read_only": True, "requires_backup": False, "allowed_profiles": ["default"]},
+                "recovery": {"rollback": "discard", "verification": "inspect"}, "operation_types": ["inspect"]
+            }))
+            manifest = ModuleRegistry(Path(temp)).discover()["embervault.dashboard"]
+            self.assertTrue(manifest.safety["read_only"])
+            self.assertIn("verification", manifest.recovery)
+
     def test_discovery_ignores_malformed_manifests(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "broken"
