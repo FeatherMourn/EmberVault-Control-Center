@@ -1085,6 +1085,45 @@ class ControlCenterBackend(QObject):
                 self._last_save_message = str(exc)
         self.stateChanged.emit()
 
+    def _update_latest_research_text(self, text: str, operation_type: str, action) -> None:
+        if not self.research:
+            return
+        records = [item for item in self.research.list() if item.profile_id == self._selected_profile_id]
+        if not records:
+            self._last_save_message = "Create a research record first"
+        else:
+            operation = self.operations.start(operation_type, profile_id=self._selected_profile_id) if self.operations else None
+            try:
+                record = action(records[-1].id, text)
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, f"Updated research {record.id}")
+                self._last_save_message = f"Updated research record {record.id}"
+            except (KeyError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot(str)
+    def addResearchReproductionStep(self, step: str):
+        self._update_latest_research_text(step, "research-reproduction-step",
+                                           lambda record_id, value: self.research.add_reproduction_step(record_id, value))
+
+    @Slot(str)
+    def addResearchFailure(self, failure: str):
+        self._update_latest_research_text(failure, "research-failure",
+                                           lambda record_id, value: self.research.add_failure(record_id, value))
+
+    @Slot(str)
+    def requestLatestResearchPromotion(self, note: str):
+        self._update_latest_research_text(note, "research-promotion-review",
+                                           lambda record_id, value: self.research.set_promotion_review(record_id, "requested", value))
+
+    @Slot(str)
+    def approveLatestResearchPromotion(self, note: str):
+        self._update_latest_research_text(note, "research-promotion-approval",
+                                           lambda record_id, value: self.research.set_promotion_review(record_id, "approved", value))
+
     @Slot(str)
     def setLatestResearchStatus(self, status: str):
         if not self.research:

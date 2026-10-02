@@ -383,11 +383,20 @@ ApplicationWindow {
             Button { text: "Create research record"; onClicked: controlCenter.createResearchRecord(titleField.text, hypothesisField.text) }
             TextField { id: evidenceField; placeholderText: "Evidence note for latest record"; Layout.fillWidth: true }
             Button { text: "Add evidence note"; onClicked: controlCenter.addResearchEvidence(evidenceField.text) }
+            TextField { id: reproductionField; placeholderText: "Reproduction step for latest record"; Layout.fillWidth: true }
+            Button { text: "Add reproduction step"; onClicked: controlCenter.addResearchReproductionStep(reproductionField.text) }
+            TextField { id: failureField; placeholderText: "Failure or deviation for latest record"; Layout.fillWidth: true }
+            Button { text: "Record failure"; onClicked: controlCenter.addResearchFailure(failureField.text) }
             RowLayout {
                 Button { text: "Mark running"; onClicked: controlCenter.setLatestResearchStatus("running") }
                 Button { text: "Mark completed"; onClicked: controlCenter.setLatestResearchStatus("completed") }
             }
             Button { text: "Publish latest completed research"; onClicked: controlCenter.publishLatestResearch() }
+            TextField { id: promotionField; placeholderText: "Promotion review note"; Layout.fillWidth: true }
+            RowLayout {
+                Button { text: "Request promotion review"; onClicked: controlCenter.requestLatestResearchPromotion(promotionField.text) }
+                Button { text: "Approve promotion"; onClicked: controlCenter.approveLatestResearchPromotion(promotionField.text) }
+            }
             Button { text: "Unpublish latest research"; onClicked: controlCenter.unpublishLatestResearch() }
             Button { text: "Export latest research summary"; onClicked: controlCenter.exportLatestResearchSummary() }
             Text { text: controlCenter.researchOptions.length === 0 ? "No research records yet." : "Research records"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
