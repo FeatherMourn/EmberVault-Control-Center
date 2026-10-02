@@ -510,6 +510,27 @@ class ApplicationCompositionTests(unittest.TestCase):
             )
             self.assertTrue(result["readback_verified"])
 
+    def test_eml_tuning_adapter_stages_multiple_controlled_values_in_isolated_directories(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            adapter_dir = root / "adapters"
+            adapter_dir.mkdir()
+            source = Path(__file__).parents[1] / "adapters" / "eml-balancing-table.json"
+            (adapter_dir / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+            from core.tuning_adapter import TuningAdapterService
+            service = TuningAdapterService(root)
+            package = Path(__file__).parents[1] / "packages" / "eml-tuning-adapter"
+            staged = [service.stage_package(package, root / "staging", value, f"EV-OP-VALUE-{index}")
+                      for index, value in enumerate((0.0, 0.425, 1.0))]
+            self.assertEqual(len({item.name for item in staged}), 3)
+            self.assertIn("baseCritChance = 0", (staged[0] / "mod.lua").read_text())
+            self.assertIn("baseCritChance = 0.425", (staged[1] / "mod.lua").read_text())
+            self.assertIn("baseCritChance = 1", (staged[2] / "mod.lua").read_text())
+            with self.assertRaises(ValueError):
+                service.render_payload(-0.01, "EV-OP-INVALID")
+            with self.assertRaises(ValueError):
+                service.render_payload(1.01, "EV-OP-INVALID")
+
     def test_eml_tuning_adapter_verifies_expected_log_value(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
