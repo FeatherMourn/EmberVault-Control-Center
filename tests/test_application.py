@@ -1098,12 +1098,14 @@ class ApplicationCompositionTests(unittest.TestCase):
                                              "furniture", "Oak frame", ["assets/chair.png"], ["oak"],
                                              {"width": 2}, [], "Register ash_chair", "Build 1076226")
             runtime.content.link_references(project.id, ["EV-RES-1"], ["EV-KNOW-1"])
+            runtime.content.record_design_decision(project.id, "Use oak joinery", "Research showed the joint survives the target load.", ["EV-RES-1"], ["EV-KNOW-1"])
             preview = runtime.content.preview(project.id)
             self.assertTrue(preview["ready_for_export"])
             self.assertEqual(preview["research_ids"], ["EV-RES-1"])
             self.assertEqual(preview["knowledge_ids"], ["EV-KNOW-1"])
             self.assertEqual(preview["application_state"], "design-only")
             self.assertFalse(preview["live_installation"])
+            self.assertEqual(preview["design_decisions"][0]["decision"], "Use oak joinery")
             payload = json.loads(runtime.content.export(runtime.content.list()[-1]).read_text(encoding="utf-8"))
             self.assertEqual(payload["preview"]["project_id"], project.id)
 

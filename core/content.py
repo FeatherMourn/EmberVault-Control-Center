@@ -28,6 +28,7 @@ class ContentProject:
     compatibility_notes: str = ""
     linked_research_ids: list[str] = field(default_factory=list)
     linked_knowledge_ids: list[str] = field(default_factory=list)
+    design_decisions: list[dict] = field(default_factory=list)
 
 
 class ContentProjectService:
@@ -88,6 +89,12 @@ class ContentProjectService:
                 else:
                     project.linked_knowledge_ids = sorted({value.strip() for value in project.linked_knowledge_ids
                                                            if isinstance(value, str) and value.strip()})
+                if not isinstance(project.design_decisions, list):
+                    project.design_decisions = []
+                else:
+                    project.design_decisions = [decision for decision in project.design_decisions
+                                                if isinstance(decision, dict) and isinstance(decision.get("decision"), str)
+                                                and decision["decision"].strip()]
                 projects.append(project)
             return projects
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
@@ -148,6 +155,28 @@ class ContentProjectService:
                 return project
         raise KeyError(project_id)
 
+    def record_design_decision(self, project_id: str, decision: str, rationale: str,
+                               research_ids: list[str] | None = None,
+                               knowledge_ids: list[str] | None = None) -> ContentProject:
+        """Record a traceable design choice without embedding source records."""
+        if not isinstance(decision, str) or not decision.strip() or not isinstance(rationale, str) or not rationale.strip():
+            raise ValueError("Design decision and rationale are required")
+        projects = self.list()
+        for project in projects:
+            if project.id == project_id:
+                project.design_decisions.append({
+                    "decision": decision.strip(),
+                    "rationale": rationale.strip(),
+                    "research_ids": self._normalize_ids(research_ids),
+                    "knowledge_ids": self._normalize_ids(knowledge_ids),
+                })
+                if project.published:
+                    project.published = False
+                    project.published_at = ""
+                write_json_atomic(self.path, [asdict(item) for item in projects])
+                return project
+        raise KeyError(project_id)
+
     def preview(self, project_id: str) -> dict:
         """Build a deterministic, non-mutating design review for the Control Center."""
         project = next((item for item in self.list() if item.id == project_id), None)
@@ -171,6 +200,7 @@ class ContentProjectService:
             "compatibility_notes": project.compatibility_notes,
             "research_ids": list(project.linked_research_ids),
             "knowledge_ids": list(project.linked_knowledge_ids),
+            "design_decisions": list(project.design_decisions),
             "application_state": "design-only",
             "live_installation": False,
         }

@@ -551,11 +551,16 @@ ApplicationWindow {
             TextField { id: contentRecipe; visible: capability === "content-creator"; placeholderText: "Recipe plan steps (semicolon-separated)"; Layout.fillWidth: true }
             TextField { id: contentRegistration; visible: capability === "content-creator"; placeholderText: "Registration plan"; Layout.fillWidth: true }
             TextField { id: contentCompatibility; visible: capability === "content-creator"; placeholderText: "Compatibility notes"; Layout.fillWidth: true }
+            TextField { id: contentDecision; visible: capability === "content-creator"; placeholderText: "Design decision"; Layout.fillWidth: true }
+            TextField { id: contentDecisionRationale; visible: capability === "content-creator"; placeholderText: "Decision rationale"; Layout.fillWidth: true }
+            TextField { id: contentDecisionResearch; visible: capability === "content-creator"; placeholderText: "Decision research IDs (comma-separated)"; Layout.fillWidth: true }
+            TextField { id: contentDecisionKnowledge; visible: capability === "content-creator"; placeholderText: "Decision knowledge IDs (comma-separated)"; Layout.fillWidth: true }
             ComboBox { id: contentDesignType; visible: capability === "content-creator"; model: ["furniture", "building", "recipe", "other"]; Layout.fillWidth: true }
             Button { visible: capability === "content-creator"; text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
             Button { visible: capability === "content-creator"; text: "Update latest design"; onClicked: controlCenter.updateLatestContentDesign(contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
             Button { visible: capability === "content-creator"; text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
             Button { visible: capability === "content-creator"; text: "Refresh design preview"; onClicked: controlCenter.previewLatestContentProject() }
+            Button { visible: capability === "content-creator"; text: "Record design decision"; onClicked: controlCenter.recordLatestContentDecision(contentDecision.text, contentDecisionRationale.text, contentDecisionResearch.text, contentDecisionKnowledge.text) }
             Repeater {
                 visible: capability === "content-creator"
                 model: controlCenter.contentPreview

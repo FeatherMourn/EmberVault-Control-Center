@@ -839,6 +839,7 @@ class ControlCenterBackend(QObject):
             f"{readiness} · {preview['name']} · {preview['design_type']}",
             f"Assets {preview['asset_count']} · Materials {len(preview['materials'])} · Recipe steps {len(preview['recipe_steps'])}",
             f"Research links {len(preview['research_ids'])} · Knowledge links {len(preview['knowledge_ids'])}",
+            f"Traceable design decisions {len(preview['design_decisions'])}",
             "DESIGN-ONLY · Live installation: disabled",
             *(f"Review: {issue}" for issue in preview["validation_issues"]),
         ]
@@ -855,6 +856,25 @@ class ControlCenterBackend(QObject):
                 preview = self.content.preview(projects[-1].id)
                 self._last_save_message = ("Design preview ready" if preview["ready_for_export"]
                                            else f"Design preview has {len(preview['validation_issues'])} review item(s)")
+            except (KeyError, ValueError) as exc:
+                self._last_save_message = str(exc)
+        self.stateChanged.emit()
+
+    @Slot(str, str, str, str)
+    def recordLatestContentDecision(self, decision: str, rationale: str, research_ids: str = "", knowledge_ids: str = ""):
+        if not self.content:
+            return
+        projects = [item for item in self.content.list() if item.profile_id == self._selected_profile_id]
+        if not projects:
+            self._last_save_message = "Create a content project first"
+        else:
+            try:
+                project = self.content.record_design_decision(
+                    projects[-1].id, decision, rationale,
+                    [item.strip() for item in research_ids.split(",") if item.strip()],
+                    [item.strip() for item in knowledge_ids.split(",") if item.strip()],
+                )
+                self._last_save_message = f"Recorded design decision for {project.id}"
             except (KeyError, ValueError) as exc:
                 self._last_save_message = str(exc)
         self.stateChanged.emit()

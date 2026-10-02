@@ -8,6 +8,7 @@ design workspace while preserving the design-only boundary.
 - Added deterministic project previews covering assets, materials, dimensions,
   recipe steps, registration, compatibility, research, and knowledge links.
 - Added stable knowledge-entry references alongside existing research links.
+- Added traceable design decisions with research and knowledge evidence links.
 - Added preview data to exported design packages.
 - Added Control Center preview status and explicit live-installation disabled
   messaging.
