@@ -207,7 +207,8 @@ passes standalone validation.
 
 ## Stage 9 — Knowledge Base
 
-Status: initial implementation complete; expand authoring and linking.
+Status: complete for the planned first-release scope; future work may add
+ richer collaboration and remote editorial workflows.
 
 - Articles.
 - Categories and tags.
@@ -217,10 +218,16 @@ Status: initial implementation complete; expand authoring and linking.
 - Version history.
 - Evidence references.
 - Public export.
+- Articles now support tags, cross-links, evidence references, version history,
+  metadata search, operation-tracked editing, and sanitized catalog export.
 
 Exit criteria:
 
 - Private notes remain separate from published knowledge.
+
+Verification: 229 tests pass, the offscreen launcher smoke test passes, the
+fresh wheel contains all required assets, and the synchronized catalog passes
+standalone validation.
 - Articles can reference research and mod records.
 - Public records contain no private paths or sensitive data.
 

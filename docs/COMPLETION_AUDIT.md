@@ -24,7 +24,9 @@ outside the first-release mutation boundary.
 
 ## Release evidence
 
-- 228 unit tests pass.
+- 229 unit tests pass.
+- Stage 9 knowledge records support metadata, references, local version history,
+  operation-tracked editing, search, and sanitized public publication.
 - The offscreen QML smoke test passes.
 - A fresh wheel contains and verifies all 27 required release assets.
 - Catalog generation and standalone catalog validation pass.

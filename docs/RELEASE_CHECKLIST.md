@@ -2,7 +2,9 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (228 tests passing).
+- [x] Run the complete Python test suite (229 tests passing).
+- [x] Confirm Knowledge Base tags, cross-links, evidence references, version
+      history, metadata search, and publication boundaries.
 - [x] Run the same test, QML smoke, wheel, and asset-verification gates in
       GitHub Actions (`.github/workflows/ci.yml`).
 - [x] Upload the verified wheel as a CI artifact for review.
