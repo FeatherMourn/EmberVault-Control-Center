@@ -41,6 +41,7 @@ jobs:
       - name: Smoke-test QML shell
         env:
           QT_QPA_PLATFORM: offscreen
+          QT_QUICK_BACKEND: software
         run: python -m control_center.app --smoke-test
 
       - name: Build wheel
@@ -94,6 +95,7 @@ jobs:
       - name: Smoke-test QML shell
         env:
           QT_QPA_PLATFORM: offscreen
+          QT_QUICK_BACKEND: software
         run: python -m control_center.app --smoke-test
 
       - name: Build wheel
