@@ -157,6 +157,14 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(saved.phase, OperationPhase.VERIFY)
             self.assertEqual(saved.recovery_guidance, "Restore the verified backup")
 
+    def test_normal_operation_start_records_shared_entry_lifecycle(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = OperationService(Path(temp) / "operations.jsonl")
+            operation = service.start("research-create")
+            self.assertEqual(operation.phase, OperationPhase.EXECUTE)
+            history = [json.loads(line) for line in service.path.read_text().splitlines()]
+            self.assertEqual([item["phase"] for item in history], ["draft", "review", "approve", "execute"])
+
     def test_operation_lifecycle_rejects_backwards_phase_and_non_cancellable_cancel(self):
         with tempfile.TemporaryDirectory() as temp:
             service = OperationService(Path(temp) / "operations.jsonl")

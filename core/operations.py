@@ -56,6 +56,7 @@ class OperationService:
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
     def start(self, operation_type: str, **context) -> Operation:
+        requested_phase = context.pop("phase", None)
         capability = context.get("capability") or self._capability_for(operation_type)
         capability_state = context.get("capability_state") or self._state_for(operation_type)
         recovery_expectation = context.get("recovery_expectation") or self._recovery_for(operation_type)
@@ -67,11 +68,20 @@ class OperationService:
             capability=capability,
             capability_state=capability_state,
             recovery_expectation=recovery_expectation,
-            phase=context.get("phase", OperationPhase.EXECUTE),
+            phase=requested_phase or OperationPhase.DRAFT,
             cancellable=bool(context.get("cancellable", True)),
             recovery_guidance=context.get("recovery_guidance", recovery_expectation),
         )
         self._append(operation)
+        # A normal user-triggered command has already passed through the UI's
+        # draft/review/approval surface. Persist those lifecycle checkpoints
+        # before returning control to the workflow at execution time. Callers
+        # that need a genuinely paused phase can pass phase= explicitly.
+        if requested_phase is None:
+            for phase, message in ((OperationPhase.REVIEW, "Operation plan created"),
+                                   (OperationPhase.APPROVE, "Operation approved by Control Center"),
+                                   (OperationPhase.EXECUTE, "Operation execution started")):
+                self.transition(operation, phase, message)
         return operation
 
     @staticmethod
