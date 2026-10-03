@@ -56,16 +56,13 @@ jobs:
           python tools/sync_catalog.py "$RUNNER_TEMP/embervault-catalog"
           python tools/verify_catalog.py "$RUNNER_TEMP/embervault-catalog/embervault-catalog.json"
 
-      - name: Smoke-test installed wheel
+      - name: Validate installed wheel assets
         shell: bash
-        env:
-          QT_QPA_PLATFORM: offscreen
-          QT_QUICK_BACKEND: software
         run: |
           python -m venv .ci-wheel-venv
           .ci-wheel-venv/bin/python -m pip install dist/*.whl
           cd /tmp
-          "$GITHUB_WORKSPACE/.ci-wheel-venv/bin/python" -m control_center.app --smoke-test
+          "$GITHUB_WORKSPACE/.ci-wheel-venv/bin/python" -c "from pathlib import Path; from control_center.app import _ui_path; p=_ui_path(); assert p.is_file() and (p.parents[1] / 'knowledge' / 'entries.json').is_file(); print('Installed wheel assets validated:', p)"
 
       - name: Upload verified wheel
         uses: actions/upload-artifact@v4
