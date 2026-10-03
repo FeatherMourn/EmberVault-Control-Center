@@ -138,6 +138,10 @@ ApplicationWindow {
                     Text { text: controlCenter.dashboardHealth; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
                 }
             }
+            Text { text: "System signals"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 4 }
+            Repeater { model: controlCenter.dashboardSignals; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true } }
+            Text { text: "Pending changes"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 4 }
+            Repeater { model: controlCenter.pendingChanges; delegate: Text { text: "· " + modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true } }
             Text { text: "Vault state"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 4 }
             Flow {
                 Layout.fillWidth: true

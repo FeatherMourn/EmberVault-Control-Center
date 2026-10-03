@@ -107,6 +107,11 @@ class OperationService:
         operation.status = status
         operation.message = message
         operation.backup_id = backup_id or operation.backup_id
+        if status == OperationStatus.SUCCEEDED:
+            operation.phase = OperationPhase.VERIFY
+            operation.progress = 100
+        elif status in {OperationStatus.FAILED, OperationStatus.CANCELLED}:
+            operation.phase = OperationPhase.RECOVER
         operation.finished_at = datetime.now(timezone.utc).isoformat()
         self._append(operation)
         return operation

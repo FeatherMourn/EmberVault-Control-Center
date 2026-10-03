@@ -158,6 +158,36 @@ class ControlCenterBackend(QObject):
                      if item.status == OperationStatus.STARTED) if self.operations else 0
         return f"Backups: {self.saveSummary} · Modules: {module_count} · Active operations: {active}"
 
+    @Property("QStringList", notify=stateChanged)
+    def dashboardSignals(self):
+        """Compact, user-facing health signals for the Home dashboard."""
+        signals = [f"PROFILE · {self.profileName}", f"GAME · {self.gameStatus}",
+                   f"BACKUPS · {self.saveSummary}"]
+        if self.modules:
+            unhealthy = [item for item in self.modules.discover().values()
+                          if item.compatibility_state not in {"compatible", "unknown"}]
+            signals.append(f"MODULES · {len(self.modules.discover())} installed · {len(unhealthy)} compatibility warning(s)")
+        if self.operations:
+            recoveries = [item for item in self.operations.list_recent(20)
+                          if item.phase == "recover" and item.status != OperationStatus.SUCCEEDED]
+            signals.append(f"RECOVERY · {len(recoveries)} operation(s) need review")
+        signals.append("UPDATES · " + (self.packageUpdates[0] if self.packageUpdates else "No update status"))
+        return signals
+
+    @Property("QStringList", notify=stateChanged)
+    def pendingChanges(self):
+        changes = []
+        if self._staged_module_upgrade:
+            changes.append(self.moduleUpgradeReview)
+        if self.game_settings:
+            profile = next((item for item in self.profiles if item.id == self._selected_profile_id), None)
+            defaults = {item.key: item.default for item in self.game_settings.definitions()}
+            if profile and self.game_settings.values(profile) != defaults:
+                changes.append("Game tuning · staged profile changes require review")
+        if self._deployment_plan_signature:
+            changes.append("Package deployment · reviewed plan is ready")
+        return changes or ["No pending changes"]
+
     @Property(str, notify=stateChanged)
     def saveSummary(self):
         count = len(self.save_manager.list_backups())
