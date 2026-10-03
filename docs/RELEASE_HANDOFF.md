@@ -2,16 +2,19 @@
 
 ## Automated status
 
-The current release candidate has passed the unified readiness gate:
+The current stabilization revision has passed the repository-level readiness checks:
 
 - Full test suite
+- 299 automated tests passing, with two display-dependent GUI tests skipped when no Qt display is available
 - Python compilation
 - Wheel asset verification
 - Windows and Linux bundle verification
 - Bundle hash and safety audit
 - Public catalog validation
-- GitHub Pages deployment completed successfully.
-- Deployed catalog: https://feathermourn.github.io/EmberVault-Web/
+- Signed Windows artifact generation and public-key verification
+- Isolated Windows update replacement and rollback rehearsal
+- Steam multi-library discovery and explicit selection coverage
+- Save and package deployment recovery simulations
 
 ## Human release steps
 
@@ -19,12 +22,10 @@ The current release candidate has passed the unified readiness gate:
    test workspace.
 2. Complete [`USER_ACCEPTANCE.md`](USER_ACCEPTANCE.md), recording the build,
    platform, tester, and any failed or blocked action.
-3. Open the deployed catalog and verify modules, packages, research, knowledge,
-   and content records are visible without private workspace data.
-4. Record the SHA-256 hashes of the reviewed artifacts:
-   - `embervault_control_center-1.0.0rc1-py3-none-any.whl`: `81820D03CD8D65D8AFE1C97D26EEA9B81FC27468B57696D0E32BB0F4009F8EA6`
-   - `embervault-control-center-1.0.0rc1-windows.zip`: `E362FCAE118DF7CF74CB7314C17F84F85195D83931951BEC87005285BF9CBBE4`
-   - `embervault-control-center-1.0.0rc1-linux.zip`: `F052933186EFCBFF35186CA9B794672DF8A0E4E8CD831F606CBE4D07211BFC46`
+3. Open the deployed catalog, when the hosted website is available, and verify
+   public records contain no private workspace data.
+4. Run the manual signed-release workflow after configuring the production
+   signing secrets, then record the generated artifact hashes in this handoff.
 5. Publish only after the acceptance checklist and deployment review are both
    complete.
 
