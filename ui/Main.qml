@@ -683,17 +683,23 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 TextField { placeholderText: "Search activity"; Layout.fillWidth: true; onTextChanged: controlCenter.setActivityQuery(text) }
                 ComboBox { model: controlCenter.activityFilters; onCurrentTextChanged: controlCenter.setActivityFilter(currentText) }
+                Button { text: "Export"; onClicked: controlCenter.exportActivity() }
             }
             Text { text: "Safety context"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
                 model: controlCenter.operationDetails
                 delegate: Rectangle {
                     Layout.fillWidth: true
-                    height: 78
+                    height: 106
                     radius: 7
                     color: panel
                     border.color: line
-                    Text { anchors.fill: parent; anchors.margins: 14; text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap; verticalAlignment: Text.AlignVCenter }
+                    Text { anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 14; height: 58; text: modelData; color: ink; font.pixelSize: 13; wrapMode: Text.WordWrap }
+                    Row {
+                        anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 8; spacing: 8
+                        Button { text: "Acknowledge"; onClicked: controlCenter.acknowledgeOperation(modelData) }
+                        Button { text: "Review recovery"; visible: modelData.indexOf("RECOVER") >= 0 || modelData.indexOf("FAILED") >= 0; onClicked: controlCenter.reviewOperationRecovery(modelData) }
+                    }
                 }
             }
         }

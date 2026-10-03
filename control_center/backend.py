@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from dataclasses import asdict
 import json
 import subprocess
 import re
@@ -87,6 +88,7 @@ class ControlCenterBackend(QObject):
         self._staged_module_upgrade = None
         self._activity_filter = "all"
         self._activity_query = ""
+        self._acknowledged_operations: set[str] = set()
         self._restore_adapter_operation_state()
 
     def _restore_adapter_operation_state(self) -> None:
@@ -616,7 +618,7 @@ class ControlCenterBackend(QObject):
                 f"{operation.status.upper()} · {operation.operation_type} · {profile} · "
                 f"{capability}/{safety} · risk {operation.risk_level}{backup} · "
                 f"{operation.phase.upper()} {operation.progress}% · {notice['code']} · "
-                f"recovery: {recovery} · {operation.recovery_guidance} · {operation.message}"
+                f"recovery: {recovery} · {operation.recovery_guidance} · {operation.message} · id:{operation.id}"
             )
         return details
 
@@ -633,6 +635,10 @@ class ControlCenterBackend(QObject):
         recover = sum(item.phase == "recover" for item in records)
         return f"{len(records)} recorded · {active} active · {recover} needing recovery review"
 
+    @Property("QStringList", notify=stateChanged)
+    def activityAcknowledgements(self):
+        return sorted(self._acknowledged_operations)
+
     @Slot(str)
     def setActivityFilter(self, value: str):
         self._activity_filter = value.strip().lower() or "all"
@@ -642,6 +648,40 @@ class ControlCenterBackend(QObject):
     def setActivityQuery(self, value: str):
         self._activity_query = value.strip()
         self.stateChanged.emit()
+
+    @Slot(str)
+    def acknowledgeOperation(self, operation_id: str):
+        candidate = operation_id.strip()
+        if candidate:
+            match = next((item.id for item in self.operations.list_recent(200)
+                          if item.id == candidate or item.id in candidate), candidate) if self.operations else candidate
+            self._acknowledged_operations.add(match)
+            self.stateChanged.emit()
+
+    @Slot(str)
+    def reviewOperationRecovery(self, operation_id: str):
+        if not self.operations:
+            return
+        operation = next((item for item in self.operations.list_recent(200)
+                          if item.id == operation_id or item.id in operation_id), None)
+        if operation:
+            self._last_save_message = operation.recovery_guidance or operation.recovery_expectation or "Review the operation record."
+            self.stateChanged.emit()
+
+    @Slot()
+    def exportActivity(self):
+        if not self.operations:
+            return
+        try:
+            from PySide6.QtWidgets import QFileDialog
+            selected, _ = QFileDialog.getSaveFileName(None, "Export EmberVault activity", "activity.json", "JSON (*.json)")
+        except ImportError:
+            selected = ""
+        if selected:
+            records = [asdict(item) for item in self.operations.list_recent(200)]
+            Path(selected).write_text(json.dumps({"schema_version": 1, "operations": records}, indent=2) + "\n", encoding="utf-8")
+            self._last_save_message = f"Exported {len(records)} activity records"
+            self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
     def moduleOptions(self):
