@@ -164,6 +164,17 @@ class CoreServiceTests(unittest.TestCase):
             self.assertEqual(operation.phase, OperationPhase.EXECUTE)
             history = [json.loads(line) for line in service.path.read_text().splitlines()]
             self.assertEqual([item["phase"] for item in history], ["draft", "review", "approve", "execute"])
+            self.assertEqual(operation.risk_level, "low")
+            self.assertTrue(operation.notifications)
+
+    def test_operation_notifications_are_structured_and_validated(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = OperationService(Path(temp) / "operations.jsonl")
+            operation = service.start("package-deploy")
+            service.notify(operation, "warning", "compatibility.review", "Build evidence is unknown")
+            self.assertEqual(operation.notifications[-1]["code"], "compatibility.review")
+            with self.assertRaises(ValueError):
+                service.notify(operation, "urgent", "bad", "invalid")
 
     def test_operation_lifecycle_rejects_backwards_phase_and_non_cancellable_cancel(self):
         with tempfile.TemporaryDirectory() as temp:

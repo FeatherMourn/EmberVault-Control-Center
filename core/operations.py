@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from datetime import datetime, timezone
 from enum import StrEnum
 from pathlib import Path
@@ -48,6 +48,8 @@ class Operation:
     progress: int = 0
     cancellable: bool = True
     recovery_guidance: str = ""
+    risk_level: str = "low"
+    notifications: list[dict[str, str]] = field(default_factory=list)
 
 
 class OperationService:
@@ -71,6 +73,7 @@ class OperationService:
             phase=requested_phase or OperationPhase.DRAFT,
             cancellable=bool(context.get("cancellable", True)),
             recovery_guidance=context.get("recovery_guidance", recovery_expectation),
+            risk_level=context.get("risk_level") or self._risk_for(operation_type),
         )
         self._append(operation)
         # A normal user-triggered command has already passed through the UI's
@@ -113,6 +116,14 @@ class OperationService:
             return "no live mutation; preserve source record"
         return "retain operation record for review"
 
+    @staticmethod
+    def _risk_for(operation_type: str) -> str:
+        if any(token in operation_type for token in ("deploy", "restore", "rollback", "tuning", "trainer")):
+            return "high"
+        if any(token in operation_type for token in ("package", "profile", "content", "publish", "import")):
+            return "medium"
+        return "low"
+
     def finish(self, operation: Operation, status: OperationStatus, message: str = "", backup_id: str | None = None) -> Operation:
         operation.status = status
         operation.message = message
@@ -122,6 +133,8 @@ class OperationService:
             operation.progress = 100
         elif status in {OperationStatus.FAILED, OperationStatus.CANCELLED}:
             operation.phase = OperationPhase.RECOVER
+        self._notify(operation, "success" if status == OperationStatus.SUCCEEDED else "error",
+                     f"operation.{status}", message or status)
         operation.finished_at = datetime.now(timezone.utc).isoformat()
         self._append(operation)
         return operation
@@ -140,6 +153,7 @@ class OperationService:
         operation.phase = OperationPhase(phase)
         if message:
             operation.message = message
+        self._notify(operation, "info", f"phase.{operation.phase}", message or f"Entered {operation.phase}")
         self._append(operation)
         return operation
 
@@ -149,6 +163,7 @@ class OperationService:
         operation.progress = max(0, min(100, int(progress)))
         if message:
             operation.message = message
+        self._notify(operation, "info", "operation.progress", f"Progress {operation.progress}%")
         self._append(operation)
         return operation
 
@@ -156,6 +171,18 @@ class OperationService:
         if not operation.cancellable:
             raise ValueError("Operation is not cancellable")
         return self.finish(operation, OperationStatus.CANCELLED, message)
+
+    def notify(self, operation: Operation, level: str, code: str, message: str) -> Operation:
+        """Append a structured, user-visible notification to an operation."""
+        self._notify(operation, level, code, message)
+        self._append(operation)
+        return operation
+
+    @staticmethod
+    def _notify(operation: Operation, level: str, code: str, message: str) -> None:
+        if level not in {"info", "success", "warning", "error"}:
+            raise ValueError("Unknown operation notification level")
+        operation.notifications.append({"level": level, "code": code, "message": message})
 
     @staticmethod
     def integration_context(operation: Operation) -> IntegrationContext:

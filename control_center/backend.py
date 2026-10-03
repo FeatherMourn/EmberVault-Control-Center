@@ -587,9 +587,11 @@ class ControlCenterBackend(QObject):
             safety = operation.capability_state or "unspecified"
             recovery = operation.recovery_expectation or "review operation record"
             backup = f" · backup {operation.backup_id}" if operation.backup_id else ""
+            notice = operation.notifications[-1] if operation.notifications else {"code": "none"}
             details.append(
                 f"{operation.status.upper()} · {operation.operation_type} · {profile} · "
-                f"{capability}/{safety}{backup} · {operation.phase.upper()} {operation.progress}% · "
+                f"{capability}/{safety} · risk {operation.risk_level}{backup} · "
+                f"{operation.phase.upper()} {operation.progress}% · {notice['code']} · "
                 f"recovery: {recovery} · {operation.recovery_guidance} · {operation.message}"
             )
         return details
