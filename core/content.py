@@ -286,10 +286,12 @@ class ContentProjectService:
         for reference in references:
             if not isinstance(reference, str) or not reference.strip():
                 continue
-            path = Path(reference.strip())
-            if path.is_absolute() or ".." in path.parts:
+            normalized = reference.strip()
+            path = Path(normalized)
+            # Reject both forward-slash and backslash path traversal attempts
+            if path.is_absolute() or ".." in path.parts or "../" in normalized or "..\\" in normalized:
                 raise ValueError("Asset references must remain relative to the project")
-            result.append(reference.strip())
+            result.append(normalized)
         return list(dict.fromkeys(result))
 
     def publish(self, project_id: str) -> ContentProject:
