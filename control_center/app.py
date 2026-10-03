@@ -8,11 +8,17 @@ from .backend import ControlCenterBackend
 
 
 def _application_root() -> Path:
-    """Return the source or PyInstaller bundle root."""
+    """Return the source, installed-data, or frozen bundle root."""
     bundled = getattr(sys, "_MEIPASS", None)
     if bundled:
         return Path(bundled)
-    return Path(__file__).resolve().parents[1]
+    package_root = Path(__file__).resolve().parents[1]
+    if (package_root / "ui" / "Main.qml").is_file():
+        return package_root
+    prefix_root = Path(sys.prefix)
+    if (prefix_root / "ui" / "Main.qml").is_file():
+        return prefix_root
+    return package_root
 
 
 ROOT = _application_root()

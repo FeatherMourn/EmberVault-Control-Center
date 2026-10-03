@@ -11,9 +11,12 @@ from core.operations import OperationStatus
 from core.integration import IntegrationContext
 from core.promotion import PromotionEvidence
 from control_center.backend import ControlCenterBackend
+from control_center.app import _application_root
 
 
 class ApplicationCompositionTests(unittest.TestCase):
+    def test_application_root_finds_packaged_data_root(self):
+        self.assertTrue((_application_root() / "ui" / "Main.qml").is_file())
     def test_promotion_requires_all_lifecycle_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
