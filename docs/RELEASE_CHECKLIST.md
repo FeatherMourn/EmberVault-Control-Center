@@ -2,7 +2,8 @@
 
 ## Before packaging
 
-- [x] Run the complete Python test suite (265 tests passing at the last release audit).
+- [x] Run the complete Python test suite (300 tests passing, with two
+      display-dependent GUI tests skipped when no Qt display is available).
 - [x] Confirm Trainer remains read-only/plan-only with research-profile,
       verified-backup, timeout, crash, and recovery safeguards.
 - [x] Confirm Character Tools remains plan-only and requires existing verified

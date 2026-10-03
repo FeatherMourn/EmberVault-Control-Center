@@ -5,7 +5,7 @@
 The current stabilization revision has passed the repository-level readiness checks:
 
 - Full test suite
-- 299 automated tests passing, with two display-dependent GUI tests skipped when no Qt display is available
+- 300 automated tests passing, with two display-dependent GUI tests skipped when no Qt display is available
 - Python compilation
 - Wheel asset verification
 - Windows and Linux bundle verification
