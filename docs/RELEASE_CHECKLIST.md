@@ -60,7 +60,7 @@
 - [x] Generate SHA-256 and Ed25519-signed Windows release metadata with the external signing tool.
 - [x] Verify signed release metadata against the repository trusted public key.
 - [x] Keep the release private key outside the repository and require CI secrets for manual signing.
-- [ ] Run the manual signed-release workflow after configuring the production key secrets.
+- [x] Run the manual signed-release workflow after configuring the production key secrets.
 
 ## Release notes
 

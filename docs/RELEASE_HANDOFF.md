@@ -12,6 +12,9 @@ The current stabilization revision has passed the repository-level readiness che
 - Bundle hash and safety audit
 - Public catalog validation
 - Signed Windows artifact generation and public-key verification
+- Manual signed-release workflow run #134 succeeded from `bd9976d`; the
+  uploaded `embervault-control-center-signed-release` artifact digest is
+  `sha256:095252e47dee7f85615bf970774dc58c2f2ce5a0e768ddfda6cd238e5054996a`.
 - Isolated Windows update replacement and rollback rehearsal
 - Steam multi-library discovery and explicit selection coverage
 - Save and package deployment recovery simulations
@@ -24,8 +27,9 @@ The current stabilization revision has passed the repository-level readiness che
    platform, tester, and any failed or blocked action.
 3. Open the deployed catalog, when the hosted website is available, and verify
    public records contain no private workspace data.
-4. Run the manual signed-release workflow after configuring the production
-   signing secrets, then record the generated artifact hashes in this handoff.
+4. The manual signed-release workflow and artifact hash have been recorded
+   above; inspect the downloaded `release.json` and package hash before
+   publication.
 5. Publish only after the acceptance checklist and deployment review are both
    complete.
 
