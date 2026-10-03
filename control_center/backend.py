@@ -717,10 +717,15 @@ class ControlCenterBackend(QObject):
         except ImportError:
             selected = ""
         if selected:
+            operation = self.operations.start("module-update-stage", profile_id=self._selected_profile_id) if self.operations else None
             try:
                 self._staged_module_upgrade = self.modules.stage_upgrade(Path(selected))
                 self._last_save_message = f"Staged module upgrade for review: {self._staged_module_upgrade['module_id']}"
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.SUCCEEDED, self._last_save_message)
             except (OSError, ValueError) as exc:
+                if operation and self.operations:
+                    self.operations.finish(operation, OperationStatus.FAILED, str(exc))
                 self._last_save_message = str(exc)
             self.stateChanged.emit()
 
