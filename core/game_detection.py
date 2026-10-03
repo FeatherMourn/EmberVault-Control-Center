@@ -85,6 +85,41 @@ class GameDetector:
             results.append(self.detect(resolved))
         return results
 
+    @staticmethod
+    def steam_library_roots(steam_root: Path) -> list[Path]:
+        """Read Steam libraryfolders.vdf without changing Steam configuration."""
+        config = Path(steam_root) / "steamapps" / "libraryfolders.vdf"
+        if not config.is_file():
+            return []
+        text = config.read_text(encoding="utf-8", errors="ignore")
+        values = re.findall(r'"path"\s+"([^"]+)"', text, re.I)
+        roots = [Path(steam_root)]
+        roots.extend(Path(value.replace("\\\\", "\\")) for value in values)
+        seen: set[Path] = set()
+        result: list[Path] = []
+        for root in roots:
+            try:
+                resolved = root.expanduser().resolve()
+            except OSError:
+                continue
+            if resolved not in seen:
+                seen.add(resolved)
+                result.append(resolved)
+        return result
+
+    def discover_steam(self, steam_roots: list[Path]) -> list[GameInstallation]:
+        candidates: list[Path] = []
+        for steam_root in steam_roots:
+            for library in self.steam_library_roots(Path(steam_root)):
+                candidates.append(library / "steamapps" / "common" / "Enshrouded")
+        seen: set[Path] = set(); result: list[GameInstallation] = []
+        for candidate in candidates:
+            resolved = candidate.resolve()
+            if resolved in seen or not (resolved / "Enshrouded.exe").is_file():
+                continue
+            seen.add(resolved); result.append(self.detect(resolved))
+        return result
+
     def validate(self, installation: GameInstallation) -> list[str]:
         issues: list[str] = []
         if not installation.path.is_dir():

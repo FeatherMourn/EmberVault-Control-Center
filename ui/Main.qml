@@ -140,6 +140,8 @@ ApplicationWindow {
             }
             Text { text: "System signals"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 4 }
             Repeater { model: controlCenter.dashboardSignals; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true } }
+            Text { text: "Update trust"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 4 }
+            Text { text: controlCenter.updateTrustStatus; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Text { text: "Pending changes"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 4 }
             Repeater { model: controlCenter.pendingChanges; delegate: Text { text: "· " + modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true } }
             Text { text: "Vault state"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 4 }
@@ -174,7 +176,14 @@ ApplicationWindow {
             }
             Button { text: "Choose game folder"; onClicked: controlCenter.chooseGameFolder() }
             Text { text: "Installation suggestions"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
-            Repeater { model: controlCenter.detectedGameOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true } }
+            Repeater {
+                model: controlCenter.detectedGameOptions
+                delegate: RowLayout {
+                    Layout.fillWidth: true
+                    Text { text: modelData; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+                    Button { visible: modelData.indexOf("FOUND ·") === 0; text: "Use this"; onClicked: controlCenter.selectDetectedGame(index) }
+                }
+            }
             Text { text: "First steps"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Text { text: "EmberVault keeps the Control Center in charge. Start with the game folder, make a verified backup, then review module safety before enabling anything experimental."; color: muted; font.pixelSize: 13; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Repeater { model: controlCenter.onboardingOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; Layout.fillWidth: true } }
@@ -669,6 +678,12 @@ ApplicationWindow {
             Text { text: "ACTIVITY"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.3 }
             Text { text: "See what EmberVault did."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "Operations are recorded with their status and context so recovery and troubleshooting have an auditable history."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Text { text: controlCenter.activitySummary; color: muted; font.pixelSize: 13; Layout.fillWidth: true }
+            RowLayout {
+                Layout.fillWidth: true
+                TextField { placeholderText: "Search activity"; Layout.fillWidth: true; onTextChanged: controlCenter.setActivityQuery(text) }
+                ComboBox { model: controlCenter.activityFilters; onCurrentTextChanged: controlCenter.setActivityFilter(currentText) }
+            }
             Text { text: "Safety context"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
                 model: controlCenter.operationDetails

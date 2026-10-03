@@ -73,3 +73,27 @@ class CommunitySyncService:
         return {"status": "conflict" if conflict else "compatible", "record_id": local.get("record_id"),
                 "local_version": local_version, "remote_version": remote_version,
                 "review_required": conflict, "automatic_overwrite": False}
+
+    def list_submissions(self) -> list[dict]:
+        submissions = self.root / "community" / "submissions"
+        records = []
+        for path in sorted(submissions.glob("*.json")) if submissions.is_dir() else []:
+            try:
+                record = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            records.append({"path": str(path), "record_type": record.get("record_type"),
+                            "record_id": record.get("record_id"), "version": record.get("record_version"),
+                            "state": record.get("application_state", "review-required")})
+        return records
+
+    def preview_submission(self, record: dict) -> dict:
+        """Return a safe review summary without importing or publishing it."""
+        if not isinstance(record, dict) or record.get("authority") != "website":
+            raise ValueError("Community submission is not a website handoff")
+        payload = record.get("payload")
+        if not isinstance(payload, dict):
+            raise ValueError("Community submission payload must be an object")
+        return {"record_type": record.get("record_type"), "record_id": record.get("record_id"),
+                "version": record.get("record_version"), "field_count": len(payload),
+                "review_required": True, "automatic_publish": False}

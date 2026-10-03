@@ -85,6 +85,8 @@ class ControlCenterBackend(QObject):
         self._adapter_verified = False
         self._adapter_deployed_at = None
         self._staged_module_upgrade = None
+        self._activity_filter = "all"
+        self._activity_query = ""
         self._restore_adapter_operation_state()
 
     def _restore_adapter_operation_state(self) -> None:
@@ -222,8 +224,24 @@ class ControlCenterBackend(QObject):
     def detectedGameOptions(self):
         if self.settings.game_path:
             return [f"SELECTED · {self.settings.game_path}"]
-        installations = self.detector.discover() if self.detector else []
+        installations = self._steam_installations()
         return [f"FOUND · {item.path} · build {item.build_id or 'unknown'}" for item in installations] or ["No common Steam installation found · choose a folder manually"]
+
+    def _steam_installations(self):
+        if not self.detector:
+            return []
+        roots = [Path("C:/Program Files (x86)/Steam"), Path("C:/Program Files/Steam"), Path("C:/Steam")]
+        return self.detector.discover_steam(roots)
+
+    @Slot(int)
+    def selectDetectedGame(self, index: int):
+        installations = self._steam_installations()
+        if 0 <= index < len(installations):
+            selected = installations[index]
+            self.settings.game_path = str(selected.path)
+            self.settings_service.save(self.settings)
+            self._last_save_message = f"Game folder confirmed: {selected.path}"
+            self.refresh()
 
     @Property("QStringList", notify=stateChanged)
     def migrationPreview(self):
@@ -581,7 +599,13 @@ class ControlCenterBackend(QObject):
         if not self.operations:
             return []
         details = []
-        for operation in self.operations.list_recent(8):
+        for operation in self.operations.list_recent(50):
+            if self._activity_filter != "all" and operation.status != self._activity_filter:
+                continue
+            haystack = " ".join((operation.operation_type, operation.message, operation.phase,
+                                  operation.risk_level, operation.capability or "")).lower()
+            if self._activity_query and self._activity_query.lower() not in haystack:
+                continue
             profile = operation.profile_id or "workspace"
             capability = operation.capability or "core"
             safety = operation.capability_state or "unspecified"
@@ -595,6 +619,29 @@ class ControlCenterBackend(QObject):
                 f"recovery: {recovery} · {operation.recovery_guidance} · {operation.message}"
             )
         return details
+
+    @Property("QStringList", notify=stateChanged)
+    def activityFilters(self):
+        return ["all", "started", "succeeded", "failed", "cancelled"]
+
+    @Property(str, notify=stateChanged)
+    def activitySummary(self):
+        if not self.operations:
+            return "No operations recorded yet."
+        records = self.operations.list_recent(200)
+        active = sum(item.status == OperationStatus.STARTED for item in records)
+        recover = sum(item.phase == "recover" for item in records)
+        return f"{len(records)} recorded · {active} active · {recover} needing recovery review"
+
+    @Slot(str)
+    def setActivityFilter(self, value: str):
+        self._activity_filter = value.strip().lower() or "all"
+        self.stateChanged.emit()
+
+    @Slot(str)
+    def setActivityQuery(self, value: str):
+        self._activity_query = value.strip()
+        self.stateChanged.emit()
 
     @Property("QStringList", notify=stateChanged)
     def moduleOptions(self):
@@ -2099,7 +2146,23 @@ class ControlCenterBackend(QObject):
 
     @Property("QStringList", notify=stateChanged)
     def packageUpdates(self):
-        return ["No trusted update feed configured; package upgrades remain explicit and local."]
+        return [self.updateTrustStatus]
+
+    @Property(str, notify=stateChanged)
+    def updateTrustStatus(self):
+        trusted = Path(__file__).resolve().parents[1] / "distribution" / "trusted-keys.json"
+        if not trusted.is_file():
+            return "UPDATES · No trusted release key configured; updates remain blocked."
+        try:
+            keys = json.loads(trusted.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return "UPDATES · Trusted release-key configuration is unreadable; updates remain blocked."
+        if not isinstance(keys, dict) or not keys:
+            return "UPDATES · No trusted release key configured; updates remain blocked."
+        feed = Path(__file__).resolve().parents[1] / "distribution" / "release-feed.json"
+        if not feed.is_file():
+            return f"UPDATES · Signed releases supported ({len(keys)} trusted key); no feed configured."
+        return f"UPDATES · Signed release feed found ({len(keys)} trusted key); review and staging required."
 
     @Slot()
     def exportActiveProfile(self):

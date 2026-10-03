@@ -38,9 +38,18 @@ touch external files or publish information.
   private-data markers.
 - Public changes require schema validation and repository review.
 
+## Signed updates
+
+- Release manifests use canonical JSON signing bytes and Ed25519 signatures.
+- Trusted public keys are selected by explicit key ID, allowing documented key rotation.
+- Staging rejects unsigned, incorrectly signed, or checksum-mismatched packages.
+- Staged update attempts are recorded for review; no live replacement occurs in this layer.
+- The repository contains only the trusted public release key; the private signing key is kept outside the repository.
+- Key rotation requires adding a new public key under a new key ID, publishing releases with it, then retiring the old ID in a reviewed change.
+
 ## Evidence
 
 The regression suite covers these controls across module, package, save,
-catalog, workflow, and packaging tests. Release verification additionally
+catalog, workflow, update-signature, and packaging tests. Release verification additionally
 checks packaged safety and recovery metadata before distribution bundles are
 created.

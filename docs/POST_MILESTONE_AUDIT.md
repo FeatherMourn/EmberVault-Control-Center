@@ -1,7 +1,7 @@
 # EmberVault Control Center — Post-Milestone Audit
 
 Audit date: 2026-10-03  
-Audited revision: `1c14902`
+Audited revision: current working tree after updater, recovery, GUI, Steam, and community-sync hardening.
 
 ## Outcome
 
@@ -37,21 +37,24 @@ Existing boundaries remain in place:
 - Folder selection remains an explicit user action.
 - Onboarding explains backups, trusted modules, research profiles, and experimental tools.
 - Home exposes active profile, game status/build, backup health, module health, pending changes, compatibility warnings, update status, recovery state, and a recommended next action.
+- Home and onboarding expose signed-update trust status and explicit Steam installation candidates.
+- Activity exposes searchable and status-filtered operation history with risk, phase, and recovery context.
 
 ## Verification evidence
 
-- Automated test suite: **272 tests passed**.
+- Automated test suite: **293 tests passed**.
 - Python compilation check: passed.
 - Nuitka standalone Windows build with MSVC v143: passed.
 - Final executable smoke test: exit code **0**.
-- Repository working tree after verification: clean.
+- Isolated packaged updater rehearsal: replacement succeeded and forced startup failure rolled back successfully.
+- Repository working tree: changes from this hardening pass remain uncommitted for review.
 
 ## Remaining watch items
 
 These are intentionally future hardening work, not failures of this milestone:
 
-1. Add a signed remote update feed and external updater process.
-2. Add interactive UI controls for filtering and acknowledging operation notifications.
-3. Add a full windowed GUI acceptance test in addition to the smoke-test entry point.
-4. Add crash-recovery simulation tests for interrupted deployment and restore operations.
-5. Replace the current common-path game discovery list with a richer Steam-library discovery service when needed.
+1. Connect the signed feed to a release pipeline when hosted distribution is ready.
+2. Add notification acknowledgement and recovery action buttons to Activity.
+3. Expand GUI acceptance coverage for onboarding failure states and profile flows.
+4. Add crash-recovery simulations for save restore and package deployment.
+5. Build the hosted EmberVault website/API when its infrastructure is available; local sync remains review-only.
