@@ -60,6 +60,7 @@ jobs:
         shell: bash
         env:
           QT_QPA_PLATFORM: offscreen
+          QT_QUICK_BACKEND: software
         run: |
           python -m venv .ci-wheel-venv
           .ci-wheel-venv/bin/python -m pip install dist/*.whl
