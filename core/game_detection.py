@@ -62,6 +62,29 @@ class GameDetector:
         saves_path = saves if saves.is_dir() else None
         return GameInstallation(path, executable, self._build_id(path), self.is_running(), saves_path)
 
+    def discover(self, roots: list[Path] | None = None) -> list[GameInstallation]:
+        """Suggest likely installations without selecting or modifying one."""
+        roots = roots or [Path("C:/"), Path("D:/"), Path("E:/"), Path("F:/"), Path("G:/"), Path("H:/")]
+        candidates: list[Path] = []
+        for root in roots:
+            candidates.extend([
+                root / "SteamLibrary" / "steamapps" / "common" / "Enshrouded",
+                root / "Program Files (x86)" / "Steam" / "steamapps" / "common" / "Enshrouded",
+                root / "Program Files" / "Steam" / "steamapps" / "common" / "Enshrouded",
+            ])
+        seen: set[Path] = set()
+        results: list[GameInstallation] = []
+        for candidate in candidates:
+            try:
+                resolved = candidate.resolve()
+            except OSError:
+                continue
+            if resolved in seen or not (resolved / "Enshrouded.exe").is_file():
+                continue
+            seen.add(resolved)
+            results.append(self.detect(resolved))
+        return results
+
     def validate(self, installation: GameInstallation) -> list[str]:
         issues: list[str] = []
         if not installation.path.is_dir():

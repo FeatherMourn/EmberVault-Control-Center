@@ -219,6 +219,13 @@ class ControlCenterBackend(QObject):
         ]
 
     @Property("QStringList", notify=stateChanged)
+    def detectedGameOptions(self):
+        if self.settings.game_path:
+            return [f"SELECTED · {self.settings.game_path}"]
+        installations = self.detector.discover() if self.detector else []
+        return [f"FOUND · {item.path} · build {item.build_id or 'unknown'}" for item in installations] or ["No common Steam installation found · choose a folder manually"]
+
+    @Property("QStringList", notify=stateChanged)
     def migrationPreview(self):
         if not self.migrations:
             return ["Migration service unavailable"]

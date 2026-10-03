@@ -360,6 +360,15 @@ class ApplicationCompositionTests(unittest.TestCase):
             installation = runtime.game.detect(root)
             self.assertIn("build evidence", " ".join(runtime.game.validate(installation)).lower())
 
+    def test_game_detection_discover_only_suggests_real_executables(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            candidate = root / "SteamLibrary" / "steamapps" / "common" / "Enshrouded"
+            candidate.mkdir(parents=True)
+            (candidate / "Enshrouded.exe").write_bytes(b"")
+            found = EmbervaultRuntime.create(root).game.discover([root])
+            self.assertEqual([item.path for item in found], [candidate.resolve()])
+
     def test_troubleshooter_flags_missing_package_dependency(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
