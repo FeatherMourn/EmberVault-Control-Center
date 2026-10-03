@@ -29,7 +29,9 @@ def main() -> int:
     if not args.console:
         command.append("--windows-disable-console")
     for data_dir in DATA_DIRS:
-        command.append(f"--include-data-dir={ROOT / data_dir}={data_dir}")
+        dir_path = ROOT / data_dir
+        if dir_path.exists():
+            command.append(f"--include-data-dir={dir_path}={data_dir}")
     command.append(str(ROOT / "tools" / "windows_entry.py"))
     subprocess.run(command, cwd=ROOT, check=True)
     print(args.destination / "windows_entry.dist" / "EmberVaultControlCenter.exe")
