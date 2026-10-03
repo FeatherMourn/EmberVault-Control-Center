@@ -156,7 +156,7 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($env:RELEASE_KEY_ID)) { throw "Release key ID is not configured." }
           $version = (Get-Content pyproject.toml | Select-String '^version = ' | ForEach-Object { $_.ToString().Split('"')[1] })
           $artifact = Join-Path $env:TEMP "EmberVaultControlCenter-release-build\windows_entry.dist\EmberVaultControlCenter.exe"
-          python tools/package_signed_release.py $artifact $version (Join-Path $env:RUNNER_TEMP "embervault-release-key.pem") $env:RELEASE_KEY_ID "$env:GITHUB_WORKSPACE\signed-release"
+          python -m tools.package_signed_release $artifact $version (Join-Path $env:RUNNER_TEMP "embervault-release-key.pem") $env:RELEASE_KEY_ID "$env:GITHUB_WORKSPACE\signed-release"
           if (-not (Test-Path signed-release\release.json)) { throw "Signed release manifest was not created." }
 
       - name: Upload signed release bundle

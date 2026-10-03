@@ -150,7 +150,10 @@ class PackagingContractTests(unittest.TestCase):
         workflow = (root / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("signed-release:", workflow)
-        self.assertIn("package_signed_release.py", workflow)
+        self.assertTrue(
+            "package_signed_release.py" in workflow
+            or "-m tools.package_signed_release" in workflow
+        )
         self.assertIn("EMBERVAULT_RELEASE_PRIVATE_KEY_B64", workflow)
 
     def test_ci_verifies_catalog_handoff(self):
