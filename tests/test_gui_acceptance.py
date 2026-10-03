@@ -13,7 +13,7 @@ class GuiAcceptanceTests(unittest.TestCase):
         for binding in ("dashboardHealth", "activitySummary", "updateTrustStatus", "operationDetails"):
             self.assertIn(f"controlCenter.{binding}", qml)
 
-    @unittest.skipUnless(os.environ.get("CI") or os.environ.get("QT_QPA_PLATFORM") == "offscreen", "requires an offscreen Qt display")
+    @unittest.skipUnless(os.environ.get("EMBERVAULT_RUN_GUI_STARTUP_TEST") == "1", "run through the dedicated packaged smoke-test workflow step")
     def test_windowed_smoke_startup_exits_cleanly(self):
         env = os.environ.copy()
         env["QT_QPA_PLATFORM"] = "offscreen"
