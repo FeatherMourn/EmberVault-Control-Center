@@ -1,6 +1,7 @@
 name: EmberVault Control Center CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -115,3 +116,51 @@ jobs:
           & $python -m pip install $wheel
           Set-Location $env:TEMP
           & $python -m control_center.app --smoke-test
+
+  signed-release:
+    if: github.event_name == 'workflow_dispatch'
+    needs: windows
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install project and signing dependencies
+        run: python -m pip install . cryptography
+
+      - name: Build Windows standalone package
+        shell: cmd
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" -arch=x64
+          python tools\build_windows_nuitka.py "%TEMP%\EmberVaultControlCenter-release-build" --console
+
+      - name: Materialize signing key outside workspace
+        shell: pwsh
+        env:
+          RELEASE_PRIVATE_KEY_B64: ${{ secrets.EMBERVAULT_RELEASE_PRIVATE_KEY_B64 }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:RELEASE_PRIVATE_KEY_B64)) { throw "Release signing secret is not configured." }
+          $key = Join-Path $env:RUNNER_TEMP "embervault-release-key.pem"
+          [IO.File]::WriteAllBytes($key, [Convert]::FromBase64String($env:RELEASE_PRIVATE_KEY_B64))
+
+      - name: Create signed release bundle
+        shell: pwsh
+        env:
+          RELEASE_KEY_ID: ${{ secrets.EMBERVAULT_RELEASE_KEY_ID }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:RELEASE_KEY_ID)) { throw "Release key ID is not configured." }
+          $version = (Get-Content pyproject.toml | Select-String '^version = ' | ForEach-Object { $_.ToString().Split('"')[1] })
+          $artifact = Join-Path $env:TEMP "EmberVaultControlCenter-release-build\windows_entry.dist\EmberVaultControlCenter.exe"
+          python tools/package_signed_release.py $artifact $version (Join-Path $env:RUNNER_TEMP "embervault-release-key.pem") $env:RELEASE_KEY_ID "$env:GITHUB_WORKSPACE\signed-release"
+          if (-not (Test-Path signed-release\release.json)) { throw "Signed release manifest was not created." }
+
+      - name: Upload signed release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: embervault-control-center-signed-release
+          path: signed-release/*

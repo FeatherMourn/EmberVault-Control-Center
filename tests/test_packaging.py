@@ -145,6 +145,14 @@ class PackagingContractTests(unittest.TestCase):
         self.assertIn("shell: pwsh", windows_section)
         self.assertIn("control_center.app --smoke-test", windows_section)
 
+    def test_ci_declares_manual_signed_release_job(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = (root / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("signed-release:", workflow)
+        self.assertIn("package_signed_release.py", workflow)
+        self.assertIn("EMBERVAULT_RELEASE_PRIVATE_KEY_B64", workflow)
+
     def test_ci_verifies_catalog_handoff(self):
         root = Path(__file__).resolve().parents[1]
         workflow = (root / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")

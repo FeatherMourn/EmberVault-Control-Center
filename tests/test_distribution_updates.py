@@ -2,6 +2,9 @@ import hashlib
 import tempfile
 import unittest
 import base64
+import hashlib
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+import base64
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from pathlib import Path
 
@@ -78,6 +81,19 @@ class DistributionUpdateTests(unittest.TestCase):
             result = service.discover_feed("1.0.0", feed, core_version="1.0.0")
             self.assertEqual(result["state"], "incompatible")
             self.assertFalse((Path(temp) / "distribution" / "staged").exists())
+
+    def test_signed_feed_discovery_reports_available_release(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); package = root / "update.zip"; package.write_bytes(b"release")
+            private = Ed25519PrivateKey.generate()
+            manifest = ReleaseManifest(version="1.1.0", channel="stable", platform="windows",
+                package_name=package.name, sha256=hashlib.sha256(package.read_bytes()).hexdigest())
+            manifest.signature = "release-test:" + base64.b64encode(private.sign(manifest.signing_bytes())).decode()
+            service = DistributionService(root, trusted_keys={"release-test": base64.b64encode(private.public_key().public_bytes_raw()).decode()})
+            result = service.discover_feed("1.0.0", {"release": manifest.to_dict()}, core_version="1.0.0")
+            self.assertEqual(result["state"], "available")
+            self.assertTrue(result["signature_verified"])
+            self.assertEqual(result["application_state"], "review-only")
 
 
 if __name__ == "__main__":

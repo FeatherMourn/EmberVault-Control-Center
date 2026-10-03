@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from core.logging_service import StructuredLogService
@@ -61,6 +62,18 @@ class SaveWorkflowTests(unittest.TestCase):
             backup = workflow.backup(live, "manual", "default")
             with self.assertRaisesRegex(ValueError, "preview required"):
                 workflow.restore(backup.snapshot.id, live, "default")
+
+    def test_restore_failure_keeps_current_backup_and_failed_operation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); live = root / "live"; live.mkdir(); (live / "world.dat").write_text("safe")
+            workflow = SaveWorkflowService(SaveManagerService(root / "state"), OperationService(root / "state" / "operations.jsonl"), StructuredLogService(root / "state" / "logs.jsonl"))
+            backup = workflow.backup(live, "manual", "default"); workflow.preview_restore(backup.snapshot.id, live, "default")
+            with patch.object(workflow.saves, "restore", side_effect=OSError("simulated restore interruption")):
+                with self.assertRaisesRegex(OSError, "interruption"):
+                    workflow.restore(backup.snapshot.id, live, "default")
+            records = [json.loads(line) for line in (root / "state" / "operations.jsonl").read_text().splitlines()]
+            self.assertEqual(records[-1]["status"], "failed")
+            self.assertTrue(records[-1]["backup_id"])
 
 
 if __name__ == "__main__":

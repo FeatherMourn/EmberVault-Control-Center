@@ -492,6 +492,23 @@ class CoreServiceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 service.undeploy(package.id, game)
 
+    def test_interrupted_package_deployment_removes_partial_destination(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); profiles = ProfileService(root); profiles.ensure_defaults()
+            source = root / "incoming"; source.mkdir()
+            (source / "package.json").write_text(json.dumps({"id": "interrupt.mod", "name": "Interrupt", "version": "1.0"}))
+            (source / "mod.lua").write_text("return {}")
+            service = PackageService(root, profiles); package = service.install_from_directory(source)
+            profile = service.set_enabled(profiles.list()[0], package.id, True); game = root / "game"; game.mkdir()
+            destination = game / "mods" / package.id
+            def interrupted_copy(src, dst, *args, **kwargs):
+                Path(dst).mkdir(parents=True); (Path(dst) / "partial.txt").write_text("partial")
+                raise OSError("simulated deployment interruption")
+            with mock.patch("core.packages.shutil.copytree", side_effect=interrupted_copy):
+                with self.assertRaisesRegex(OSError, "deployment failed"):
+                    service.deploy_ready(profile, game)
+            self.assertFalse(destination.exists())
+
     def test_deployment_inspection_distinguishes_managed_external_and_invalid(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
