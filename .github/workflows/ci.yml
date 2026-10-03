@@ -40,7 +40,7 @@ jobs:
 
       - name: Smoke-test QML shell
         env:
-          QT_QPA_PLATFORM: offscreen
+          QT_QPA_PLATFORM: minimal
           QT_QUICK_BACKEND: software
         run: python -m control_center.app --smoke-test
 
