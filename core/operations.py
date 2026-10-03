@@ -18,6 +18,18 @@ class OperationStatus(StrEnum):
     CANCELLED = "cancelled"
 
 
+class OperationPhase(StrEnum):
+    DRAFT = "draft"
+    REVIEW = "review"
+    APPROVE = "approve"
+    EXECUTE = "execute"
+    VERIFY = "verify"
+    RECOVER = "recover"
+
+
+PHASE_ORDER = tuple(OperationPhase)
+
+
 @dataclass
 class Operation:
     id: str
@@ -32,6 +44,10 @@ class Operation:
     capability_state: str | None = None
     recovery_expectation: str | None = None
     message: str = ""
+    phase: str = OperationPhase.EXECUTE
+    progress: int = 0
+    cancellable: bool = True
+    recovery_guidance: str = ""
 
 
 class OperationService:
@@ -51,6 +67,9 @@ class OperationService:
             capability=capability,
             capability_state=capability_state,
             recovery_expectation=recovery_expectation,
+            phase=context.get("phase", OperationPhase.EXECUTE),
+            cancellable=bool(context.get("cancellable", True)),
+            recovery_guidance=context.get("recovery_guidance", recovery_expectation),
         )
         self._append(operation)
         return operation
@@ -91,6 +110,37 @@ class OperationService:
         operation.finished_at = datetime.now(timezone.utc).isoformat()
         self._append(operation)
         return operation
+
+    def transition(self, operation: Operation, phase: OperationPhase, message: str = "") -> Operation:
+        """Advance an active operation through the shared lifecycle."""
+        if operation.status != OperationStatus.STARTED:
+            raise ValueError("Only active operations can change phase")
+        try:
+            current = PHASE_ORDER.index(OperationPhase(operation.phase))
+            target = PHASE_ORDER.index(OperationPhase(phase))
+        except ValueError as exc:
+            raise ValueError("Unknown operation phase") from exc
+        if target < current:
+            raise ValueError("Operation phases cannot move backwards")
+        operation.phase = OperationPhase(phase)
+        if message:
+            operation.message = message
+        self._append(operation)
+        return operation
+
+    def update_progress(self, operation: Operation, progress: int, message: str = "") -> Operation:
+        if operation.status != OperationStatus.STARTED:
+            raise ValueError("Only active operations can report progress")
+        operation.progress = max(0, min(100, int(progress)))
+        if message:
+            operation.message = message
+        self._append(operation)
+        return operation
+
+    def cancel(self, operation: Operation, message: str = "Cancelled by user") -> Operation:
+        if not operation.cancellable:
+            raise ValueError("Operation is not cancellable")
+        return self.finish(operation, OperationStatus.CANCELLED, message)
 
     @staticmethod
     def integration_context(operation: Operation) -> IntegrationContext:

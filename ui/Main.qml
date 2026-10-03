@@ -123,6 +123,21 @@ ApplicationWindow {
                 StatusCard { title: "PROFILE"; value: controlCenter.profileName; note: "Core profile"; accent: ember }
                 StatusCard { title: "SAFETY"; value: "Ready"; note: controlCenter.saveSummary; accent: "#d8b46a" }
             }
+            Rectangle {
+                Layout.fillWidth: true
+                radius: 8
+                color: panel
+                border.color: line
+                implicitHeight: actionColumn.implicitHeight + 24
+                ColumnLayout {
+                    id: actionColumn
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    Text { text: "RECOMMENDED NEXT ACTION"; color: ember; font.pixelSize: 11; font.letterSpacing: 1.1 }
+                    Text { text: controlCenter.recommendedNextAction; color: ink; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+                    Text { text: controlCenter.dashboardHealth; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+                }
+            }
             Text { text: "Vault state"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 4 }
             Flow {
                 Layout.fillWidth: true

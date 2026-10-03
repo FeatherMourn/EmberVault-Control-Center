@@ -137,6 +137,28 @@ class ControlCenterBackend(QObject):
         return self._safety
 
     @Property(str, notify=stateChanged)
+    def recommendedNextAction(self):
+        if not self.settings.game_path:
+            return "Choose the Enshrouded game folder to begin."
+        if not self.save_manager.list_backups():
+            return "Create and verify a save backup before enabling changes."
+        if self.operations:
+            active = next((item for item in self.operations.list_recent(20)
+                           if item.status == OperationStatus.STARTED), None)
+            if active:
+                return f"Continue {active.operation_type}: {active.phase} ({active.progress}%)."
+        if self.modules and not self.modules.discover():
+            return "Review the module catalog and install a trusted module."
+        return "Review module health and choose a safe next action."
+
+    @Property(str, notify=stateChanged)
+    def dashboardHealth(self):
+        module_count = len(self.modules.discover()) if self.modules else 0
+        active = sum(1 for item in self.operations.list_recent(20)
+                     if item.status == OperationStatus.STARTED) if self.operations else 0
+        return f"Backups: {self.saveSummary} · Modules: {module_count} · Active operations: {active}"
+
+    @Property(str, notify=stateChanged)
     def saveSummary(self):
         count = len(self.save_manager.list_backups())
         return f"{count} verified backup{'s' if count != 1 else ''}"
@@ -530,7 +552,8 @@ class ControlCenterBackend(QObject):
             backup = f" · backup {operation.backup_id}" if operation.backup_id else ""
             details.append(
                 f"{operation.status.upper()} · {operation.operation_type} · {profile} · "
-                f"{capability}/{safety}{backup} · recovery: {recovery} · {operation.message}"
+                f"{capability}/{safety}{backup} · {operation.phase.upper()} {operation.progress}% · "
+                f"recovery: {recovery} · {operation.recovery_guidance} · {operation.message}"
             )
         return details
 

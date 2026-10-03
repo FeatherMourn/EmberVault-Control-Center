@@ -8,7 +8,7 @@ from pathlib import Path
 
 from core.compatibility import CompatibilityState, evaluate
 from core.logging_service import StructuredLogService
-from core.operations import OperationService, OperationStatus
+from core.operations import OperationPhase, OperationService, OperationStatus
 from core.integration import IntegrationContext
 from core.profiles import Profile, ProfileService
 from core.packages import PackageManifest, PackageService
@@ -140,6 +140,32 @@ class CoreServiceTests(unittest.TestCase):
             records = [json.loads(line) for line in service.path.read_text().splitlines()]
             self.assertEqual(records[-1]["status"], "succeeded")
             self.assertEqual(records[-1]["backup_id"], "EV-BACKUP-1")
+
+    def test_operation_lifecycle_supports_phase_progress_and_recovery(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = OperationService(Path(temp) / "operations.jsonl")
+            operation = service.start("package-deploy", phase=OperationPhase.DRAFT,
+                                      recovery_guidance="Restore the verified backup")
+            service.transition(operation, OperationPhase.REVIEW, "Plan ready")
+            service.transition(operation, OperationPhase.APPROVE, "Awaiting approval")
+            service.transition(operation, OperationPhase.EXECUTE, "Applying package")
+            service.update_progress(operation, 120)
+            self.assertEqual(operation.progress, 100)
+            service.transition(operation, OperationPhase.VERIFY, "Checking result")
+            service.finish(operation, OperationStatus.SUCCEEDED, "Verified")
+            saved = service.list_recent()[0]
+            self.assertEqual(saved.phase, OperationPhase.VERIFY)
+            self.assertEqual(saved.recovery_guidance, "Restore the verified backup")
+
+    def test_operation_lifecycle_rejects_backwards_phase_and_non_cancellable_cancel(self):
+        with tempfile.TemporaryDirectory() as temp:
+            service = OperationService(Path(temp) / "operations.jsonl")
+            operation = service.start("backup", phase=OperationPhase.EXECUTE)
+            with self.assertRaises(ValueError):
+                service.transition(operation, OperationPhase.REVIEW)
+            protected = service.start("restore", cancellable=False)
+            with self.assertRaises(ValueError):
+                service.cancel(protected)
 
     def test_recent_operations_returns_latest_records_first(self):
         with tempfile.TemporaryDirectory() as temp:
