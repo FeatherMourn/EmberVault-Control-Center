@@ -1,5 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embervault.dev/contracts/promotion-evidence.schema.json",
+  "x-canonical-source": "EmberVault-Contracts/schemas/promotion-evidence.schema.json",
   "title": "EmberVault capability promotion evidence",
   "type": "object", "additionalProperties": false,
   "required": ["schema_version", "target_state", "evidence"],

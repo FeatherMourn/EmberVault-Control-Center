@@ -9,6 +9,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SharedManifestContractTests(unittest.TestCase):
+    def test_shared_packaging_copies_use_canonical_sources(self):
+        for name in ("worker-result.schema.json", "integration-context.schema.json", "promotion-evidence.schema.json"):
+            local = json.loads((ROOT / "contracts" / name).read_text(encoding="utf-8"))
+            self.assertTrue(local["$id"].startswith("https://embervault.dev/contracts/"), name)
+            self.assertEqual(local["x-canonical-source"], f"EmberVault-Contracts/schemas/{name}")
+
     def test_seed_starter_module_matches_contract_v1_shape(self):
         manifest_path = ROOT / "modules" / "example" / "module.json"
         shared_schema = Path(__file__).resolve().parents[2] / "EmberVault-Contracts" / "schemas" / "module-manifest.schema.json"
