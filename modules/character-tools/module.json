@@ -1,0 +1,15 @@
+{
+  "id": "embervault.character-tools",
+  "name": "Character Tools",
+  "version": "0.1.0",
+  "publisher": "EmberVault",
+  "minimum_core_version": "0.1.0",
+  "capabilities": ["character.plan", "character.progression", "character.equipment.compare"],
+  "feature_state": "experimental",
+  "process_mode": "embedded",
+  "entrypoint": "module.py",
+  "contract_version": 1,
+  "safety": {"read_only": true, "requires_backup": true, "allowed_profiles": ["default", "research"]},
+  "recovery": {"rollback": "Discard the plan revision; never write save contents.", "verification": "Plan export contains no save mutation."},
+  "operation_types": ["character-plan", "character-progression-simulation", "character-equipment-comparison"]
+}
