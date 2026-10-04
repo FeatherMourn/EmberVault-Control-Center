@@ -44,7 +44,6 @@ ApplicationWindow {
                     NavButton { label: "Save Manager"; pageIndex: 3 }
                     NavButton { label: "Troubleshooter"; pageIndex: 4 }
                     Text { text: "TOOLS"; color: muted; font.pixelSize: 10; font.letterSpacing: 1.3; Layout.topMargin: 18 }
-                    NavButton { label: "Content Creator"; pageIndex: 5 }
                     NavButton { label: "Research Lab"; pageIndex: 6 }
                     NavButton { label: "Knowledge"; pageIndex: 7 }
                     NavButton { label: "Profiles"; pageIndex: 8 }
