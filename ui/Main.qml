@@ -282,7 +282,7 @@ ApplicationWindow {
             Button { text: "Load selected embedded module"; enabled: embeddedModulePicker.currentText.length > 0; onClicked: controlCenter.loadEmbeddedModule(embeddedModulePicker.currentText) }
             Button {
                 text: "Open Content Creator workspace"
-                enabled: controlCenter.embeddedModuleIds.indexOf("embervault.content-creator") >= 0
+                enabled: controlCenter.contentCreatorAvailable
                 onClicked: page = 5
             }
             Text { text: "Module safety and capability status"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }

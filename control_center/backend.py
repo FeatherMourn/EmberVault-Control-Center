@@ -693,6 +693,10 @@ class ControlCenterBackend(QObject):
             for module in self.modules.discover().values()
         ]
 
+    @Property(bool, notify=stateChanged)
+    def contentCreatorAvailable(self):
+        return bool(self.modules and self.modules.get("embervault.content-creator"))
+
     @Property("QStringList", notify=stateChanged)
     def moduleHealthOptions(self):
         if not self.modules:
