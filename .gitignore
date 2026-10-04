@@ -12,5 +12,6 @@ build/
 dist/
 logs/
 runtime-data/
+test_gui_acceptance_*data/
 profiles/*.json
 backups/
