@@ -36,7 +36,8 @@ def main() -> int:
         "recovery": {"expectation": "Read-only research worker", "rollback": "Terminate the worker", "verification": "Confirm no game or save files changed", "backup_required": False},
     })
     payload = result.to_dict()
-    payload.update({"read_only": True, "profile": args.profile, "game_path": args.game_path, "operation": args.operation})
+    payload.update({"read_only": True, "profile": args.profile, "game_path": args.game_path, "operation": args.operation,
+                    "evidence": evidence, "checks": ["profile_selected", "read_only", "no_live_mutation"]})
     print(json.dumps(payload))
     return 0
 
