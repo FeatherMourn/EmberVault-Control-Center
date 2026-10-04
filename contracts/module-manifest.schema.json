@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://embervault.invalid/contracts/module-manifest.schema.json",
+  "$id": "https://embervault.dev/contracts/module-manifest.schema.json",
+  "x-canonical-source": "EmberVault-Contracts/schemas/module-manifest.schema.json",
   "type": "object",
   "required": ["id", "name", "version", "publisher", "capabilities"],
   "properties": {
