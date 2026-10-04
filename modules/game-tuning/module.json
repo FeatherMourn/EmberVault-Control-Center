@@ -1,0 +1,15 @@
+{
+  "id": "embervault.game-tuning",
+  "name": "Game Tuning",
+  "version": "0.1.0",
+  "publisher": "EmberVault",
+  "minimum_core_version": "0.1.0",
+  "capabilities": ["tuning.stage", "tuning.compare", "tuning.export"],
+  "feature_state": "experimental",
+  "process_mode": "embedded",
+  "entrypoint": "module.py",
+  "contract_version": 1,
+  "safety": {"read_only": false, "requires_backup": true, "allowed_profiles": ["default", "research"]},
+  "recovery": {"rollback": "Restore the previous profile settings snapshot.", "verification": "Confirm staged-only state and profile ownership before applying any adapter package."},
+  "operation_types": ["game-setting-stage", "game-settings-reset", "game-settings-export"]
+}
