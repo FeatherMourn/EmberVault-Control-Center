@@ -504,6 +504,32 @@ class ModuleRegistryTests(unittest.TestCase):
             self.assertIn("design_workspace_only: True", result["checks"])
             self.assertIn("live_game_content_touched: False", result["checks"])
 
+    def test_content_worker_validates_export_package_without_mutation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            project = root / "project.json"
+            project.write_text(json.dumps({
+                "schema_version": 1,
+                "schema_id": "https://embervault.dev/contracts/content-project-export.schema.json",
+                "application_state": "design-only",
+                "evidence_summary": {"verification": {}, "evidence_count": 1, "open_questions": []},
+                "live_game_files_touched": False,
+            }), encoding="utf-8")
+            runtime = EmbervaultRuntime.create(root)
+            profile = next(item for item in runtime.profiles.list() if item.id == "research")
+            save_dir = root / "save-source"
+            save_dir.mkdir()
+            (save_dir / "world.dat").write_text("safe", encoding="utf-8")
+            backup = runtime.saves.backup(save_dir)
+            process = runtime.launcher.launch(
+                "embervault.content-creator", "content-creator", profile,
+                LaunchContext(profile.id, project, "EV-OP-CONTENT-REVIEW"),
+                backup.id,
+            )
+            result = json.loads(process.communicate(timeout=5)[0])
+            self.assertIn("project_export_contract: valid", result["checks"])
+            self.assertEqual(result["project_state"], "validated")
+
     def test_tuning_audit_reports_staged_only_boundary(self):
         with tempfile.TemporaryDirectory() as temp:
             runtime = EmbervaultRuntime.create(Path(temp))
