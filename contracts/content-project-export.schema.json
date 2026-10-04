@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embervault.dev/contracts/content-project-export.schema.json",
+  "x-canonical-source": "EmberVault-Contracts/schemas/content-project-export.schema.json",
+  "title": "EmberVault Content Project Export",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "application_state", "content_type", "project", "runtime_plan", "evidence_summary", "live_game_files_touched"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "application_state": {"const": "design-only"},
+    "content_type": {"type": "string", "minLength": 1},
+    "project": {"type": "object"},
+    "runtime_plan": {"type": "object"},
+    "evidence_summary": {"type": "object", "required": ["verification", "evidence_count", "open_questions"]},
+    "evidence": {"type": "array", "items": {"type": "object"}},
+    "live_game_files_touched": {"const": false}
+  }
+}

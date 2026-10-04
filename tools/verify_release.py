@@ -13,6 +13,7 @@ REQUIRED = (
     "contracts/integration-context.schema.json",
     "contracts/promotion-evidence.schema.json",
     "contracts/content-project.schema.json",
+    "contracts/content-project-export.schema.json",
     "contracts/knowledge-entry.schema.json",
     "contracts/research-summary.schema.json",
     "contracts/trainer-plan.schema.json",
