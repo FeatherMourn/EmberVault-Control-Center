@@ -84,7 +84,7 @@ ApplicationWindow {
                 GameSettingsPage {}
                 SaveManagerPage {}
                 TroubleshooterPage {}
-                RiskToolsPage { heading: "Content Creator"; capability: "content-creator"; body: "Content creation remains a guarded developer preview." }
+                ContentCreatorPage {}
                 ResearchPage {}
                 KnowledgePage {}
                 ProfilesPage {}
@@ -280,6 +280,11 @@ ApplicationWindow {
             Text { text: controlCenter.moduleUpgradeReview; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             ComboBox { id: embeddedModulePicker; model: controlCenter.embeddedModuleIds; Layout.fillWidth: true }
             Button { text: "Load selected embedded module"; enabled: embeddedModulePicker.currentText.length > 0; onClicked: controlCenter.loadEmbeddedModule(embeddedModulePicker.currentText) }
+            Button {
+                text: "Open Content Creator workspace"
+                enabled: controlCenter.embeddedModuleIds.indexOf("embervault.content-creator") >= 0
+                onClicked: page = 5
+            }
             Text { text: "Module safety and capability status"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
                 model: controlCenter.moduleHealthOptions
@@ -600,6 +605,12 @@ ApplicationWindow {
             }
             Repeater { model: controlCenter.characterPlanningOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; Layout.fillWidth: true } }
         }
+    }
+
+    component ContentCreatorPage: RiskToolsPage {
+        heading: "Content Creator"
+        capability: "content-creator"
+        body: "Design-only content workspace. Create, preview, revise, and export project records without changing live game files."
     }
 
     component RiskToolsPage: ScrollView {
