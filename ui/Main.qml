@@ -274,17 +274,29 @@ ApplicationWindow {
             Text { text: "Your tools, clearly separated."; color: ink; font.pixelSize: 30; font.bold: true }
             Text { text: "EmberVault discovers independently packaged modules through their contracts. Experimental modules are labeled before they are enabled."; color: muted; font.pixelSize: 15; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             Text { text: controlCenter.moduleOptions.length === 0 ? "No modules discovered yet." : "Discovered modules"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
+            Rectangle {
+                Layout.fillWidth: true
+                color: "#211b2d"
+                radius: 8
+                border.color: ember
+                implicitHeight: contentLauncherColumn.implicitHeight + 28
+                ColumnLayout {
+                    id: contentLauncherColumn
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.margins: 14
+                    Text { text: "CONTENT CREATOR WORKSPACE"; color: ember; font.bold: true; font.pixelSize: 12 }
+                    Text { text: "Open the design-only Content Creator tools."; color: ink; font.pixelSize: 14 }
+                    Button { text: "Open Content Creator workspace"; enabled: controlCenter.contentCreatorAvailable; onClicked: page = 5 }
+                }
+            }
             Button { text: "Inspect embedded modules"; onClicked: controlCenter.inspectEmbeddedModules() }
             Button { text: "Install module folder"; onClicked: controlCenter.installModuleFolder() }
             Button { text: "Stage module upgrade for review"; onClicked: controlCenter.stageModuleUpgrade() }
             Text { text: controlCenter.moduleUpgradeReview; color: muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             ComboBox { id: embeddedModulePicker; model: controlCenter.embeddedModuleIds; Layout.fillWidth: true }
             Button { text: "Load selected embedded module"; enabled: embeddedModulePicker.currentText.length > 0; onClicked: controlCenter.loadEmbeddedModule(embeddedModulePicker.currentText) }
-            Button {
-                text: "Open Content Creator workspace"
-                enabled: controlCenter.contentCreatorAvailable
-                onClicked: page = 5
-            }
             Text { text: "Module safety and capability status"; color: ink; font.bold: true; font.pixelSize: 17; Layout.topMargin: 8 }
             Repeater {
                 model: controlCenter.moduleHealthOptions
