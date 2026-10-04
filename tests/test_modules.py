@@ -9,6 +9,18 @@ from core.application import EmbervaultRuntime
 
 
 class ModuleRegistryTests(unittest.TestCase):
+    def test_troubleshooter_result_contains_evidence_recovery_and_read_only_boundary(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("seed_troubleshooter", Path(__file__).parents[1] / "modules" / "troubleshooter" / "module.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        from embervault_sdk import ModuleContext
+        result = module.scan(ModuleContext("embervault.troubleshooter", "research", "EV-OP-TROUBLESHOOTER"), [{"title": "Game path", "severity": "attention"}])
+        self.assertEqual(result.status, "ready")
+        self.assertFalse(result.data["mutates_workspace"])
+        self.assertTrue(result.data["evidence"])
+        self.assertFalse(result.data["recovery"]["backup_required"])
+
     def test_discovers_manifest_and_capability(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "demo"
