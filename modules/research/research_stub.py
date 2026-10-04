@@ -10,6 +10,8 @@ import argparse
 import json
 from pathlib import Path
 
+from embervault_sdk import ModuleResult
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -25,9 +27,17 @@ def main() -> int:
     if game:
         evidence.append(f"game_path_exists: {game.exists()}")
         evidence.append(f"game_path_is_directory: {game.is_dir()}")
-    print(json.dumps({"contract_version": 1, "status": "ready", "read_only": True,
-                      "profile": args.profile, "game_path": args.game_path, "operation": args.operation,
-                      "evidence": evidence}))
+    result = ModuleResult("ready", "Research worker prepared a read-only evidence session.", {
+        "profile_id": args.profile,
+        "operation_id": args.operation,
+        "application_state": "read-only",
+        "mutates_workspace": False,
+        "evidence": [{"id": "research-worker-session", "kind": "runtime", "state": "observed", "summary": item} for item in evidence],
+        "recovery": {"expectation": "Read-only research worker", "rollback": "Terminate the worker", "verification": "Confirm no game or save files changed", "backup_required": False},
+    })
+    payload = result.to_dict()
+    payload.update({"read_only": True, "profile": args.profile, "game_path": args.game_path, "operation": args.operation})
+    print(json.dumps(payload))
     return 0
 
 
