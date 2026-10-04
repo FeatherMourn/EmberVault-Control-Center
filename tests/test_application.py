@@ -33,7 +33,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             health = runtime.health()
             self.assertEqual(health["core"], "ready")
             self.assertEqual(health["profiles"], 2)
-            self.assertEqual(health["modules"], 5)
+            self.assertEqual(health["modules"], 10)
             self.assertEqual(health["backups"], 0)
             self.assertEqual(health["research"], 0)
             self.assertEqual(health["knowledge"], 8)
@@ -867,7 +867,7 @@ class ApplicationCompositionTests(unittest.TestCase):
             runtime = EmbervaultRuntime.create(Path(temp))
             backend = ControlCenterBackend(Path(temp), runtime=runtime)
             backend.inspectEmbeddedModules()
-            self.assertIn("Inspected 1 embedded module", backend.lastSaveMessage)
+            self.assertIn("Inspected 6 embedded module", backend.lastSaveMessage)
             self.assertTrue(any(item.operation_type == "embedded-module-inspection"
                                 and item.status == "succeeded"
                                 for item in backend.operations.list_recent()))
