@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from core.modules import ModuleManifest
+from embervault_sdk import validate_recovery_reference
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,6 +31,18 @@ class SharedManifestContractTests(unittest.TestCase):
         self.assertEqual(parsed.process_mode, "embedded")
         self.assertTrue(parsed.safety["read_only"])
         self.assertIn("example-inspection", parsed.operation_types)
+
+    def test_starter_module_lifecycle_returns_valid_recovery_reference(self):
+        module = ModuleManifest.from_file(ROOT / "modules" / "example" / "module.json")
+        self.assertEqual(module.id, "embervault.example")
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("starter_module", ROOT / "modules" / "example" / "module.py")
+        loaded = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(loaded)
+        from embervault_sdk import ModuleContext
+        result = loaded.initialize(ModuleContext(module.id, "default", "EV-OP-STARTER"))
+        self.assertEqual(result.status, "ready")
+        self.assertEqual(validate_recovery_reference(result.data["recovery"]), [])
 
 
 if __name__ == "__main__":
