@@ -6,9 +6,19 @@ from pathlib import Path
 
 from core.modules import LaunchContext, ModuleRegistry
 from core.application import EmbervaultRuntime
+from core.troubleshooter_history_adapter import create_history_action_request
 
 
 class ModuleRegistryTests(unittest.TestCase):
+    def test_troubleshooter_history_adapter_requires_approval_and_key_reference(self):
+        request = create_history_action_request("delete", "reports.enc", "profile-key", True)
+        self.assertEqual(request.action, "delete")
+        self.assertTrue(request.approved)
+        with self.assertRaises(PermissionError):
+            create_history_action_request("delete", "reports.enc", "profile-key", False)
+        with self.assertRaises(ValueError):
+            create_history_action_request("delete", "reports.enc", "", True)
+
     def test_troubleshooter_result_contains_evidence_recovery_and_read_only_boundary(self):
         import importlib.util
         spec = importlib.util.spec_from_file_location("seed_troubleshooter", Path(__file__).parents[1] / "modules" / "troubleshooter" / "module.py")
