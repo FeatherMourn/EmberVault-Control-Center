@@ -23,6 +23,21 @@ def scan_evidence(context: ModuleContext, evidence: dict) -> ModuleResult:
     return ModuleResult("ready", "Version-one diagnostic evidence summarized.", data)
 
 
+def plan_history_action(context: ModuleContext, action: str, approved: bool) -> ModuleResult:
+    """Return an explicit plan for report-history lifecycle work; never executes it."""
+    if context.module_id != MODULE_ID:
+        return ModuleResult("blocked", "Troubleshooter received an invalid module context.")
+    if action not in {"save", "clear", "delete"}:
+        return ModuleResult("blocked", "Unsupported report-history action.")
+    if approved is not True:
+        return ModuleResult("blocked", "Report-history lifecycle actions require explicit approval.")
+    return ModuleResult("ready", "Report-history action approved for external execution.", {
+        "action": action, "approved": True, "plan_only": True,
+        "read_only": True, "mutates_workspace": False,
+        "authority": "Control Center",
+    })
+
+
 def scan(context: ModuleContext, findings: list[dict]) -> ModuleResult:
     if context.module_id != MODULE_ID:
         return ModuleResult("blocked", "Troubleshooter received an invalid module context.")

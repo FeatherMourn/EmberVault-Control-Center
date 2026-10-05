@@ -34,6 +34,19 @@ class ModuleRegistryTests(unittest.TestCase):
         self.assertEqual(result.status, "ready")
         self.assertEqual(result.data["evidence_contract"]["producer"], "control-center")
 
+    def test_troubleshooter_history_requires_explicit_approval(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("seed_troubleshooter_history", Path(__file__).parents[1] / "modules" / "troubleshooter" / "module.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        from embervault_sdk import ModuleContext
+        context = ModuleContext("embervault.troubleshooter", "research", "EV-OP-HISTORY-PLAN")
+        blocked = module.plan_history_action(context, "delete", False)
+        self.assertEqual(blocked.status, "blocked")
+        approved = module.plan_history_action(context, "delete", True)
+        self.assertEqual(approved.status, "ready")
+        self.assertTrue(approved.data["plan_only"])
+
     def test_discovers_manifest_and_capability(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "demo"

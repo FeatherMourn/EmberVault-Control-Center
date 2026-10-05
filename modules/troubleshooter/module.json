@@ -11,5 +11,5 @@
   "contract_version": 1,
   "safety": {"read_only": true, "requires_backup": false, "allowed_profiles": ["default", "research"]},
   "recovery": {"rollback": "No repair is performed by the diagnostic module.", "verification": "Diagnostic output is evidence only."},
-  "operation_types": ["troubleshooter-scan", "troubleshooter-report"]
+  "operation_types": ["troubleshooter-scan", "troubleshooter-report", "troubleshooter-history"]
 }
