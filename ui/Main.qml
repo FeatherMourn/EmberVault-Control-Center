@@ -646,42 +646,42 @@ ApplicationWindow {
                 Button { text: "Export latest plan"; onClicked: controlCenter.exportLatestTrainerPlan() }
             }
             Repeater { visible: capability === "trainer"; model: controlCenter.trainerPlanOptions; delegate: Text { text: modelData; color: muted; font.pixelSize: 12; Layout.fillWidth: true } }
-            TextField { id: contentName; visible: capability === "content-creator"; placeholderText: "Content project name"; Layout.fillWidth: true }
-            TextField { id: contentDescription; visible: capability === "content-creator"; placeholderText: "Development brief or intended outcome"; Layout.fillWidth: true }
-            TextField { id: contentDesignNotes; visible: capability === "content-creator"; placeholderText: "Design notes, dimensions, materials, or recipe details"; Layout.fillWidth: true }
-            TextField { id: contentAssetRefs; visible: capability === "content-creator"; placeholderText: "Asset references (comma-separated, project-relative)"; Layout.fillWidth: true }
-            TextField { id: contentMaterials; visible: capability === "content-creator"; placeholderText: "Materials (comma-separated)"; Layout.fillWidth: true }
-            TextField { id: contentDimensions; visible: capability === "content-creator"; placeholderText: "Dimensions (width=2,height=1)"; Layout.fillWidth: true }
-            TextField { id: contentRecipe; visible: capability === "content-creator"; placeholderText: "Recipe plan steps (semicolon-separated)"; Layout.fillWidth: true }
-            TextField { id: contentRegistration; visible: capability === "content-creator"; placeholderText: "Registration plan"; Layout.fillWidth: true }
-            TextField { id: contentCompatibility; visible: capability === "content-creator"; placeholderText: "Compatibility notes"; Layout.fillWidth: true }
-            TextField { id: contentDecision; visible: capability === "content-creator"; placeholderText: "Design decision"; Layout.fillWidth: true }
-            TextField { id: contentDecisionRationale; visible: capability === "content-creator"; placeholderText: "Decision rationale"; Layout.fillWidth: true }
-            TextField { id: contentDecisionResearch; visible: capability === "content-creator"; placeholderText: "Decision research IDs (comma-separated)"; Layout.fillWidth: true }
-            TextField { id: contentDecisionKnowledge; visible: capability === "content-creator"; placeholderText: "Decision knowledge IDs (comma-separated)"; Layout.fillWidth: true }
-            ComboBox { id: contentDesignType; visible: capability === "content-creator"; model: ["furniture", "building", "recipe", "other"]; Layout.fillWidth: true }
-            Button { visible: capability === "content-creator"; text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
-            Button { visible: capability === "content-creator"; text: "Update latest design"; onClicked: controlCenter.updateLatestContentDesign(contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
-            Button { visible: capability === "content-creator"; text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
-            Button { visible: capability === "content-creator"; text: "Stage latest content submission"; onClicked: controlCenter.stageLatestContentSubmission() }
-            Button { visible: capability === "content-creator"; text: "Refresh design preview"; onClicked: controlCenter.previewLatestContentProject() }
-            Button { visible: capability === "content-creator"; text: "Record design decision"; onClicked: controlCenter.recordLatestContentDecision(contentDecision.text, contentDecisionRationale.text, contentDecisionResearch.text, contentDecisionKnowledge.text) }
+            TextField { id: contentName; visible: capability === "content-creator" && !wizardMode; placeholderText: "Content project name"; Layout.fillWidth: true }
+            TextField { id: contentDescription; visible: capability === "content-creator" && !wizardMode; placeholderText: "Development brief or intended outcome"; Layout.fillWidth: true }
+            TextField { id: contentDesignNotes; visible: capability === "content-creator" && !wizardMode; placeholderText: "Design notes, dimensions, materials, or recipe details"; Layout.fillWidth: true }
+            TextField { id: contentAssetRefs; visible: capability === "content-creator" && !wizardMode; placeholderText: "Asset references (comma-separated, project-relative)"; Layout.fillWidth: true }
+            TextField { id: contentMaterials; visible: capability === "content-creator" && !wizardMode; placeholderText: "Materials (comma-separated)"; Layout.fillWidth: true }
+            TextField { id: contentDimensions; visible: capability === "content-creator" && !wizardMode; placeholderText: "Dimensions (width=2,height=1)"; Layout.fillWidth: true }
+            TextField { id: contentRecipe; visible: capability === "content-creator" && !wizardMode; placeholderText: "Recipe plan steps (semicolon-separated)"; Layout.fillWidth: true }
+            TextField { id: contentRegistration; visible: capability === "content-creator" && !wizardMode; placeholderText: "Registration plan"; Layout.fillWidth: true }
+            TextField { id: contentCompatibility; visible: capability === "content-creator" && !wizardMode; placeholderText: "Compatibility notes"; Layout.fillWidth: true }
+            TextField { id: contentDecision; visible: capability === "content-creator" && !wizardMode; placeholderText: "Design decision"; Layout.fillWidth: true }
+            TextField { id: contentDecisionRationale; visible: capability === "content-creator" && !wizardMode; placeholderText: "Decision rationale"; Layout.fillWidth: true }
+            TextField { id: contentDecisionResearch; visible: capability === "content-creator" && !wizardMode; placeholderText: "Decision research IDs (comma-separated)"; Layout.fillWidth: true }
+            TextField { id: contentDecisionKnowledge; visible: capability === "content-creator" && !wizardMode; placeholderText: "Decision knowledge IDs (comma-separated)"; Layout.fillWidth: true }
+            ComboBox { id: contentDesignType; visible: capability === "content-creator" && !wizardMode; model: ["furniture", "building", "recipe", "other"]; Layout.fillWidth: true }
+            Button { visible: capability === "content-creator" && !wizardMode; text: "Create project"; onClicked: controlCenter.createContentProject(contentName.text, contentDescription.text, contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
+            Button { visible: capability === "content-creator" && !wizardMode; text: "Update latest design"; onClicked: controlCenter.updateLatestContentDesign(contentDesignType.currentText, contentDesignNotes.text, contentAssetRefs.text, contentMaterials.text, contentDimensions.text, contentRecipe.text, contentRegistration.text, contentCompatibility.text) }
+            Button { visible: capability === "content-creator" && !wizardMode; text: "Export latest design manifest"; onClicked: controlCenter.exportLatestContentProject() }
+            Button { visible: capability === "content-creator" && !wizardMode; text: "Stage latest content submission"; onClicked: controlCenter.stageLatestContentSubmission() }
+            Button { visible: capability === "content-creator" && !wizardMode; text: "Refresh design preview"; onClicked: controlCenter.previewLatestContentProject() }
+            Button { visible: capability === "content-creator" && !wizardMode; text: "Record design decision"; onClicked: controlCenter.recordLatestContentDecision(contentDecision.text, contentDecisionRationale.text, contentDecisionResearch.text, contentDecisionKnowledge.text) }
             Repeater {
-                visible: capability === "content-creator"
+                visible: capability === "content-creator" && (!wizardMode || contentWizardStep === 4)
                 model: controlCenter.contentPreview
                 delegate: Text { text: modelData; color: index === 0 ? ember : muted; font.pixelSize: 12; wrapMode: Text.WordWrap; Layout.fillWidth: true }
             }
             RowLayout {
-                visible: capability === "content-creator"
+                visible: capability === "content-creator" && !wizardMode
                 Button { text: "Publish latest"; onClicked: controlCenter.publishLatestContentProject() }
                 Button { text: "Unpublish latest"; onClicked: controlCenter.unpublishLatestContentProject() }
             }
             RowLayout {
-                visible: capability === "content-creator"
+                visible: capability === "content-creator" && !wizardMode
                 Button { text: "Mark ready"; onClicked: controlCenter.setLatestContentStatus("ready") }
                 Button { text: "Mark blocked"; onClicked: controlCenter.setLatestContentStatus("blocked") }
             }
-            Repeater { visible: capability === "content-creator"; model: controlCenter.contentOptions; delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true } }
+            Repeater { visible: capability === "content-creator" && !wizardMode; model: controlCenter.contentOptions; delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true } }
             Repeater {
                 model: controlCenter.riskOptions
                 delegate: Text { text: modelData; color: ink; font.pixelSize: 13; Layout.fillWidth: true }
