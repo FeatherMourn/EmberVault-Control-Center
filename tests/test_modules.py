@@ -7,6 +7,7 @@ from pathlib import Path
 from core.modules import LaunchContext, ModuleRegistry
 from core.application import EmbervaultRuntime
 from core.troubleshooter_history_adapter import create_history_action_request, dispatch_history_action, dispatch_recovery_trend
+from core.troubleshooter_review_adapter import prepare_troubleshooter_display
 
 
 class ModuleRegistryTests(unittest.TestCase):
@@ -43,6 +44,15 @@ class ModuleRegistryTests(unittest.TestCase):
         self.assertEqual(result, "trend-ready")
         self.assertEqual(captured["operation"], "recovery-trend")
         self.assertTrue(captured["read_only"])
+
+    def test_troubleshooter_review_display_has_no_actions(self):
+        display = prepare_troubleshooter_display({
+            "view_version": 1, "title": "Troubleshooter Review", "read_only": True,
+            "mutates_workspace": False, "finding_count": 2, "findings": [{"id": "gap"}],
+            "recovery": {"rollback_ready_count": 1}, "errors": [], "controls": [],
+        })
+        self.assertEqual(display["read_only_label"], "Read-only diagnostics")
+        self.assertEqual(display["actions"], [])
 
     def test_troubleshooter_result_contains_evidence_recovery_and_read_only_boundary(self):
         import importlib.util
