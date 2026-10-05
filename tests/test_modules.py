@@ -6,7 +6,7 @@ from pathlib import Path
 
 from core.modules import LaunchContext, ModuleRegistry
 from core.application import EmbervaultRuntime
-from core.troubleshooter_history_adapter import create_history_action_request, dispatch_history_action
+from core.troubleshooter_history_adapter import create_history_action_request, dispatch_history_action, dispatch_recovery_trend
 
 
 class ModuleRegistryTests(unittest.TestCase):
@@ -31,6 +31,18 @@ class ModuleRegistryTests(unittest.TestCase):
         self.assertEqual(dispatch_history_action(request, runtime, "module-context"), "ready")
         self.assertEqual(captured["payload"]["contract_version"], 1)
         self.assertEqual(captured["payload"]["key_reference"], "profile-key")
+
+    def test_troubleshooter_history_adapter_dispatches_recovery_trend(self):
+        captured = {}
+
+        def runtime(context, payload):
+            captured.update(payload)
+            return "trend-ready"
+
+        result = dispatch_recovery_trend([{"recovery_schema_version": 1}], runtime, "module-context")
+        self.assertEqual(result, "trend-ready")
+        self.assertEqual(captured["operation"], "recovery-trend")
+        self.assertTrue(captured["read_only"])
 
     def test_troubleshooter_result_contains_evidence_recovery_and_read_only_boundary(self):
         import importlib.util

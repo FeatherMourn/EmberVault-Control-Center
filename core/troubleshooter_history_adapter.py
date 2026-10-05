@@ -37,3 +37,14 @@ def dispatch_history_action(request: HistoryActionRequest, runtime_handler: Call
         "contract_version": 1, "action": request.action, "approved": True,
         "store_path": request.store_path, "key_reference": request.key_reference,
     })
+
+
+def dispatch_recovery_trend(reviews: list[dict], runtime_handler: Callable[..., Any],
+                            context: Any) -> Any:
+    """Ask the packaged Troubleshooter runtime for a read-only recovery trend."""
+    if not isinstance(reviews, list) or not reviews:
+        raise ValueError("At least one recovery review is required.")
+    if not callable(runtime_handler):
+        raise ValueError("A packaged Troubleshooter runtime handler is required.")
+    return runtime_handler(context, {"contract_version": 1, "operation": "recovery-trend",
+                                     "reviews": reviews, "read_only": True})
