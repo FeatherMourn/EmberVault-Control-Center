@@ -6,7 +6,7 @@ from pathlib import Path
 
 from core.modules import LaunchContext, ModuleRegistry
 from core.application import EmbervaultRuntime
-from core.troubleshooter_history_adapter import create_history_action_request
+from core.troubleshooter_history_adapter import create_history_action_request, dispatch_history_action
 
 
 class ModuleRegistryTests(unittest.TestCase):
@@ -18,6 +18,19 @@ class ModuleRegistryTests(unittest.TestCase):
             create_history_action_request("delete", "reports.enc", "profile-key", False)
         with self.assertRaises(ValueError):
             create_history_action_request("delete", "reports.enc", "", True)
+
+    def test_troubleshooter_history_adapter_dispatches_versioned_request(self):
+        request = create_history_action_request("save", "reports.enc", "profile-key", True)
+        captured = {}
+
+        def runtime(context, payload):
+            captured["context"] = context
+            captured["payload"] = payload
+            return "ready"
+
+        self.assertEqual(dispatch_history_action(request, runtime, "module-context"), "ready")
+        self.assertEqual(captured["payload"]["contract_version"], 1)
+        self.assertEqual(captured["payload"]["key_reference"], "profile-key")
 
     def test_troubleshooter_result_contains_evidence_recovery_and_read_only_boundary(self):
         import importlib.util
