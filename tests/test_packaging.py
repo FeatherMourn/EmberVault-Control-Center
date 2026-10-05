@@ -49,7 +49,7 @@ class PackagingContractTests(unittest.TestCase):
     def test_data_file_layout_matches_setuptools_wheel_convention(self):
         root = Path(__file__).resolve().parents[1]
         metadata = (root / "pyproject.toml").read_text(encoding="utf-8")
-        self.assertIn('"ui" = ["ui/Main.qml"]', metadata)
+        self.assertIn('"ui" = ["ui/Main.qml", "ui/TroubleshooterReview.qml"]', metadata)
         self.assertIn('"PySide6>=6.8"', metadata)
         self.assertIn('"cryptography>=43"', metadata)
 
