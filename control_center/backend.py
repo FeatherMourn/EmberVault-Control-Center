@@ -953,16 +953,19 @@ class ControlCenterBackend(QObject):
                 diagnostic_module = self.modules.get("embervault.troubleshooter") if self.modules else None
                 if diagnostic_module:
                     loaded = self.modules.load_embedded(diagnostic_module.id)
-                    scanner = getattr(loaded, "scan", None)
+                    scanner = getattr(loaded, "scan_evidence", None)
+                    use_evidence_contract = callable(scanner)
+                    if not use_evidence_contract:
+                        scanner = getattr(loaded, "scan", None)
                     if not callable(scanner):
                         raise ValueError("Troubleshooter does not provide a scan contract")
                     from embervault_sdk import ModuleContext
-                    result = scanner(
-                        ModuleContext(diagnostic_module.id, self._selected_profile_id,
-                                      operation.id if operation else None, "plan-only"),
-                        [{"title": item.title, "severity": item.severity, "message": item.message}
-                         for item in findings],
-                    )
+                    context = ModuleContext(diagnostic_module.id, self._selected_profile_id,
+                                            operation.id if operation else None, "plan-only")
+                    payload = [{"title": item.title, "severity": item.severity, "message": item.message}
+                               for item in findings]
+                    result = scanner(context, {"contract_version": 1, "producer": "control-center",
+                                               "operation": "troubleshooter-scan", "findings": payload}) if use_evidence_contract else scanner(context, payload)
                     if result.status != "ready":
                         raise ValueError(result.message)
                 attention = sum(1 for item in findings if item.severity == "attention")
