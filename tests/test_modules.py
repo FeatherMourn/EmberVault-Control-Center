@@ -54,6 +54,12 @@ class ModuleRegistryTests(unittest.TestCase):
         self.assertEqual(display["read_only_label"], "Read-only diagnostics")
         self.assertEqual(display["actions"], [])
 
+    def test_troubleshooter_review_component_is_packaged(self):
+        component = Path(__file__).parents[1] / "ui" / "TroubleshooterReview.qml"
+        self.assertTrue(component.is_file())
+        self.assertIn("READ-ONLY DIAGNOSTICS", component.read_text(encoding="utf-8"))
+        self.assertNotIn("onClicked", component.read_text(encoding="utf-8"))
+
     def test_troubleshooter_result_contains_evidence_recovery_and_read_only_boundary(self):
         import importlib.util
         spec = importlib.util.spec_from_file_location("seed_troubleshooter", Path(__file__).parents[1] / "modules" / "troubleshooter" / "module.py")
