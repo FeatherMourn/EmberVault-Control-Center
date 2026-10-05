@@ -1,12 +1,30 @@
 from embervault_sdk import ModuleContext, ModuleResult
 
+MODULE_ID = "embervault.troubleshooter"
+
 
 def describe() -> dict:
-    return {"id": "embervault.troubleshooter", "execution": "embedded", "application_state": "read-only", "mutates_workspace": False}
+    return {"id": MODULE_ID, "execution": "embedded", "application_state": "read-only", "mutates_workspace": False}
+
+
+def scan_evidence(context: ModuleContext, evidence: dict) -> ModuleResult:
+    if context.module_id != MODULE_ID or not isinstance(evidence, dict) or evidence.get("contract_version") != 1:
+        return ModuleResult("blocked", "Diagnostic evidence requires the Troubleshooter version-one contract.")
+    producer = evidence.get("producer")
+    findings = evidence.get("findings")
+    if not isinstance(producer, str) or not producer.strip() or not isinstance(findings, list):
+        return ModuleResult("blocked", "Diagnostic evidence requires a producer and findings list.")
+    result = scan(context, findings)
+    if result.status != "ready":
+        return result
+    data = dict(result.data)
+    data["evidence_contract"] = {"contract_version": 1, "producer": producer.strip()}
+    data["source_operation"] = str(evidence.get("operation", "unspecified"))
+    return ModuleResult("ready", "Version-one diagnostic evidence summarized.", data)
 
 
 def scan(context: ModuleContext, findings: list[dict]) -> ModuleResult:
-    if context.module_id != "embervault.troubleshooter":
+    if context.module_id != MODULE_ID:
         return ModuleResult("blocked", "Troubleshooter received an invalid module context.")
     normalized = []
     for finding in findings:

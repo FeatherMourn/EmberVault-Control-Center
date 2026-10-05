@@ -21,6 +21,19 @@ class ModuleRegistryTests(unittest.TestCase):
         self.assertTrue(result.data["evidence"])
         self.assertFalse(result.data["recovery"]["backup_required"])
 
+    def test_troubleshooter_accepts_control_center_evidence_contract(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("seed_troubleshooter_evidence", Path(__file__).parents[1] / "modules" / "troubleshooter" / "module.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        from embervault_sdk import ModuleContext
+        result = module.scan_evidence(ModuleContext("embervault.troubleshooter", "research", "EV-OP-EVIDENCE"), {
+            "contract_version": 1, "producer": "control-center", "operation": "troubleshooter-scan",
+            "findings": [{"title": "Game path", "severity": "attention"}],
+        })
+        self.assertEqual(result.status, "ready")
+        self.assertEqual(result.data["evidence_contract"]["producer"], "control-center")
+
     def test_discovers_manifest_and_capability(self):
         with tempfile.TemporaryDirectory() as temp:
             module = Path(temp) / "demo"
