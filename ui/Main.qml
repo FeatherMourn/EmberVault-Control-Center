@@ -9,20 +9,21 @@ ApplicationWindow {
     height: 760
     minimumWidth: 900
     minimumHeight: 600
-    title: "EmberVault Control Center"
+    title: standaloneContentCreator ? "EmberVault Content Creator" : "EmberVault Control Center"
     color: "#0d0c14"
     property color ink: "#edeaf4"
     property color muted: "#918da4"
     property color panel: "#15141e"
     property color line: "#2b2739"
     property color ember: "#ef8b4d"
-    property int page: 0
+    property int page: standaloneContentCreator ? 5 : 0
     property var pageTitles: ["Home", "My Mods", "Game Settings", "Save Manager", "Troubleshooter", "Content Creator", "Research Lab", "Knowledge", "Profiles", "Characters", "Trainer", "Activity", "Modules", "Governance"]
 
     RowLayout {
         anchors.fill: parent
         spacing: 0
         Rectangle {
+            visible: !standaloneContentCreator
             Layout.fillHeight: true
             Layout.preferredWidth: 230
             color: "#100f18"
@@ -287,7 +288,7 @@ ApplicationWindow {
                     anchors.margins: 14
                     Text { text: "CONTENT CREATOR WORKSPACE"; color: ember; font.bold: true; font.pixelSize: 12 }
                     Text { text: "Open the design-only Content Creator tools."; color: ink; font.pixelSize: 14 }
-                    Button { text: "Open Content Creator workspace"; enabled: controlCenter.contentCreatorAvailable; onClicked: page = 5 }
+                    Button { text: "Open Content Creator workspace"; enabled: controlCenter.contentCreatorAvailable; onClicked: controlCenter.openContentCreator() }
                 }
             }
             Button { text: "Inspect embedded modules"; onClicked: controlCenter.inspectEmbeddedModules() }

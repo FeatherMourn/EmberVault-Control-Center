@@ -1828,6 +1828,27 @@ class ControlCenterBackend(QObject):
         self._launchGuardedModule("embervault.content-creator", "content-creator")
 
     @Slot()
+    def openContentCreator(self):
+        """Open the dedicated Content Creator application."""
+        try:
+            packaged_executable = Path(sys.executable).suffix.lower() == ".exe"
+            if packaged_executable:
+                executable = Path(sys.executable).with_name("EmberVaultContentCreator.exe")
+                if not executable.is_file():
+                    executable = Path(sys.executable).parents[1] / "content_creator_entry.dist" / "EmberVaultContentCreator.exe"
+                if not executable.is_file():
+                    raise FileNotFoundError("EmberVaultContentCreator.exe is not beside Control Center")
+                command = [str(executable), f"--profile={self._selected_profile_id}"]
+            else:
+                command = [sys.executable, str(Path(__file__).resolve().parents[1] / "tools" / "content_creator_entry.py"),
+                           f"--profile={self._selected_profile_id}"]
+            subprocess.Popen(command, cwd=str(Path(__file__).resolve().parents[1]))
+            self._last_save_message = "Opened Content Creator in a separate window"
+        except (OSError, PermissionError) as exc:
+            self._last_save_message = f"Could not open Content Creator: {exc}"
+        self.stateChanged.emit()
+
+    @Slot()
     def launchTuningAudit(self):
         self._launchGuardedModule("embervault.tuning-audit", "tuning-audit")
 

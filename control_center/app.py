@@ -40,10 +40,17 @@ def main() -> int:
         print(f"PySide6 is required to launch EmberVault Control Center: {exc}", file=sys.stderr)
         return 2
 
+    standalone_content_creator = "--content-creator" in sys.argv
+    requested_profile = next((arg.split("=", 1)[1] for arg in sys.argv if arg.startswith("--profile=") and "=" in arg), "")
     app = QApplication(sys.argv)
     engine = QQmlApplicationEngine()
     runtime = EmbervaultRuntime.create(ROOT / "runtime-data")
     backend = ControlCenterBackend(runtime.root, runtime=runtime)
+    if requested_profile:
+        for index, profile in enumerate(backend.profiles):
+            if profile.id == requested_profile:
+                backend.selectProfile(index)
+                break
     backend.refresh()
     if "--smoke-test" in sys.argv:
         health = runtime.health()
@@ -51,6 +58,7 @@ def main() -> int:
             print(f"Packaged seed inventory is incomplete: {health}", file=sys.stderr)
             return 1
     engine.rootContext().setContextProperty("controlCenter", backend)
+    engine.rootContext().setContextProperty("standaloneContentCreator", standalone_content_creator)
     engine.load(str(_ui_path()))
     if not engine.rootObjects():
         return 1
