@@ -8,9 +8,26 @@ from core.modules import LaunchContext, ModuleRegistry
 from core.application import EmbervaultRuntime
 from core.troubleshooter_history_adapter import create_history_action_request, dispatch_history_action, dispatch_recovery_trend
 from core.troubleshooter_review_adapter import prepare_troubleshooter_display
+from core.mod_package_passport import review_package_passport
 
 
 class ModuleRegistryTests(unittest.TestCase):
+    def test_package_passport_requires_backup_and_stays_plan_only(self):
+        passport = {"id": "sf.example", "version": "1.6.6", "builds": ["1076226"], "targets": ["client"],
+                    "files": [{"path": "mod.json", "sha256": "a" * 64}], "dependencies": [], "evidence": [],
+                    "backup_required": True, "read_only": True, "runtime_approval": False}
+        blocked = review_package_passport(passport)
+        self.assertEqual(blocked["state"], "blocked")
+        self.assertIn("backup", blocked["issues"][-1])
+        approved = review_package_passport(passport, backup_id="backup-1")
+        self.assertEqual(approved["state"], "approval-required")
+        self.assertTrue(approved["plan_only"])
+        self.assertFalse(approved["executes_installation"])
+        self.assertFalse(approved["mutates_workspace"])
+
+    def test_package_passport_rejects_runtime_approval(self):
+        result = review_package_passport({"id": "sf.example", "read_only": True, "runtime_approval": True})
+        self.assertEqual(result["state"], "blocked")
     def test_troubleshooter_history_adapter_requires_approval_and_key_reference(self):
         request = create_history_action_request("delete", "reports.enc", "profile-key", True)
         self.assertEqual(request.action, "delete")
