@@ -265,8 +265,8 @@ class ModuleRegistryTests(unittest.TestCase):
     def test_character_tools_descriptor_matches_embedded_contract(self):
         character_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\Embervault_Character_Tools")
         sdk_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Module-SDK")
-        if not (character_root / "module.json").is_file():
-            self.skipTest("Character Tools checkout is not available")
+        if not (character_root / "module.json").is_file() or not (character_root / "src/module.py").is_file() or not (sdk_root / "embervault_sdk/__init__.py").is_file():
+            self.skipTest("Character Tools or Module SDK fixture is incomplete")
         if sdk_root.is_dir() and str(sdk_root) not in sys.path:
             sys.path.insert(0, str(sdk_root))
         with tempfile.TemporaryDirectory() as temp:
@@ -278,8 +278,8 @@ class ModuleRegistryTests(unittest.TestCase):
     def test_mod_manager_installs_and_loads_embedded_contract(self):
         module_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\Embervault_mod_manager")
         sdk_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Module-SDK")
-        if not (module_root / "module.json").is_file():
-            self.skipTest("Mod Manager checkout is not available")
+        if not (module_root / "module.json").is_file() or not (module_root / "src/module.py").is_file() or not (sdk_root / "embervault_sdk/__init__.py").is_file():
+            self.skipTest("Mod Manager or Module SDK fixture is incomplete")
         if sdk_root.is_dir() and str(sdk_root) not in sys.path:
             sys.path.insert(0, str(sdk_root))
         with tempfile.TemporaryDirectory() as temp:
@@ -291,8 +291,8 @@ class ModuleRegistryTests(unittest.TestCase):
     def test_save_manager_installs_and_loads_embedded_contract(self):
         module_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault_Save_Manager")
         sdk_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Module-SDK")
-        if not (module_root / "module.json").is_file():
-            self.skipTest("Save Manager checkout is not available")
+        if not (module_root / "module.json").is_file() or not (module_root / "src/module.py").is_file() or not (sdk_root / "embervault_sdk/__init__.py").is_file():
+            self.skipTest("Save Manager or Module SDK fixture is incomplete")
         if sdk_root.is_dir() and str(sdk_root) not in sys.path:
             sys.path.insert(0, str(sdk_root))
         with tempfile.TemporaryDirectory() as temp:
@@ -304,8 +304,8 @@ class ModuleRegistryTests(unittest.TestCase):
     def test_game_tuning_installs_and_loads_embedded_contract(self):
         module_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Game-Tuning")
         sdk_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Module-SDK")
-        if not (module_root / "module.json").is_file():
-            self.skipTest("Game Tuning checkout is not available")
+        if not (module_root / "module.json").is_file() or not (module_root / "src/module.py").is_file() or not (sdk_root / "embervault_sdk/__init__.py").is_file():
+            self.skipTest("Game Tuning or Module SDK fixture is incomplete")
         if sdk_root.is_dir() and str(sdk_root) not in sys.path:
             sys.path.insert(0, str(sdk_root))
         with tempfile.TemporaryDirectory() as temp:
@@ -317,8 +317,8 @@ class ModuleRegistryTests(unittest.TestCase):
     def test_troubleshooter_installs_and_loads_embedded_contract(self):
         module_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Troubleshooter")
         sdk_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Module-SDK")
-        if not (module_root / "module.json").is_file():
-            self.skipTest("Troubleshooter checkout is not available")
+        if not (module_root / "module.json").is_file() or not (module_root / "src/module.py").is_file() or not (sdk_root / "embervault_sdk/__init__.py").is_file():
+            self.skipTest("Troubleshooter or Module SDK fixture is incomplete")
         if sdk_root.is_dir() and str(sdk_root) not in sys.path:
             sys.path.insert(0, str(sdk_root))
         with tempfile.TemporaryDirectory() as temp:
@@ -329,8 +329,8 @@ class ModuleRegistryTests(unittest.TestCase):
 
     def test_research_installs_as_separate_process_and_requires_research_profile(self):
         module_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Research-Module")
-        if not (module_root / "module.json").is_file():
-            self.skipTest("Research module checkout is not available")
+        if not (module_root / "module.json").is_file() or not (module_root / "src/research_worker.py").is_file():
+            self.skipTest("Research module fixture is incomplete")
         with tempfile.TemporaryDirectory() as temp:
             registry = ModuleRegistry(Path(temp) / "modules")
             manifest = registry.install_from_directory(module_root)
@@ -342,8 +342,8 @@ class ModuleRegistryTests(unittest.TestCase):
     def test_content_creator_installs_and_loads_embedded_contract(self):
         module_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Content-Creator")
         sdk_root = Path(r"C:\Users\JoelT\AppData\Local\Temp\embervault-modular-7b5830fb63f14fa8bee40ac8a7352da4\EmberVault-Module-SDK")
-        if not (module_root / "module.json").is_file():
-            self.skipTest("Content Creator checkout is not available")
+        if not (module_root / "module.json").is_file() or not (module_root / "src/module.py").is_file() or not (sdk_root / "embervault_sdk/__init__.py").is_file():
+            self.skipTest("Content Creator or Module SDK fixture is incomplete")
         if sdk_root.is_dir() and str(sdk_root) not in sys.path:
             sys.path.insert(0, str(sdk_root))
         with tempfile.TemporaryDirectory() as temp:
