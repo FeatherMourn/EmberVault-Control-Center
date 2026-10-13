@@ -29,6 +29,11 @@ class ModuleRegistryTests(unittest.TestCase):
         self.assertFalse(display["approval_granted"])
         self.assertEqual(display["actions"], [])
 
+    def test_mod_manager_review_component_is_packaged(self):
+        component = Path(__file__).parents[1] / "ui" / "ModManagerReview.qml"
+        self.assertTrue(component.is_file())
+        self.assertIn("READ-ONLY PASSPORT REVIEW", component.read_text(encoding="utf-8"))
+
     def test_package_passport_display_is_read_only_and_has_no_actions(self):
         display = prepare_passport_display({"contract_version": 1, "package_id": "sf.example", "version": "1.6.6",
                                             "builds": ["1076226"], "targets": ["client"],
