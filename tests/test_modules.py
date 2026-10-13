@@ -10,9 +10,25 @@ from core.troubleshooter_history_adapter import create_history_action_request, d
 from core.troubleshooter_review_adapter import prepare_troubleshooter_display
 from core.mod_package_passport import review_package_passport
 from core.mod_package_passport_review import prepare_passport_display
+from core.mod_manager_review import prepare_mod_manager_display
 
 
 class ModuleRegistryTests(unittest.TestCase):
+    def test_mod_manager_review_display_is_read_only_and_has_no_actions(self):
+        display = prepare_mod_manager_display({
+            "contract_version": 1,
+            "package": {"package_id": "demo.mod", "version": "1.0.0"},
+            "compatibility": {"state": "verified"},
+            "integrity": {"state": "verified"},
+            "backup_readiness": "ready",
+            "recovery_history": {"report_count": 1},
+        })
+        self.assertEqual(display["package_id"], "demo.mod")
+        self.assertTrue(display["read_only"])
+        self.assertTrue(display["plan_only"])
+        self.assertFalse(display["approval_granted"])
+        self.assertEqual(display["actions"], [])
+
     def test_package_passport_display_is_read_only_and_has_no_actions(self):
         display = prepare_passport_display({"contract_version": 1, "package_id": "sf.example", "version": "1.6.6",
                                             "builds": ["1076226"], "targets": ["client"],
