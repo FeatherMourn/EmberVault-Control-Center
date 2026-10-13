@@ -1,0 +1,23 @@
+name: Mod Package Passport Smoke
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  passport-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Control Center
+        uses: actions/checkout@v4
+      - name: Check out Mod Research
+        uses: actions/checkout@v4
+        with:
+          repository: FeatherMourn/EmberVault-Mod-Research
+          path: EmberVault-Mod-Research
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Passport smoke test
+        run: python -m unittest tests.test_package_passport_cross_repo

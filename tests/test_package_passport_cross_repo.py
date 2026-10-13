@@ -8,8 +8,9 @@ from core.mod_package_passport import review_package_passport
 
 class PackagePassportCrossRepoTests(unittest.TestCase):
     def test_research_passport_flows_to_control_center_and_troubleshooter_shape(self):
-        suite = Path(__file__).parents[2]
-        research = suite / "EmberVault-Mod-Research"
+        candidates = (Path(__file__).parents[2] / "EmberVault-Mod-Research",
+                      Path(__file__).parents[1].parent / "EmberVault-Mod-Research")
+        research = next((path for path in candidates if path.is_dir()), candidates[0])
         source = research / "src/mod_package_passport.py"
         spec = importlib.util.spec_from_file_location("research_passport", source)
         module = importlib.util.module_from_spec(spec)
