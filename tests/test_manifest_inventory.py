@@ -26,6 +26,10 @@ class ManifestInventoryTests(unittest.TestCase):
             self.assertEqual(manifest.path, path.parent)
             self.assertTrue(path.parent.is_relative_to(ROOT / "modules"))
 
+    def test_game_tuning_is_declared_staged_and_read_only(self):
+        manifest = ModuleManifest.from_file(ROOT / "modules" / "game-tuning" / "module.json")
+        self.assertTrue(manifest.safety["read_only"])
+
 
 if __name__ == "__main__":
     unittest.main()
