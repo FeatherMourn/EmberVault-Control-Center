@@ -9,9 +9,23 @@ from core.application import EmbervaultRuntime
 from core.troubleshooter_history_adapter import create_history_action_request, dispatch_history_action, dispatch_recovery_trend
 from core.troubleshooter_review_adapter import prepare_troubleshooter_display
 from core.mod_package_passport import review_package_passport
+from core.mod_package_passport_review import prepare_passport_display
 
 
 class ModuleRegistryTests(unittest.TestCase):
+    def test_package_passport_display_is_read_only_and_has_no_actions(self):
+        display = prepare_passport_display({"contract_version": 1, "package_id": "sf.example", "version": "1.6.6",
+                                            "builds": ["1076226"], "targets": ["client"],
+                                            "state": "approval-required", "issues": []})
+        self.assertEqual(display["package_id"], "sf.example")
+        self.assertTrue(display["read_only"])
+        self.assertTrue(display["plan_only"])
+        self.assertEqual(display["actions"], [])
+
+    def test_package_passport_review_component_is_packaged(self):
+        component = Path(__file__).parents[1] / "ui" / "ModPackagePassportReview.qml"
+        self.assertTrue(component.is_file())
+        self.assertIn("READ-ONLY REVIEW", component.read_text(encoding="utf-8"))
     def test_package_passport_requires_backup_and_stays_plan_only(self):
         passport = {"id": "sf.example", "version": "1.6.6", "builds": ["1076226"], "targets": ["client"],
                     "files": [{"path": "mod.json", "sha256": "a" * 64}], "dependencies": [], "evidence": [],
