@@ -30,6 +30,13 @@ class ManifestInventoryTests(unittest.TestCase):
         manifest = ModuleManifest.from_file(ROOT / "modules" / "game-tuning" / "module.json")
         self.assertTrue(manifest.safety["read_only"])
 
+    def test_mod_manager_is_declared_read_only_until_mutation_is_approved(self):
+        manifest = ModuleManifest.from_file(ROOT / "modules" / "mod-manager" / "module.json")
+        self.assertTrue(manifest.safety["read_only"])
+        self.assertNotIn("mod-install", manifest.operation_types)
+        self.assertNotIn("mod-enable", manifest.operation_types)
+        self.assertNotIn("mod-disable", manifest.operation_types)
+
 
 if __name__ == "__main__":
     unittest.main()
